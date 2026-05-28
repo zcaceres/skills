@@ -14,7 +14,7 @@
     "fetch-tools": "bun run build:all"
   },
   "crossAgent": {
-    "supports": ["claude", "codex"],
+    "supports": ["claude"],
     "requires": ["name", "description", "hooks"]
   },
   "files": ["SKILL.md", "scripts", "references", "assets", "agents", "README.md", "LICENSE"],

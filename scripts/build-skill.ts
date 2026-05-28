@@ -41,7 +41,16 @@ if (pkg.scripts?.["fetch-tools"]) {
 }
 
 await mkdir(out, { recursive: true });
-await cp(join(src, "SKILL.md"), join(out, "SKILL.md"));
+
+// Files copied flat into the publishable skill root. SKILL.md is the
+// manifest; README and LICENSE ride along so the unpacked skill is
+// self-describing and license-clean.
+for (const file of ["SKILL.md", "README.md", "LICENSE"]) {
+  const from = join(src, file);
+  if (existsSync(from)) {
+    await cp(from, join(out, file));
+  }
+}
 
 for (const dir of ["scripts", "references", "assets", "agents"]) {
   const from = join(src, dir);

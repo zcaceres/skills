@@ -1,6 +1,6 @@
 ---
 name: rm-rf-guard
-description: Blocks destructive file deletion commands (rm, shred, unlink, find -delete, sudo/xargs rm, sh -c "rm …") in Claude Code and redirects the agent to use the `trash` CLI so deleted files stay recoverable. Installed as a PreToolUse hook on the Bash tool — activates automatically, no slash-command invocation needed.
+description: Blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants in Claude Code; redirects to the trash CLI so deletions stay recoverable. PreToolUse hook on Bash — activates automatically.
 hooks:
   PreToolUse:
     - matcher: Bash

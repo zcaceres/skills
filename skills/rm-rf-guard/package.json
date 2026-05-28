@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-rm-rf-guard",
   "version": "1.0.0",
-  "description": "Claude Code PreToolUse hook that blocks destructive file deletion (rm, shred, unlink, find -delete, sudo/xargs rm, sh -c \"rm …\") and redirects to the trash CLI.",
+  "description": "Claude Code PreToolUse hook that blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants; redirects to the trash CLI.",
   "license": "MIT",
   "type": "module",
   "scripts": {

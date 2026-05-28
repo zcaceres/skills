@@ -1,0 +1,37 @@
+{
+  "name": "@zcaceres/skill-storage-cleanup",
+  "version": "1.0.0",
+  "description": "Find large files and directories safe to delete — node_modules, AI models, Docker artifacts, package caches, old downloads. Conservative: never auto-deletes.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "disk-space",
+    "cleanup",
+    "macos"
+  ]
+}

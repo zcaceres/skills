@@ -14,13 +14,17 @@
       "name": "@zcaceres/skill-acid-trip",
       "version": "1.0.0",
     },
+    "skills/chaos-monkey": {
+      "name": "@zcaceres/skill-chaos-monkey",
+      "version": "0.0.0",
+    },
     "skills/checkpoint": {
       "name": "@zcaceres/skill-checkpoint",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/commit-push-pr": {
       "name": "@zcaceres/skill-commit-push-pr",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/decompose": {
       "name": "@zcaceres/skill-decompose",
@@ -40,14 +44,22 @@
     },
     "skills/pr-size-nudge": {
       "name": "@zcaceres/skill-pr-size-nudge",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
     },
+    "skills/reflect-on-conversation": {
+      "name": "@zcaceres/skill-reflect-on-conversation",
+      "version": "0.0.0",
+    },
     "skills/rm-rf-guard": {
       "name": "@zcaceres/skill-rm-rf-guard",
       "version": "1.0.0",
+    },
+    "skills/storage-cleanup": {
+      "name": "@zcaceres/skill-storage-cleanup",
+      "version": "0.0.0",
     },
     "skills/zoom": {
       "name": "@zcaceres/skill-zoom",
@@ -109,6 +121,8 @@
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
+    "@zcaceres/skill-chaos-monkey": ["@zcaceres/skill-chaos-monkey@workspace:skills/chaos-monkey"],
+
     "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
 
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
@@ -123,7 +137,11 @@
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
+    "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
+
     "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
+
+    "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 
     "@zcaceres/skill-zoom": ["@zcaceres/skill-zoom@workspace:skills/zoom"],
 

@@ -1,6 +1,8 @@
 ---
 name: investigate-repo
-description: Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence. Use when user asks to investigate, audit, or vet a repo.
+description: Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence. Invoke via /investigate-repo.
+argument-hint: "[repo-url-or-path]"
+disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, WebFetch
 ---
 

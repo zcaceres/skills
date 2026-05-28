@@ -67,3 +67,92 @@ description matches the task.
 2. Extend `skill.agents` and `skill.entry` in `package.json`.
 3. Update `_template/` if the new agent should be scaffolded by default.
 4. Note any hook / command / path quirks in this file's table above.
+
+## Porting a Claude hook from a sibling repo
+
+When porting a single-file Bash-PreToolUse hook (e.g. `claude-rm-rf`,
+`claude-git-reset`) into this monorepo, the conversion is mechanical.
+Use `rm-rf-guard` as the reference shape:
+
+1. **Scaffold.** From the repo root:
+   ```sh
+   bun run new <name> "<one-line description, ≤ 200 chars>"
+   ```
+   The new skill lives at `skills/<name>/`.
+
+2. **Drop in the hook source.** Copy verbatim from the upstream repo:
+   ```sh
+   cp ../claude-<x>/src/index.ts        skills/<name>/scripts/index.ts
+   cp -r ../claude-<x>/tests            skills/<name>/tests
+   ```
+   In the test file, retarget the hook path:
+   ```sh
+   sed -i '' 's|"src", "index.ts"|"scripts", "index.ts"|' \
+     skills/<name>/tests/*.test.ts
+   ```
+   (Drop the `''` on Linux.)
+
+3. **Add the OS launcher.** Copy the launcher pair from `rm-rf-guard`,
+   then substitute the binary basename:
+   ```sh
+   cp skills/rm-rf-guard/scripts/run.sh  skills/<name>/scripts/run.sh
+   cp skills/rm-rf-guard/scripts/run.cmd skills/<name>/scripts/run.cmd
+   sed -i '' 's/rm-rf-guard/<name>/g' skills/<name>/scripts/run.{sh,cmd}
+   ```
+
+4. **Patch `package.json`.** Add the cross-compile scripts, the
+   `fetch-tools` indirection, and the `crossAgent` declaration. Easiest
+   is to copy the keys from `skills/rm-rf-guard/package.json` and
+   `sed`-replace the basename:
+   ```jsonc
+   {
+     "scripts": {
+       "build:linux":   "bun build scripts/index.ts --compile --target=bun-linux-x64    --outfile scripts/bin/<name>-linux-x64",
+       "build:macos":   "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/<name>-darwin-arm64",
+       "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64  --outfile scripts/bin/<name>-windows-x64.exe",
+       "build:all":     "bun run build:linux && bun run build:macos && bun run build:windows",
+       "fetch-tools":   "bun run build:all"
+     },
+     "crossAgent": {
+       "supports": ["claude"],
+       "requires": ["name", "description", "hooks"]
+     }
+   }
+   ```
+   Only widen `supports` past `["claude"]` if the skill actually works
+   without the `hooks` frontmatter — Codex and Antigravity don't read
+   it, so any hook-driven skill is Claude-only by definition.
+
+5. **Write `SKILL.md` frontmatter** with the `hooks:` block:
+   ```yaml
+   ---
+   name: <name>
+   description: <one-liner, lead with verb + concrete trigger phrases>
+   hooks:
+     PreToolUse:
+       - matcher: Bash
+         type: command
+         command: "${SKILL_DIR}/scripts/run.sh"
+   ---
+   ```
+
+6. **Verify before opening a PR.** Five greens:
+   ```sh
+   bun install                          # link workspace
+   bun test --cwd skills/<name>         # behavior preserved from upstream
+   bun run check                        # frontmatter sanity
+   bun run cross-agent <name>           # parity claim is honest
+   bun run build:all --cwd skills/<name>  # binaries land in scripts/bin/
+   bun run build <name>                 # publishable tree in dist/<name>/
+   ```
+   And a live smoke test:
+   ```sh
+   printf '{"tool_input":{"command":"<thing-that-should-block>"}}' \
+     | skills/<name>/scripts/run.sh
+   # exit 2 + BLOCKED message on stderr → working
+   ```
+
+If any step is sticky, the freshest reference port is the most recent
+`feat: port …` commit — diff it against the upstream repo to see
+exactly what changed and what stayed verbatim.
+

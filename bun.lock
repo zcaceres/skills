@@ -18,6 +18,10 @@
       "name": "@zcaceres/skill-git-reset-guard",
       "version": "1.0.0",
     },
+    "skills/investigate-repo": {
+      "name": "@zcaceres/skill-investigate-repo",
+      "version": "1.0.0",
+    },
     "skills/rm-rf-guard": {
       "name": "@zcaceres/skill-rm-rf-guard",
       "version": "1.0.0",
@@ -79,6 +83,8 @@
     "@zcaceres/skill-example-hello": ["@zcaceres/skill-example-hello@workspace:skills/example-hello"],
 
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
+
+    "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
     "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
 

@@ -1,0 +1,37 @@
+{
+  "name": "@zcaceres/skill-investigate-repo",
+  "version": "1.0.0",
+  "description": "Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "security",
+    "audit",
+    "supply-chain"
+  ]
+}

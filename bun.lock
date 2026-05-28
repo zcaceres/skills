@@ -12,6 +12,14 @@
     },
     "skills/acid-trip": {
       "name": "@zcaceres/skill-acid-trip",
+      "version": "1.0.0",
+    },
+    "skills/checkpoint": {
+      "name": "@zcaceres/skill-checkpoint",
+      "version": "0.0.0",
+    },
+    "skills/commit-push-pr": {
+      "name": "@zcaceres/skill-commit-push-pr",
       "version": "0.0.0",
     },
     "skills/decompose": {
@@ -29,6 +37,13 @@
     "skills/investigate-repo": {
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
+    },
+    "skills/pr-size-nudge": {
+      "name": "@zcaceres/skill-pr-size-nudge",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "^3.23.8",
+      },
     },
     "skills/rm-rf-guard": {
       "name": "@zcaceres/skill-rm-rf-guard",
@@ -94,6 +109,10 @@
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
+    "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
+
+    "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
+
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
 
     "@zcaceres/skill-example-hello": ["@zcaceres/skill-example-hello@workspace:skills/example-hello"],
@@ -101,6 +120,8 @@
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
     "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
 
@@ -253,6 +274,8 @@
     "universalify": ["universalify@0.1.2", "", {}, "sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg=="],
 
     "which": ["which@2.0.2", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "node-which": "./bin/node-which" } }, "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA=="],
+
+    "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@manypkg/find-root/@types/node": ["@types/node@12.20.55", "", {}, "sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ=="],
 

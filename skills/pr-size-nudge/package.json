@@ -1,0 +1,45 @@
+{
+  "name": "@zcaceres/skill-pr-size-nudge",
+  "version": "1.0.0",
+  "description": "Claude Code PostToolUse hook that nudges toward /checkpoint when the uncommitted diff grows past size thresholds. Reads diff stats, dedupes via state file.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run scripts/index.ts",
+    "test": "bun test",
+    "build:linux": "bun build scripts/index.ts --compile --target=bun-linux-x64 --outfile scripts/bin/pr-size-nudge-linux-x64",
+    "build:macos": "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/pr-size-nudge-darwin-arm64",
+    "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64 --outfile scripts/bin/pr-size-nudge-windows-x64.exe",
+    "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
+    "fetch-tools": "bun run build:all"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description",
+      "hooks"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "hook",
+    "stacked-prs",
+    "posttooluse"
+  ]
+}

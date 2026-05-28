@@ -1,0 +1,38 @@
+{
+  "name": "@zcaceres/skill-checkpoint",
+  "version": "1.0.0",
+  "description": "Ship uncommitted work as the next branch in a stack, push it, and open a PR against the parent branch. Uses git stack if installed, else gh + git.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "stacked-prs",
+    "git",
+    "github"
+  ]
+}

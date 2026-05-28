@@ -1,0 +1,25 @@
+{
+  "name": "@zachcaceres/skill-example-hello",
+  "version": "0.0.1",
+  "description": "Minimal example skill demonstrating the monorepo layout.",
+  "license": "MIT",
+  "type": "module",
+  "skill": {
+    "id": "example-hello",
+    "agents": ["claude", "antigravity"],
+    "entry": {
+      "claude": "claude/SKILL.md",
+      "antigravity": "antigravity/SKILL.md"
+    },
+    "tools": {
+      "fetch": null,
+      "binDir": null
+    }
+  },
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["claude", "antigravity", "codex", "shared", "README.md"]
+}

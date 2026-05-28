@@ -1,0 +1,23 @@
+{
+  "name": "@zachcaceres/skills",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Open-source AI agent skills authored by Zach Caceres.",
+  "workspaces": ["skills/*"],
+  "scripts": {
+    "new": "bun run scripts/new-skill.ts",
+    "build": "bun run scripts/build-skill.ts",
+    "release": "bun run scripts/release-skill.ts",
+    "changeset": "bunx changeset",
+    "version": "bunx changeset version",
+    "check": "bun run scripts/check-skills.ts"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/bun": "latest",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}

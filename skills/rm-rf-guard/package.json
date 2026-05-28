@@ -1,0 +1,22 @@
+{
+  "name": "@zcaceres/skill-rm-rf-guard",
+  "version": "1.0.0",
+  "description": "Claude Code PreToolUse hook that blocks destructive file deletion (rm, shred, unlink, find -delete, sudo/xargs rm, sh -c \"rm …\") and redirects to the trash CLI.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run scripts/index.ts",
+    "test": "bun test",
+    "build:linux": "bun build scripts/index.ts --compile --target=bun-linux-x64 --outfile scripts/bin/rm-rf-guard-linux-x64",
+    "build:macos": "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/rm-rf-guard-darwin-arm64",
+    "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64 --outfile scripts/bin/rm-rf-guard-windows-x64.exe",
+    "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
+    "fetch-tools": "bun run build:all"
+  },
+  "crossAgent": {
+    "supports": ["claude"],
+    "requires": ["name", "description", "hooks"]
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "agents", "README.md", "LICENSE"],
+  "keywords": ["claude-code", "skill", "hook", "safety", "trash", "pretooluse"]
+}

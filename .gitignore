@@ -3,6 +3,7 @@ dist/
 .DS_Store
 *.log
 
-# Per-skill fetched tool binaries (rebuilt/redownloaded on demand)
-skills/*/shared/bin/
+# Per-skill build output and fetched binaries (rebuilt/redownloaded on demand)
 skills/*/dist/
+skills/*/scripts/bin/
+skills/*/*.tgz

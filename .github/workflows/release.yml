@@ -31,7 +31,7 @@ jobs:
       - name: Tarball
         run: |
           tar -czf ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz \
-            -C skills/${{ steps.tag.outputs.name }}/dist .
+            -C skills/${{ steps.tag.outputs.name }}/dist ${{ steps.tag.outputs.name }}
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
@@ -41,6 +41,6 @@ jobs:
           generate_release_notes: true
 
       # - name: Publish to skills.sh
-      #   run: bunx skills publish skills/${{ steps.tag.outputs.name }}
+      #   run: bunx skills publish skills/${{ steps.tag.outputs.name }}/dist/${{ steps.tag.outputs.name }}
       #   env:
       #     SKILLS_TOKEN: ${{ secrets.SKILLS_TOKEN }}

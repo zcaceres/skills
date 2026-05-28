@@ -1,4 +1,4 @@
-# @zachcaceres/skills
+# @zcaceres/skills
 
 Open-source AI agent skills, organized as a Bun monorepo. Each skill lives
 under `skills/<name>/` as its own workspace package, versioned and released

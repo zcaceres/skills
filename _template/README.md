@@ -11,7 +11,7 @@ __ONE_LINE_DESCRIPTION__
 ## Install
 
 ```
-skills install @zachcaceres/__SKILL_NAME__
+skills install @zcaceres/__SKILL_NAME__
 ```
 
-Or grab the tarball from the latest [GitHub release](https://github.com/zachcaceres/skills/releases?q=__SKILL_NAME__).
+Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=__SKILL_NAME__).

@@ -1,0 +1,37 @@
+{
+  "name": "@zcaceres/skill-zoom",
+  "version": "1.0.0",
+  "description": "Shift the conversation's abstraction level — `in` for internals or `out` for context. Invoke via /zoom in|out [target].",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "abstraction",
+    "thinking"
+  ]
+}

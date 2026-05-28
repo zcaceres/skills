@@ -5,7 +5,7 @@ hooks:
   PreToolUse:
     - matcher: Bash
       type: command
-      command: "${SKILL_DIR}/scripts/run.sh"
+      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
 ---
 
 # git-reset-guard
@@ -49,10 +49,21 @@ sandboxing, code review, and backups — not in place of them.
 - `git branch -d merged-branch` (git itself refuses if unmerged)
 - Quoted strings: `echo 'git reset --hard'`, `git commit -m "fix reset --hard bug"`
 
-## Manual wiring (fallback)
+## Install
 
-If your agent doesn't honor the `hooks` frontmatter, add this to
-`.claude/settings.json` (replacing `<path>` with the unpacked skill directory):
+> **Important.** The `hooks:` block in the frontmatter above is the
+> spec-correct shape for a Claude Code skill that registers a hook, but as
+> of today Claude Code does **not** substitute `${CLAUDE_SKILL_DIR}` in
+> frontmatter hook commands — see
+> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
+> (closed as "not planned"). Until that lands, the only reliable install
+> path is to wire the hook into your settings file directly with an
+> absolute path.
+
+After unpacking the skill (`~/.claude/skills/git-reset-guard/` for personal
+installs, or a custom location), add this to `~/.claude/settings.json`
+or your project's `.claude/settings.json`, replacing `<path>` with the
+unpacked skill's absolute path:
 
 ```json
 {

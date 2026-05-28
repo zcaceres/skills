@@ -5,7 +5,7 @@ hooks:
   PreToolUse:
     - matcher: Bash
       type: command
-      command: "${SKILL_DIR}/scripts/run.sh"
+      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
 ---
 
 # rm-rf-guard
@@ -37,10 +37,21 @@ sandboxing, version control, and backups — not in place of them.
 - `rm` inside quoted strings (e.g. `echo 'rm test'`, `grep -E 'rm|del'`)
 - Every other command
 
-## Manual wiring (fallback)
+## Install
 
-If your agent doesn't honor the `hooks` frontmatter, add this to
-`.claude/settings.json` (replacing `<path>` with the unpacked skill directory):
+> **Important.** The `hooks:` block in the frontmatter above is the
+> spec-correct shape for a Claude Code skill that registers a hook, but as
+> of today Claude Code does **not** substitute `${CLAUDE_SKILL_DIR}` in
+> frontmatter hook commands — see
+> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
+> (closed as "not planned"). Until that lands, the only reliable install
+> path is to wire the hook into your settings file directly with an
+> absolute path.
+
+After unpacking the skill (`~/.claude/skills/rm-rf-guard/` for personal
+installs, or a custom location), add this to `~/.claude/settings.json`
+or your project's `.claude/settings.json`, replacing `<path>` with the
+unpacked skill's absolute path:
 
 ```json
 {
@@ -59,6 +70,9 @@ If your agent doesn't honor the `hooks` frontmatter, add this to
 
 On Windows, point at `scripts\\run.cmd` instead.
 
+Verify it's wired up by running any Bash command in Claude Code; the hook
+prints `BLOCKED: …` on stderr and exit-2s when it catches `rm`/`shred`/etc.
+
 ## Prerequisites
 
 The hook itself has no runtime dependencies (pre-built Bun binaries ship in
@@ -74,9 +88,13 @@ npm install -g trash-cli
 
 ## How it works
 
-1. Claude Code invokes the hook before every `Bash` tool call.
-2. `scripts/run.sh` picks the right bundled binary for the host OS/arch.
-3. The binary reads the JSON payload from stdin, extracts `tool_input.command`.
+1. Claude Code invokes `scripts/run.sh` before every `Bash` tool call
+   (after manual wiring — see [Install](#install)).
+2. `run.sh` picks the right bundled binary for the host OS/arch from
+   `scripts/bin/` (darwin-arm64, linux-x64, or windows-x64.exe).
+3. The binary reads the JSON payload from stdin and extracts
+   `tool_input.command`.
 4. Quoted substrings are stripped to remove false positives.
-5. The remaining string is matched against destructive patterns. If any match,
-   exit 2 with an explanatory message — Claude Code blocks the tool call. Otherwise exit 0.
+5. The remaining string is matched against destructive patterns. If any
+   match, exit 2 with an explanatory message — Claude Code blocks the
+   tool call. Otherwise exit 0.

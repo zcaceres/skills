@@ -132,9 +132,17 @@ Use `rm-rf-guard` as the reference shape:
      PreToolUse:
        - matcher: Bash
          type: command
-         command: "${SKILL_DIR}/scripts/run.sh"
+         command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
    ---
    ```
+
+   ⚠️ As of 2026-05, Claude Code does **not** substitute `${CLAUDE_SKILL_DIR}`
+   in frontmatter hook commands —
+   [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135),
+   closed as "not planned." The frontmatter declaration is spec-correct and
+   will start working when the bug is fixed, but until then users must wire
+   the hook into `.claude/settings.json` manually with an absolute path. Lead
+   the skill's `## Install` section with that manual instruction.
 
 6. **Verify before opening a PR.** Five greens:
    ```sh

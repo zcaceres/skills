@@ -1,0 +1,36 @@
+{
+  "name": "@zcaceres/skill-reflect-on-conversation",
+  "version": "1.0.0",
+  "description": "Analyze conversation history for a structured retrospective on prompting, agent performance, system gaps, and efficiency.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "retrospective",
+    "meta"
+  ]
+}

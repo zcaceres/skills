@@ -1,0 +1,38 @@
+{
+  "name": "@zcaceres/skill-acid-trip",
+  "version": "1.0.0",
+  "description": "Generate frontend designs from random rolls — a Wikipedia article, a document_type, and a lineage. Palette / type / layout derived from subject × lineage.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "python3 scripts/roll.py >/dev/null && echo 'roll.py smoke OK'"
+  },
+  "crossAgent": {
+    "supports": [
+      "claude"
+    ],
+    "requires": [
+      "name",
+      "description"
+    ]
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "agents",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "design",
+    "generative",
+    "frontend"
+  ]
+}

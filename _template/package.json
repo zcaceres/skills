@@ -4,21 +4,10 @@
   "description": "__ONE_LINE_DESCRIPTION__",
   "license": "MIT",
   "type": "module",
-  "skill": {
-    "id": "__SKILL_NAME__",
-    "agents": ["claude"],
-    "entry": {
-      "claude": "claude/SKILL.md"
-    },
-    "tools": {
-      "fetch": null,
-      "binDir": null
-    }
-  },
   "scripts": {
     "fetch-tools": "echo 'no bundled tools'",
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["claude", "antigravity", "codex", "shared", "README.md"]
+  "files": ["SKILL.md", "scripts", "references", "assets", "agents", "README.md"]
 }

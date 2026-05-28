@@ -1,9 +1,13 @@
 #!/usr/bin/env bun
-// Lint every skill: package.json has skill metadata, entries exist on disk.
+// Lint every skill against the skills.sh standard:
+// - SKILL.md exists at the skill root
+// - frontmatter has name + description
+// - frontmatter `name` matches the parent folder name exactly
 
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { readSkillMeta } from "./lib/skill-meta";
 
 const root = join(import.meta.dir, "..");
 const skillsDir = join(root, "skills");
@@ -13,24 +17,23 @@ const names = (await readdir(skillsDir, { withFileTypes: true }))
 
 let failed = 0;
 for (const name of names) {
-  const pkgPath = join(skillsDir, name, "package.json");
-  if (!existsSync(pkgPath)) {
-    console.error(`✗ ${name}: missing package.json`);
+  const skillMd = join(skillsDir, name, "SKILL.md");
+  if (!existsSync(skillMd)) {
+    console.error(`✗ ${name}: missing SKILL.md`);
     failed++;
     continue;
   }
-  const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
-  const entries = pkg.skill?.entry ?? {};
-  if (Object.keys(entries).length === 0) {
-    console.error(`✗ ${name}: no skill.entry agents declared`);
-    failed++;
-    continue;
-  }
-  for (const [agent, rel] of Object.entries(entries)) {
-    if (!existsSync(join(skillsDir, name, rel as string))) {
-      console.error(`✗ ${name}: entry for ${agent} missing (${rel})`);
+  try {
+    const meta = await readSkillMeta(skillMd);
+    if (meta.name !== name) {
+      console.error(
+        `✗ ${name}: frontmatter name "${meta.name}" must match folder "${name}"`,
+      );
       failed++;
     }
+  } catch (err) {
+    console.error(`✗ ${name}: ${(err as Error).message}`);
+    failed++;
   }
 }
 

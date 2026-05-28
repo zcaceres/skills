@@ -33,7 +33,9 @@ const tarball = join(src, `${name}-${version}.tgz`);
 console.log(`Releasing ${tag}`);
 
 await $`bun run build ${name}`;
-await $`tar -czf ${tarball} -C ${join(src, "dist")} .`;
+// Tarball contents follow skills.sh: a single top-level dir named <name>/
+// containing SKILL.md + optional scripts/references/assets/agents.
+await $`tar -czf ${tarball} -C ${join(src, "dist")} ${name}`;
 
 if (dryRun) {
   console.log(`Dry run: tarball at ${tarball}`);
@@ -45,6 +47,6 @@ await $`git push origin ${tag}`;
 await $`gh release create ${tag} ${tarball} --title ${tag} --notes "Release ${tag}"`;
 
 // skills.sh publish — wire in once the CLI/API is finalized.
-// await $`skills publish ${src}`;
+// await $`bunx skills publish ${join(src, "dist", name)}`;
 
 console.log(`Published ${tag}`);

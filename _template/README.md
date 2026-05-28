@@ -4,9 +4,11 @@ __ONE_LINE_DESCRIPTION__
 
 ## Layout
 
-- `claude/` — Claude Code variant
-- `antigravity/`, `codex/` — other agent variants (only when supported)
-- `shared/` — common tools, prompts, or snippets referenced by variants
+- `SKILL.md` — manifest + instructions (skills.sh standard)
+- `scripts/` — executables the skill calls
+- `references/` — docs the skill reads
+- `assets/` — templates, samples
+- `agents/openai.yaml` — Codex CLI metadata (optional)
 
 ## Install
 

@@ -9,12 +9,6 @@ ship in the published tarball.
 See [SKILL.md](./SKILL.md) for the full reference: blocked patterns, manual
 wiring, and how it works.
 
-## Agent support
-
-Works on **Claude Code** and **Codex CLI**. **Not supported** on Antigravity
-CLI — Antigravity has no hook system, so guard-style enforcement is impossible
-there. See [SKILL.md](./SKILL.md) for per-agent install instructions.
-
 ## Develop
 
 ```sh

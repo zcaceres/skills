@@ -52,7 +52,7 @@ for (const file of ["SKILL.md", "README.md", "LICENSE"]) {
   }
 }
 
-for (const dir of ["scripts", "references", "assets", "agents"]) {
+for (const dir of ["scripts", "references", "assets"]) {
   const from = join(src, dir);
   if (existsSync(from)) {
     await cp(from, join(out, dir), { recursive: true });

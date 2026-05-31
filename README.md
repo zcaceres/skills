@@ -1,11 +1,10 @@
 # @zcaceres/skills
 
-Open-source AI agent skills, organized as a Bun monorepo. Each skill conforms
-to the [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)
-and is versioned/released independently.
+Open-source AI agent skills.
 
-See `AGENTS.md` for cross-agent authoring conventions and the per-agent
-capability matrix.
+Skills conform to [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)
+and are versioned/released independently.
+
 
 ## Skills
 
@@ -34,7 +33,6 @@ skills/
 │   ├── scripts/            # executables the skill calls (optional)
 │   ├── references/         # docs the skill reads (optional)
 │   ├── assets/             # templates, samples (optional)
-│   ├── agents/openai.yaml  # Codex CLI metadata (optional)
 │   ├── package.json        # monorepo plumbing: workspace, version, scripts
 │   └── README.md
 ├── _template/              # scaffold copied by `bun run new`
@@ -49,7 +47,6 @@ bun install                                  # link workspaces
 
 bun run new my-skill "One-line description"  # scaffold from _template
 bun run check                                # validate all skills
-bun run cross-agent my-skill                 # validate cross-agent parity claims
 bun run build my-skill                       # build to skills/my-skill/dist/my-skill
 bun run changeset                            # record a version bump
 bun run version                              # apply changesets to package.json
@@ -64,21 +61,3 @@ sibling repo — define a `fetch-tools` npm script in the skill's
 `package.json`; the build pipeline runs it before packaging. Fetched
 binaries land in `scripts/bin/` and are gitignored.
 
-## Cross-agent parity
-
-Different agents read different optional frontmatter fields; the universal
-core is `name` + `description` + the markdown body. Each skill declares its
-parity contract in `package.json`:
-
-```json
-"crossAgent": {
-  "supports": ["claude", "codex"],
-  "requires": ["name", "description", "hooks"]
-}
-```
-
-`bun run cross-agent` verifies that every required field is actually read by
-every declared agent — catching the silent-drift failure where a skill ships
-as "supports codex" but its load-bearing field (e.g. `hooks`) is dropped on
-the floor at install time. See `AGENTS.md` for the per-agent capability
-matrix.

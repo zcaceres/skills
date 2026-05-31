@@ -13,22 +13,11 @@
     "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
     "fetch-tools": "bun run build:all"
   },
-  "crossAgent": {
-    "supports": [
-      "claude"
-    ],
-    "requires": [
-      "name",
-      "description",
-      "hooks"
-    ]
-  },
   "files": [
     "SKILL.md",
     "scripts",
     "references",
     "assets",
-    "agents",
     "README.md",
     "LICENSE"
   ],

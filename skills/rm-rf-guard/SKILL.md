@@ -66,56 +66,6 @@ On Windows, point at `scripts\\run.cmd` instead.
 Verify it's wired up by running any Bash command in Claude Code; the hook
 prints `BLOCKED: …` on stderr and exit-2s when it catches `rm`/`shred`/etc.
 
-### Codex CLI
-
-The same binary works on Codex — Codex's hook engine uses Claude-compatible
-events and the same stdin JSON payload. Codex does **not** read the `hooks:`
-frontmatter, so the install is manual.
-
-Add to `~/.codex/config.toml`:
-
-```toml
-[[hooks.PreToolUse]]
-matcher = "^Bash$"
-
-[[hooks.PreToolUse.hooks]]
-type = "command"
-command = "/abs/path/to/rm-rf-guard/scripts/run.sh"
-timeout = 30
-```
-
-Or `~/.codex/hooks.json`:
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      { "matcher": "^Bash$",
-        "hooks": [{ "type": "command", "command": "/abs/path/to/rm-rf-guard/scripts/run.sh" }] }
-    ]
-  }
-}
-```
-
-After editing, run `/hooks` inside Codex to trust the new hook.
-
-**Known limitation.** Codex's `PreToolUse` doesn't intercept every shell
-invocation yet — the newer `unified_exec` streaming path has incomplete
-coverage. The guard catches the common `Bash`-tool calls but is best-effort
-on Codex, not airtight.
-
-### Antigravity CLI (not supported)
-
-Antigravity has no hook system. Google staff confirmed this on the official
-forum ([discuss.ai.google.dev/t/120458](https://discuss.ai.google.dev/t/hooks-in-antigravity/120458)).
-Rules (`.agent/rules/*.md`) and workflows (`.agent/workflows/*.md`) are
-advisory only — independent testing puts model compliance around 60%, which
-is not enforcement. This guard **cannot be ported** to Antigravity.
-
-If you need hard deletion blocks under Antigravity, your options are:
-- External shell sandboxing (container, nsjail, etc.)
-- Keep the guard on Claude Code or Codex CLI only
-
 ## Prerequisites
 
 The hook itself has no runtime dependencies (pre-built Bun binaries ship in

@@ -9,21 +9,11 @@
     "build": "echo 'no build step'",
     "test": "python3 scripts/roll.py >/dev/null && echo 'roll.py smoke OK'"
   },
-  "crossAgent": {
-    "supports": [
-      "claude"
-    ],
-    "requires": [
-      "name",
-      "description"
-    ]
-  },
   "files": [
     "SKILL.md",
     "scripts",
     "references",
     "assets",
-    "agents",
     "README.md",
     "LICENSE"
   ],

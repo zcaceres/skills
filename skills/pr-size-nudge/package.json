@@ -16,22 +16,11 @@
   "dependencies": {
     "zod": "^3.23.8"
   },
-  "crossAgent": {
-    "supports": [
-      "claude"
-    ],
-    "requires": [
-      "name",
-      "description",
-      "hooks"
-    ]
-  },
   "files": [
     "SKILL.md",
     "scripts",
     "references",
     "assets",
-    "agents",
     "README.md",
     "LICENSE"
   ],

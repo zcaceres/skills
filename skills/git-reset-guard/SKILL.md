@@ -5,7 +5,7 @@ hooks:
   PreToolUse:
     - matcher: Bash
       type: command
-      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
+      command: "~/.claude/skills/git-reset-guard/scripts/run.sh"
 ---
 
 # git-reset-guard
@@ -51,19 +51,12 @@ sandboxing, code review, and backups — not in place of them.
 
 ## Install
 
-> **Important.** The `hooks:` block in the frontmatter above is the
-> spec-correct shape for a Claude Code skill that registers a hook, but as
-> of today Claude Code does **not** substitute `${CLAUDE_SKILL_DIR}` in
-> frontmatter hook commands — see
-> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
-> (closed as "not planned"). Until that lands, the only reliable install
-> path is to wire the hook into your settings file directly with an
-> absolute path.
-
-After unpacking the skill (`~/.claude/skills/git-reset-guard/` for personal
-installs, or a custom location), add this to `~/.claude/settings.json`
-or your project's `.claude/settings.json`, replacing `<path>` with the
-unpacked skill's absolute path:
+The `hooks:` block in the frontmatter above auto-wires the hook on skill
+load, assuming the skill is installed at the standard personal-install
+location (`~/.claude/skills/git-reset-guard/`). If you install elsewhere,
+or prefer explicit wiring, paste the snippet below into
+`~/.claude/settings.json` or your project's `.claude/settings.json` with
+`<path>` set to the unpacked skill's absolute path:
 
 ```json
 {
@@ -81,6 +74,44 @@ unpacked skill's absolute path:
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
+
+### Codex CLI
+
+The same binary works on Codex — Codex's hook engine uses Claude-compatible
+events and the same stdin JSON payload. Codex does **not** read the `hooks:`
+frontmatter, so the install is manual.
+
+Add to `~/.codex/config.toml`:
+
+```toml
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "/abs/path/to/git-reset-guard/scripts/run.sh"
+timeout = 30
+```
+
+Or `~/.codex/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "^Bash$",
+        "hooks": [{ "type": "command", "command": "/abs/path/to/git-reset-guard/scripts/run.sh" }] }
+    ]
+  }
+}
+```
+
+After editing, run `/hooks` inside Codex to trust the new hook.
+
+**Known limitation.** Codex's `PreToolUse` doesn't intercept every shell
+invocation yet — the newer `unified_exec` streaming path has incomplete
+coverage. The guard catches the common `Bash`-tool calls but is best-effort
+on Codex, not airtight.
 
 You can stack this alongside [`rm-rf-guard`](../rm-rf-guard/SKILL.md) — both
 hooks run on every Bash call and either can block.

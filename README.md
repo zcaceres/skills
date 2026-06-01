@@ -39,6 +39,7 @@ npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s rm-rf-guard
 npx skills add zcaceres/skills -s storage-cleanup
+npx skills add zcaceres/skills -s transcribe-youtube
 npx skills add zcaceres/skills -s zoom
 ```
 
@@ -65,6 +66,7 @@ settings wiring — see each skill's README.
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
+| `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `zoom` | Shift abstraction level (`in` for internals, `out` for context). |
 
 ## Layout

@@ -69,6 +69,10 @@
       "name": "@zcaceres/skill-storage-cleanup",
       "version": "1.0.0",
     },
+    "skills/transcribe-youtube": {
+      "name": "@zcaceres/skill-transcribe-youtube",
+      "version": "0.0.0",
+    },
     "skills/zoom": {
       "name": "@zcaceres/skill-zoom",
       "version": "1.0.0",
@@ -154,6 +158,8 @@
     "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
+
+    "@zcaceres/skill-transcribe-youtube": ["@zcaceres/skill-transcribe-youtube@workspace:skills/transcribe-youtube"],
 
     "@zcaceres/skill-zoom": ["@zcaceres/skill-zoom@workspace:skills/zoom"],
 

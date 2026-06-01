@@ -10,7 +10,8 @@
     "release": "bun run scripts/release-skill.ts",
     "changeset": "bunx changeset",
     "version": "bunx changeset version",
-    "check": "bun run scripts/check-skills.ts"
+    "check": "bun run scripts/check-skills.ts",
+    "test": "bun test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",

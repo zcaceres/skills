@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-perf-review",
+  "version": "0.0.0",
+  "description": "Analyze a full-stack web application for evidence-based performance bottlenecks",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

@@ -35,6 +35,7 @@ npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s git-reset-guard
 npx skills add zcaceres/skills -s investigate-repo
+npx skills add zcaceres/skills -s perf-review
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s rm-rf-guard
@@ -61,6 +62,7 @@ settings wiring — see each skill's README.
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
+| `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |

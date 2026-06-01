@@ -16,7 +16,7 @@
     },
     "skills/chaos-monkey": {
       "name": "@zcaceres/skill-chaos-monkey",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/checkpoint": {
       "name": "@zcaceres/skill-checkpoint",
@@ -29,10 +29,6 @@
     "skills/decompose": {
       "name": "@zcaceres/skill-decompose",
       "version": "1.0.0",
-    },
-    "skills/example-hello": {
-      "name": "@zcaceres/skill-example-hello",
-      "version": "0.0.1",
     },
     "skills/git-reset-guard": {
       "name": "@zcaceres/skill-git-reset-guard",
@@ -51,7 +47,7 @@
     },
     "skills/reflect-on-conversation": {
       "name": "@zcaceres/skill-reflect-on-conversation",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/rm-rf-guard": {
       "name": "@zcaceres/skill-rm-rf-guard",
@@ -59,7 +55,7 @@
     },
     "skills/storage-cleanup": {
       "name": "@zcaceres/skill-storage-cleanup",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/zoom": {
       "name": "@zcaceres/skill-zoom",
@@ -128,8 +124,6 @@
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
-
-    "@zcaceres/skill-example-hello": ["@zcaceres/skill-example-hello@workspace:skills/example-hello"],
 
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 

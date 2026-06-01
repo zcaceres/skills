@@ -50,6 +50,10 @@
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
     },
+    "skills/perf-review": {
+      "name": "@zcaceres/skill-perf-review",
+      "version": "0.0.0",
+    },
     "skills/pr-size-nudge": {
       "name": "@zcaceres/skill-pr-size-nudge",
       "version": "1.0.0",
@@ -146,6 +150,8 @@
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 

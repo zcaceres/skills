@@ -5,6 +5,43 @@ Open-source AI agent skills.
 Skills conform to [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)
 and are versioned/released independently.
 
+## Install
+
+Skills install via the [`skills` CLI](https://github.com/vercel-labs/skills). The CLI auto-detects
+your agent (Claude Code, Codex, Cursor, etc.) and drops files in the right place.
+
+```bash
+# Install every skill in this repo (project-local)
+npx skills add zcaceres/skills
+
+# Install globally (~/.claude/skills/ for Claude Code)
+npx skills add zcaceres/skills -g
+
+# Browse without installing
+npx skills add zcaceres/skills --list
+```
+
+Install one or more specific skills with `-s <name>`:
+
+```bash
+npx skills add zcaceres/skills -s acid-trip
+npx skills add zcaceres/skills -s chaos-monkey
+npx skills add zcaceres/skills -s checkpoint
+npx skills add zcaceres/skills -s commit-push-pr
+npx skills add zcaceres/skills -s decompose
+npx skills add zcaceres/skills -s example-hello
+npx skills add zcaceres/skills -s git-reset-guard
+npx skills add zcaceres/skills -s investigate-repo
+npx skills add zcaceres/skills -s pr-size-nudge
+npx skills add zcaceres/skills -s reflect-on-conversation
+npx skills add zcaceres/skills -s rm-rf-guard
+npx skills add zcaceres/skills -s storage-cleanup
+npx skills add zcaceres/skills -s zoom
+```
+
+Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
+Hook skills (`git-reset-guard`, `pr-size-nudge`, `rm-rf-guard`) require additional
+settings wiring — see each skill's README.
 
 ## Skills
 

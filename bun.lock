@@ -38,6 +38,10 @@
       "name": "@zcaceres/skill-decompose",
       "version": "1.0.0",
     },
+    "skills/find-docs": {
+      "name": "@zcaceres/skill-find-docs",
+      "version": "0.0.0",
+    },
     "skills/git-reset-guard": {
       "name": "@zcaceres/skill-git-reset-guard",
       "version": "1.0.0",
@@ -136,6 +140,8 @@
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
+
+    "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 

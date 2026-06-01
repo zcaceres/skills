@@ -26,6 +26,10 @@
       "name": "@zcaceres/skill-cleanup-computer",
       "version": "0.0.0",
     },
+    "skills/code-cleanup-analyzer": {
+      "name": "@zcaceres/skill-code-cleanup-analyzer",
+      "version": "0.0.0",
+    },
     "skills/commit-push-pr": {
       "name": "@zcaceres/skill-commit-push-pr",
       "version": "1.0.0",
@@ -126,6 +130,8 @@
     "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
 
     "@zcaceres/skill-cleanup-computer": ["@zcaceres/skill-cleanup-computer@workspace:skills/cleanup-computer"],
+
+    "@zcaceres/skill-code-cleanup-analyzer": ["@zcaceres/skill-code-cleanup-analyzer@workspace:skills/code-cleanup-analyzer"],
 
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
 

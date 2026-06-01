@@ -113,6 +113,20 @@ invocation yet — the newer `unified_exec` streaming path has incomplete
 coverage. The guard catches the common `Bash`-tool calls but is best-effort
 on Codex, not airtight.
 
+### Antigravity CLI (not supported)
+
+Antigravity has no hook system. Google staff confirmed this on the official
+forum ([discuss.ai.google.dev/t/120458](https://discuss.ai.google.dev/t/hooks-in-antigravity/120458)).
+Rules (`.agent/rules/*.md`) and workflows (`.agent/workflows/*.md`) are
+advisory only — independent testing puts model compliance around 60%, which
+is not enforcement. This guard **cannot be ported** to Antigravity.
+
+If you need hard blocks on destructive git commands under Antigravity, your
+options are:
+- External shell sandboxing (container, nsjail, etc.)
+- Server-side branch protection rules (covers `push --force`, not local ops)
+- Keep the guard on Claude Code or Codex CLI only
+
 You can stack this alongside [`rm-rf-guard`](../rm-rf-guard/SKILL.md) — both
 hooks run on every Bash call and either can block.
 

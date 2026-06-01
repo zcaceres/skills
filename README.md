@@ -27,6 +27,7 @@ Install one or more specific skills with `-s <name>`:
 npx skills add zcaceres/skills -s acid-trip
 npx skills add zcaceres/skills -s chaos-monkey
 npx skills add zcaceres/skills -s checkpoint
+npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s cli-agent-friendly-audit
 npx skills add zcaceres/skills -s commit-push-pr
 npx skills add zcaceres/skills -s decompose
@@ -50,6 +51,7 @@ settings wiring — see each skill's README.
 | `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
 | `chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
 | `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
+| `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |

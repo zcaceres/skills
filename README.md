@@ -4,6 +4,27 @@ Open-source AI agent skills, organized as a Bun monorepo. Each skill conforms
 to the [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)
 and is versioned/released independently.
 
+See `AGENTS.md` for cross-agent authoring conventions and the per-agent
+capability matrix.
+
+## Skills
+
+| Skill | Description |
+|---|---|
+| `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
+| `chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
+| `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
+| `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
+| `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
+| `example-hello` | Minimal example demonstrating the monorepo layout. |
+| `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
+| `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
+| `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
+| `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
+| `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
+| `storage-cleanup` | Find large files and directories that are safe to delete. |
+| `zoom` | Shift abstraction level (`in` for internals, `out` for context). |
+
 ## Layout
 
 ```
@@ -21,29 +42,6 @@ skills/
 └── .changeset/             # per-skill versioning
 ```
 
-**`SKILL.md` is the manifest.** Required frontmatter: `name` (must match the
-folder name exactly) and `description` (what + when to activate). Optional
-fields include `when_to_use`, `allowed-tools`, `context`, `effort`,
-`disable-model-invocation`, `hooks`, `license`, `metadata`. See
-[the spec reference](https://www.agensi.io/learn/skill-md-format-reference).
-
-`package.json` exists only for the monorepo: workspace linking, per-skill
-versioning via changesets, the release script. It is **not** part of the
-published shape — `bun run build` emits a clean `dist/<name>/` directory
-matching what skills.sh expects.
-
-## Multi-agent variants
-
-The skills.sh standard handles cross-agent compatibility through ignored
-frontmatter, not parallel directories. Agent-specific extensions:
-
-- Codex CLI reads `agents/openai.yaml` if present
-- Claude Code reads `hooks`, `allowed-tools`, `context`, etc. from frontmatter
-- Other agents fall back to plain `name` + `description` + markdown body
-
-When a skill genuinely needs different content for a different agent, prefer
-publishing it as a second skill (`<name>-codex/`) over an in-tree fork.
-
 ## Workflow
 
 ```bash
@@ -51,6 +49,7 @@ bun install                                  # link workspaces
 
 bun run new my-skill "One-line description"  # scaffold from _template
 bun run check                                # validate all skills
+bun run cross-agent my-skill                 # validate cross-agent parity claims
 bun run build my-skill                       # build to skills/my-skill/dist/my-skill
 bun run changeset                            # record a version bump
 bun run version                              # apply changesets to package.json
@@ -65,8 +64,21 @@ sibling repo — define a `fetch-tools` npm script in the skill's
 `package.json`; the build pipeline runs it before packaging. Fetched
 binaries land in `scripts/bin/` and are gitignored.
 
-## Publishing
+## Cross-agent parity
 
-Each skill ships as a tarball on GitHub Releases (tag: `<skill>@<version>`)
-and is registered with skills.sh. Local `bun run release <name>` and the GH
-Action on tag push do the same thing — the Action is the source of truth.
+Different agents read different optional frontmatter fields; the universal
+core is `name` + `description` + the markdown body. Each skill declares its
+parity contract in `package.json`:
+
+```json
+"crossAgent": {
+  "supports": ["claude", "codex"],
+  "requires": ["name", "description", "hooks"]
+}
+```
+
+`bun run cross-agent` verifies that every required field is actually read by
+every declared agent — catching the silent-drift failure where a skill ships
+as "supports codex" but its load-bearing field (e.g. `hooks`) is dropped on
+the floor at install time. See `AGENTS.md` for the per-agent capability
+matrix.

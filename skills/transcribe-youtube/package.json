@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-transcribe-youtube",
+  "version": "0.0.0",
+  "description": "Download and transcribe YouTube videos to a markdown file using yt-dlp and Whisper",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

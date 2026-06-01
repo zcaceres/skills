@@ -29,6 +29,7 @@ npx skills add zcaceres/skills -s chaos-monkey
 npx skills add zcaceres/skills -s checkpoint
 npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s cli-agent-friendly-audit
+npx skills add zcaceres/skills -s code-cleanup-analyzer
 npx skills add zcaceres/skills -s commit-push-pr
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s git-reset-guard
@@ -53,6 +54,7 @@ settings wiring — see each skill's README.
 | `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
+| `code-cleanup-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
 | `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |

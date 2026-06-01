@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-find-docs",
+  "version": "0.0.0",
+  "description": "Retrieve authoritative, up-to-date docs, API references, and code examples for any library or framework via the Context7 CLI. Use when answering technical questions or writing code against external tech.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

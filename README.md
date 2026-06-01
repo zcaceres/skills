@@ -32,6 +32,7 @@ npx skills add zcaceres/skills -s cli-agent-friendly-audit
 npx skills add zcaceres/skills -s code-cleanup-analyzer
 npx skills add zcaceres/skills -s commit-push-pr
 npx skills add zcaceres/skills -s decompose
+npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s git-reset-guard
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s pr-size-nudge
@@ -57,6 +58,7 @@ settings wiring — see each skill's README.
 | `code-cleanup-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
+| `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |

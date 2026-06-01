@@ -8,7 +8,6 @@ __ONE_LINE_DESCRIPTION__
 - `scripts/` — executables the skill calls
 - `references/` — docs the skill reads
 - `assets/` — templates, samples
-- `agents/openai.yaml` — Codex CLI metadata (optional)
 
 ## Install
 

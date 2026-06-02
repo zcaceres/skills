@@ -31,6 +31,7 @@ npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s cli-agent-friendly-audit
 npx skills add zcaceres/skills -s code-cleanup-analyzer
 npx skills add zcaceres/skills -s commit-push-pr
+npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s dont-read-dot-env
 npx skills add zcaceres/skills -s find-docs
@@ -60,6 +61,7 @@ settings wiring — see each skill's README.
 | `cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
 | `code-cleanup-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
+| `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
 | `dont-read-dot-env` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |

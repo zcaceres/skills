@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# with-creds — run a command with 1Password-stored credentials, without
+# letting the secret values touch disk or the agent's tool output.
+#
+# Modes (combinable):
+#   --env NAME=op://Vault/Item/field   set env var NAME for the child
+#                                       process via `op run` (1Password
+#                                       masks the value in stdout/stderr).
+#   --fd  NAME=op://Vault/Item/field   expose the secret at a /dev/fd/N
+#                                       path; reference it in the command
+#                                       as a whole-argument %NAME% token.
+#
+# Examples:
+#   with-creds --env AWS_ACCESS_KEY_ID=op://Vault/AWS/id \
+#              --env AWS_SECRET_ACCESS_KEY=op://Vault/AWS/secret \
+#              -- aws s3 ls
+#
+#   with-creds --fd KEY=op://Vault/SSH/private -- ssh -i %KEY% user@host
+#
+#   with-creds --fd CERT=op://Vault/MyApp/cert \
+#              --env API_KEY=op://Vault/MyApp/api_key \
+#              -- my-tool --cert-file %CERT%
+#
+# Requires the `op` CLI signed in (run `op signin`). macOS users should
+# enable Touch ID unlock in the 1Password app so no password is on disk.
+
+set -eo pipefail
+
+print_help() {
+  cat <<'EOF'
+with-creds — run a command with 1Password-stored credentials.
+
+USAGE:
+  with-creds [--env NAME=op://...] [--fd NAME=op://...] ... -- CMD [ARGS...]
+
+OPTIONS:
+  --env NAME=op://Vault/Item/field
+        Set env var NAME for the child process (via `op run`, which masks
+        the value in the child's stdout/stderr).
+
+  --fd  NAME=op://Vault/Item/field
+        Expose the secret through a /dev/fd/N file-descriptor path. Use
+        a bare %NAME% argument in the command and it will be replaced
+        with that path. The %NAME% token must be a whole argument; for
+        embedded uses, fall back to plain bash:
+            cmd --flag=<(op read "op://...")
+
+  -h, --help
+        Show this help.
+
+EXAMPLES:
+  with-creds --env DB_URL=op://Personal/Postgres/url -- psql
+  with-creds --fd KEY=op://Personal/SSH/private_key -- ssh -i %KEY% host
+EOF
+}
+
+env_pairs=()
+fd_pairs=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --env)
+      [[ $# -ge 2 ]] || { echo "with-creds: --env requires an argument" >&2; exit 2; }
+      env_pairs+=("$2"); shift 2 ;;
+    --env=*) env_pairs+=("${1#--env=}"); shift ;;
+    --fd)
+      [[ $# -ge 2 ]] || { echo "with-creds: --fd requires an argument" >&2; exit 2; }
+      fd_pairs+=("$2"); shift 2 ;;
+    --fd=*) fd_pairs+=("${1#--fd=}"); shift ;;
+    -h|--help) print_help; exit 0 ;;
+    --) shift; break ;;
+    -*) echo "with-creds: unknown flag: $1 (try --help)" >&2; exit 2 ;;
+    *) break ;;
+  esac
+done
+
+if [[ $# -eq 0 ]]; then
+  echo "with-creds: missing command after '--'" >&2
+  print_help >&2
+  exit 2
+fi
+
+validate_pair() {
+  local pair="$1" name
+  [[ "$pair" == *=op://* ]] || {
+    echo "with-creds: invalid spec '$pair' (expected NAME=op://Vault/Item/field)" >&2
+    exit 2
+  }
+  name="${pair%%=*}"
+  [[ "$name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || {
+    echo "with-creds: invalid name '$name' in '$pair'" >&2
+    exit 2
+  }
+}
+
+if [[ ${#env_pairs[@]} -gt 0 ]]; then
+  for pair in "${env_pairs[@]}"; do validate_pair "$pair"; done
+fi
+if [[ ${#fd_pairs[@]} -gt 0 ]]; then
+  for pair in "${fd_pairs[@]}"; do validate_pair "$pair"; done
+fi
+
+if [[ ${#env_pairs[@]} -eq 0 && ${#fd_pairs[@]} -eq 0 ]]; then
+  echo "with-creds: no credentials requested (use --env and/or --fd)" >&2
+  exit 2
+fi
+
+command -v op >/dev/null 2>&1 || {
+  echo "with-creds: 'op' CLI not found in PATH. Install from https://1password.com/downloads/command-line/" >&2
+  exit 127
+}
+
+if ! op whoami >/dev/null 2>&1; then
+  echo "with-creds: not signed in to 1Password. Run 'op signin' first." >&2
+  exit 1
+fi
+
+fd_ref_for() {
+  local target="$1" pair
+  if [[ ${#fd_pairs[@]} -eq 0 ]]; then return 1; fi
+  for pair in "${fd_pairs[@]}"; do
+    if [[ "${pair%%=*}" == "$target" ]]; then
+      printf '%s' "${pair#*=}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Build the inner command string. Whole-arg %NAME% placeholders are
+# replaced with unquoted process substitutions; every other argument is
+# %q-quoted so user input can't escape into the shell.
+inner=""
+for arg in "$@"; do
+  if [[ "$arg" =~ ^%([A-Za-z_][A-Za-z0-9_]*)%$ ]]; then
+    name="${BASH_REMATCH[1]}"
+    if ref="$(fd_ref_for "$name")"; then
+      inner+="<(op read $(printf '%q' "$ref")) "
+      continue
+    fi
+    echo "with-creds: placeholder %$name% used but no '--fd $name=...' was given" >&2
+    exit 2
+  fi
+  inner+="$(printf '%q' "$arg") "
+done
+
+if [[ ${#env_pairs[@]} -gt 0 ]]; then
+  # Build an env-file body and feed it to `op run` via process substitution
+  # so the resolved file never lands on disk.
+  env_body=""
+  for pair in "${env_pairs[@]}"; do
+    env_body+="$pair"$'\n'
+  done
+  exec bash -c \
+    "op run --env-file=<(printf %s $(printf '%q' "$env_body")) -- $inner"
+else
+  exec bash -c "$inner"
+fi

@@ -62,6 +62,10 @@
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
     },
+    "skills/op-creds": {
+      "name": "@zcaceres/skill-op-creds",
+      "version": "0.0.0",
+    },
     "skills/perf-review": {
       "name": "@zcaceres/skill-perf-review",
       "version": "0.0.0",
@@ -172,6 +176,8 @@
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-op-creds": ["@zcaceres/skill-op-creds@workspace:skills/op-creds"],
 
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 

@@ -34,6 +34,10 @@
       "name": "@zcaceres/skill-commit-push-pr",
       "version": "1.0.0",
     },
+    "skills/copywriting": {
+      "name": "@zcaceres/skill-copywriting",
+      "version": "1.0.0",
+    },
     "skills/decompose": {
       "name": "@zcaceres/skill-decompose",
       "version": "1.0.0",
@@ -150,6 +154,8 @@
     "@zcaceres/skill-code-cleanup-analyzer": ["@zcaceres/skill-code-cleanup-analyzer@workspace:skills/code-cleanup-analyzer"],
 
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
+
+    "@zcaceres/skill-copywriting": ["@zcaceres/skill-copywriting@workspace:skills/copywriting"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
 

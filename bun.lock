@@ -38,6 +38,10 @@
       "name": "@zcaceres/skill-decompose",
       "version": "1.0.0",
     },
+    "skills/dont-read-dot-env": {
+      "name": "@zcaceres/skill-dont-read-dot-env",
+      "version": "1.0.0",
+    },
     "skills/find-docs": {
       "name": "@zcaceres/skill-find-docs",
       "version": "0.0.0",
@@ -148,6 +152,8 @@
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
+
+    "@zcaceres/skill-dont-read-dot-env": ["@zcaceres/skill-dont-read-dot-env@workspace:skills/dont-read-dot-env"],
 
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 

@@ -1,0 +1,29 @@
+{
+  "name": "@zcaceres/skill-gemini-deep-research",
+  "version": "1.0.0",
+  "description": "Run Google Gemini Deep Research reports on any topic. Submits a query, polls in the background, and returns the markdown report.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "gemini",
+    "research",
+    "deep-research",
+    "google",
+    "ai"
+  ]
+}

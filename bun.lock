@@ -50,6 +50,10 @@
       "name": "@zcaceres/skill-find-docs",
       "version": "0.0.0",
     },
+    "skills/gemini-deep-research": {
+      "name": "@zcaceres/skill-gemini-deep-research",
+      "version": "1.0.0",
+    },
     "skills/git-reset-guard": {
       "name": "@zcaceres/skill-git-reset-guard",
       "version": "1.0.0",
@@ -162,6 +166,8 @@
     "@zcaceres/skill-dont-read-dot-env": ["@zcaceres/skill-dont-read-dot-env@workspace:skills/dont-read-dot-env"],
 
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
+
+    "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
 
     "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
 

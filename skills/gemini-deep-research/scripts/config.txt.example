@@ -1,0 +1,4 @@
+# Optional: Copy this file to config.txt and add your Gemini API key
+# The script will also check for GEMINI_API_KEY environment variable first
+# Get your API key from: https://aistudio.google.com/apikey
+GEMINI_API_KEY=your-api-key-here

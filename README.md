@@ -35,6 +35,7 @@ npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s dont-read-dot-env
 npx skills add zcaceres/skills -s find-docs
+npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s git-reset-guard
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s perf-review
@@ -65,6 +66,7 @@ settings wiring — see each skill's README.
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
 | `dont-read-dot-env` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
+| `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |

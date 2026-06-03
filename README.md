@@ -41,6 +41,7 @@ npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s op-creds
 npx skills add zcaceres/skills -s perf-review
 npx skills add zcaceres/skills -s pr-size-nudge
+npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
 npx skills add zcaceres/skills -s rm-rf-guard
@@ -74,6 +75,7 @@ settings wiring — see each skill's README.
 | `op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
+| `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `review-code` | Review the current branch diff and report bugs as structured inline-style findings. |
 | `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |

@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-record-gif",
+  "version": "0.0.0",
+  "description": "Record animated GIFs of web page animations using Playwright screenshots and ffmpeg. Use when capturing demos, UI animations, or feature previews for sharing.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

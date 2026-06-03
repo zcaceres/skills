@@ -77,6 +77,10 @@
         "zod": "^3.23.8",
       },
     },
+    "skills/record-gif": {
+      "name": "@zcaceres/skill-record-gif",
+      "version": "0.0.0",
+    },
     "skills/reflect-on-conversation": {
       "name": "@zcaceres/skill-reflect-on-conversation",
       "version": "1.0.0",
@@ -186,6 +190,8 @@
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
+
+    "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
 

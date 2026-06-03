@@ -172,9 +172,12 @@ async function main(): Promise<void> {
       process.exit(2);
     }
     process.exit(0);
-  } catch {
-    // Don't crash the user's tool call if the hook itself misbehaves;
-    // dont-read-dot-env adopts the same fail-open posture for parser errors.
+  } catch (err) {
+    // Fail-open so a misbehaving hook doesn't break the user's tool call,
+    // but surface the error so silent disablement is observable. Matches
+    // dont-read-dot-env's posture, with louder reporting.
+    const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    console.error(`op-creds: hook error (failing open, NOT screening this call): ${msg}`);
     process.exit(0);
   }
 }

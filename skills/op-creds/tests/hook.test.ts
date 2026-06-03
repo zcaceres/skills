@@ -119,6 +119,79 @@ describe("Blocked: subshell / eval bypass", () => {
   });
 });
 
+describe("Blocked: regression — bypasses closed in fix-op-creds-hook-bypasses", () => {
+  // Issue #1: procsub mask used to swallow shell redirects / op output flags.
+  test("redirect inside <(op read ...) writes secret to disk", async () => {
+    await expectBlocked(`cat <(op read "op://Vault/Item/field" > /tmp/leak)`);
+  });
+
+  test("append redirect inside <(op read ...) writes secret to disk", async () => {
+    await expectBlocked(`cat <(op read "op://Vault/Item/field" >> /tmp/leak)`);
+  });
+
+  test("pipe-to-tee inside <(op read ...) duplicates secret to disk", async () => {
+    await expectBlocked(`cat <(op read "op://Vault/Item/field" | tee /tmp/x)`);
+  });
+
+  test("op inject -o /tmp/x inside <(...) writes resolved template to disk", async () => {
+    await expectBlocked(`cat <(op inject -i tpl -o /tmp/resolved)`);
+  });
+
+  test("op inject --out-file inside <(...) writes resolved template to disk", async () => {
+    await expectBlocked(
+      `cat <(op inject -i tpl --out-file /tmp/resolved)`
+    );
+  });
+
+  test("op read --out-file inside <(...) writes secret to disk", async () => {
+    await expectBlocked(
+      `cat <(op read --out-file /tmp/x "op://Vault/Item/field")`
+    );
+  });
+
+  test("command chaining inside <(...) hides a bare op read", async () => {
+    await expectBlocked(`cat <(true; op read "op://Vault/Item/field")`);
+  });
+
+  // Issue #2: bundled shell flags like -lc bypassed the raw scan.
+  test("bash -lc with op read (login shell flag bundle)", async () => {
+    await expectBlocked(`bash -lc 'op read "op://Vault/Item/field"'`);
+  });
+
+  test("bash -ilc with op read (interactive login flag bundle)", async () => {
+    await expectBlocked(`bash -ilc 'op read "op://Vault/Item/field"'`);
+  });
+
+  test("zsh -lc with op item get --reveal", async () => {
+    await expectBlocked(`zsh -lc 'op item get myitem --reveal'`);
+  });
+
+  test("sh -lc with op inject", async () => {
+    await expectBlocked(`sh -lc 'op inject -i template.tpl'`);
+  });
+
+  // Issue #3: quoted dangerous args were erased before scanning.
+  test('op item get with quoted "--reveal" argv', async () => {
+    await expectBlocked(`op item get myitem "--reveal"`);
+  });
+
+  test("op item get with single-quoted '--reveal' argv", async () => {
+    await expectBlocked(`op item get myitem '--reveal'`);
+  });
+
+  test('op item get --format with quoted "json" argv', async () => {
+    await expectBlocked(`op item get myitem --format "json"`);
+  });
+
+  test("op item get --format with single-quoted 'json' argv", async () => {
+    await expectBlocked(`op item get myitem --format 'json'`);
+  });
+
+  test('op item get with quoted "--format=json" argv', async () => {
+    await expectBlocked(`op item get myitem "--format=json"`);
+  });
+});
+
 describe("Allowed: safe process-substitution patterns", () => {
   test("ssh -i <(op read ...)", async () => {
     await expectAllowed(

@@ -272,6 +272,24 @@ describe("Allowed: bundled `with-creds` wrapper", () => {
       "with-creds --fd KEY=op://Vault/Item/field -- ssh -i %KEY% host"
     );
   });
+
+  // Documented examples from SKILL.md "Mixing both modes" — must remain
+  // allowed so users following the docs aren't blocked.
+  test("with-creds --env --env --fd -- aws (env-native consumer)", async () => {
+    await expectAllowed(
+      "with-creds --env AWS_ACCESS_KEY_ID=op://Vault/AWS/access_key_id " +
+        "--env AWS_SECRET_ACCESS_KEY=op://Vault/AWS/secret_access_key " +
+        "--fd CA=op://Vault/AWS/ca_bundle -- aws --ca-bundle %CA% s3 ls"
+    );
+  });
+
+  test("with-creds wrapping `sh -c` so the inner shell interpolates $API_KEY", async () => {
+    await expectAllowed(
+      "with-creds --env API_KEY=op://Work/Service/api_key " +
+        "--fd CA=op://Work/Service/ca_bundle " +
+        `-- sh -c 'curl --cacert "$1" -H "Authorization: Bearer $API_KEY" https://api.example.com' _ %CA%`
+    );
+  });
 });
 
 describe("Allowed: legitimate quoted mentions", () => {

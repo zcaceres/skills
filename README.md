@@ -44,6 +44,8 @@ npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
+npx skills add zcaceres/skills -s review-code-reproduce
+npx skills add zcaceres/skills -s review-code-fix
 npx skills add zcaceres/skills -s rm-rf-guard
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
@@ -78,6 +80,8 @@ settings wiring — see each skill's README.
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `review-code` | Review the current branch diff and report bugs as structured inline-style findings. |
+| `review-code-reproduce` | Second step of the code-review trio: reproduce and validate each finding to filter false positives before any fix is planned. |
+| `review-code-fix` | Third step of the code-review trio: plan fixes for validated findings, stop for user approval, then apply and verify. |
 | `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |

@@ -242,3 +242,23 @@ describe("Allowed: other tools (hook only matches Bash)", () => {
     expect(exitCode).toBe(0);
   });
 });
+
+describe("Fail-open posture (hook errors)", () => {
+  test("malformed JSON fails open with an observable stderr message", async () => {
+    const proc = spawn({
+      cmd: ["bun", "run", HOOK_PATH],
+      stdin: "pipe",
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    proc.stdin.write("{this is not json");
+    proc.stdin.end();
+    const exitCode = await proc.exited;
+    const stderr = await new Response(proc.stderr).text();
+    // Fail-open so the user's tool call isn't broken...
+    expect(exitCode).toBe(0);
+    // ...but the failure must be visible so silent disablement is observable.
+    expect(stderr).toContain("op-creds: hook error");
+    expect(stderr).toContain("NOT screening");
+  });
+});

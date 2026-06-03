@@ -14,8 +14,10 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
-          persist-credentials: false
           fetch-depth: 0
+          # Credentials are persisted so the next step can `git fetch` the
+          # base ref on private repos. The job's `contents: read` permission
+          # keeps the token read-only, so Codex can't push with it.
 
       - name: Pre-fetch base and head refs for the PR
         env:

@@ -38,6 +38,7 @@ npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s git-reset-guard
 npx skills add zcaceres/skills -s investigate-repo
+npx skills add zcaceres/skills -s op-creds
 npx skills add zcaceres/skills -s perf-review
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s reflect-on-conversation
@@ -48,7 +49,7 @@ npx skills add zcaceres/skills -s zoom
 ```
 
 Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
-Hook skills (`dont-read-dot-env`, `git-reset-guard`, `pr-size-nudge`, `rm-rf-guard`) require additional
+Hook skills (`dont-read-dot-env`, `git-reset-guard`, `op-creds`, `pr-size-nudge`, `rm-rf-guard`) require additional
 settings wiring — see each skill's README.
 
 ## Skills
@@ -69,6 +70,7 @@ settings wiring — see each skill's README.
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
+| `op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |

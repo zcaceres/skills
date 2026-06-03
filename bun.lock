@@ -81,6 +81,10 @@
       "name": "@zcaceres/skill-reflect-on-conversation",
       "version": "1.0.0",
     },
+    "skills/review-code": {
+      "name": "@zcaceres/skill-review-code",
+      "version": "0.0.0",
+    },
     "skills/rm-rf-guard": {
       "name": "@zcaceres/skill-rm-rf-guard",
       "version": "1.0.0",
@@ -184,6 +188,8 @@
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
+
+    "@zcaceres/skill-review-code": ["@zcaceres/skill-review-code@workspace:skills/review-code"],
 
     "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
 

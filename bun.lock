@@ -42,10 +42,6 @@
       "name": "@zcaceres/skill-decompose",
       "version": "1.0.0",
     },
-    "skills/dont-read-dot-env": {
-      "name": "@zcaceres/skill-dont-read-dot-env",
-      "version": "1.0.0",
-    },
     "skills/find-docs": {
       "name": "@zcaceres/skill-find-docs",
       "version": "0.0.0",
@@ -54,17 +50,9 @@
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
     },
-    "skills/git-reset-guard": {
-      "name": "@zcaceres/skill-git-reset-guard",
-      "version": "1.0.0",
-    },
     "skills/investigate-repo": {
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
-    },
-    "skills/op-creds": {
-      "name": "@zcaceres/skill-op-creds",
-      "version": "0.0.0",
     },
     "skills/perf-review": {
       "name": "@zcaceres/skill-perf-review",
@@ -97,8 +85,20 @@
       "name": "@zcaceres/skill-review-code-reproduce",
       "version": "0.0.0",
     },
-    "skills/rm-rf-guard": {
-      "name": "@zcaceres/skill-rm-rf-guard",
+    "skills/safety-dotenv-guard": {
+      "name": "@zcaceres/skill-safety-dotenv-guard",
+      "version": "1.0.0",
+    },
+    "skills/safety-git-reset-guard": {
+      "name": "@zcaceres/skill-safety-git-reset-guard",
+      "version": "1.0.0",
+    },
+    "skills/safety-op-creds": {
+      "name": "@zcaceres/skill-safety-op-creds",
+      "version": "0.0.0",
+    },
+    "skills/safety-rm-rf-guard": {
+      "name": "@zcaceres/skill-safety-rm-rf-guard",
       "version": "1.0.0",
     },
     "skills/storage-cleanup": {
@@ -183,17 +183,11 @@
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
 
-    "@zcaceres/skill-dont-read-dot-env": ["@zcaceres/skill-dont-read-dot-env@workspace:skills/dont-read-dot-env"],
-
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
 
-    "@zcaceres/skill-git-reset-guard": ["@zcaceres/skill-git-reset-guard@workspace:skills/git-reset-guard"],
-
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
-
-    "@zcaceres/skill-op-creds": ["@zcaceres/skill-op-creds@workspace:skills/op-creds"],
 
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 
@@ -209,7 +203,13 @@
 
     "@zcaceres/skill-review-code-reproduce": ["@zcaceres/skill-review-code-reproduce@workspace:skills/review-code-reproduce"],
 
-    "@zcaceres/skill-rm-rf-guard": ["@zcaceres/skill-rm-rf-guard@workspace:skills/rm-rf-guard"],
+    "@zcaceres/skill-safety-dotenv-guard": ["@zcaceres/skill-safety-dotenv-guard@workspace:skills/safety-dotenv-guard"],
+
+    "@zcaceres/skill-safety-git-reset-guard": ["@zcaceres/skill-safety-git-reset-guard@workspace:skills/safety-git-reset-guard"],
+
+    "@zcaceres/skill-safety-op-creds": ["@zcaceres/skill-safety-op-creds@workspace:skills/safety-op-creds"],
+
+    "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 

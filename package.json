@@ -11,6 +11,7 @@
     "changeset": "bunx changeset",
     "version": "bunx changeset version",
     "check": "bun run scripts/check-skills.ts",
+    "smoke": "bun run scripts/smoke-bundle.ts",
     "test": "bun test"
   },
   "devDependencies": {

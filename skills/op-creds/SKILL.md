@@ -115,11 +115,37 @@ some-tool --cert=<(op read "op://Work/MyApp/cert")
 
 ### Mixing both modes
 
+When the program reads its env vars natively (e.g. `aws`, `gh`, `psql`),
+`--env` and `--fd` compose cleanly:
+
+```sh
+with-creds --env AWS_ACCESS_KEY_ID=op://Vault/AWS/access_key_id \
+           --env AWS_SECRET_ACCESS_KEY=op://Vault/AWS/secret_access_key \
+           --fd  CA=op://Vault/AWS/ca_bundle \
+           -- aws --ca-bundle %CA% s3 ls
+```
+
+#### Gotcha: `$VAR` interpolation needs an inner shell
+
+`--env` sets the variable in the *child* process. If the value has to
+be spliced into an argv token (curl's `Authorization` header is the
+canonical case), `$VAR` written directly in the command won't work:
+the parent shell expands `$VAR` *before* `with-creds` runs (so the
+secret is empty), and `with-creds` argv-quotes its arguments before
+exec, so a literal `$VAR` can't be expanded by the child either.
+
+Wrap the consumer in `sh -c` so the *inner* shell (which inherits the
+env from `op run`) does the expansion:
+
 ```sh
 with-creds --env API_KEY=op://Work/Service/api_key \
            --fd  CA=op://Work/Service/ca_bundle \
-           -- curl --cacert %CA% -H "Authorization: Bearer $API_KEY" https://api.example.com
+           -- sh -c 'curl --cacert "$1" -H "Authorization: Bearer $API_KEY" https://api.example.com' _ %CA%
 ```
+
+`%CA%` is replaced by `with-creds` with the file-descriptor path and
+arrives as `$1` inside `sh -c`. `$API_KEY` is interpolated by the
+inner shell from its own environment, where `op run` placed it.
 
 ### Plain bash, no wrapper
 

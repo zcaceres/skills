@@ -47,22 +47,20 @@ Output all findings that the original author would fix if they knew about it. If
 
 ## Getting the Diff
 
-Use git to get the diff:
+The PR's base branch is provided as the environment variable `PR_BASE_REF` (e.g., `main`, `develop`, or a feature branch). The base ref has already been fetched as `origin/$PR_BASE_REF`. Always use it — do not hardcode `origin/main`.
 
 ```bash
-# Get the merge base between this branch and the target
-MERGE_BASE=$(git merge-base origin/main HEAD)
+# Get the merge base between this branch and the PR's actual base
+MERGE_BASE=$(git merge-base "origin/$PR_BASE_REF" HEAD)
 
 # Get the committed diff against the merge base
-git diff $MERGE_BASE HEAD
+git diff "$MERGE_BASE" HEAD
 
 # Get any uncommitted changes (staged and unstaged)
 git diff HEAD
 ```
 
-Review the combination of both outputs: the first shows all committed changes on this branch relative to the target, and the second shows any uncommitted work in progress.
-
-If the user passes a specific base branch (e.g., "review against develop"), substitute it for `origin/main`. If `origin/main` doesn't exist, fall back to `main` or whichever trunk the repo uses.
+Review the combination of both outputs: the first shows all committed changes on this branch relative to the PR's base, and the second shows any uncommitted work in progress.
 
 ## Output Format
 

@@ -13,6 +13,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+import { extractReport, type Interaction } from "./extract-report.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(__dirname, "config.txt");
@@ -20,13 +21,6 @@ const CACHE_DIR = join(__dirname, ".cache");
 const BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const AGENT = "deep-research-pro-preview-12-2025";
 const POLL_INTERVAL_MS = 60_000; // 1 minute
-
-interface Interaction {
-  id: string;
-  status: "in_progress" | "completed" | "failed";
-  outputs?: Array<{ text: string }>;
-  error?: { message: string };
-}
 
 interface CachedResult {
   id: string;
@@ -145,7 +139,7 @@ async function pollLoop(interactionId: string): Promise<void> {
       const data = await fetchInteraction(interactionId);
 
       if (data.status === "completed") {
-        const report = data.outputs?.[data.outputs.length - 1]?.text || "";
+        const report = extractReport(data);
         cacheResult({
           id: interactionId,
           status: "completed",
@@ -228,7 +222,7 @@ async function result(interactionId: string): Promise<void> {
       process.exit(1);
     }
 
-    const report = data.outputs?.[data.outputs.length - 1]?.text || "";
+    const report = extractReport(data);
 
     // Cache for future use
     cacheResult({

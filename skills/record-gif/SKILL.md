@@ -39,10 +39,10 @@ sleep 5
 
 ```bash
 mkdir -p /tmp/gif-frames
-trash /tmp/gif-frames/*.png 2>/dev/null || rm -f /tmp/gif-frames/*.png
+find /tmp/gif-frames -maxdepth 1 -name '*.png' -delete
 ```
 
-The fallback to `rm -f` matters: if `trash` is missing or fails, stale higher-numbered frames from a prior longer run would otherwise survive and get spliced into the next GIF (ffmpeg reads `frame-%04d.png` sequentially until it hits a gap).
+Using `find -delete` instead of a glob avoids zsh's `nomatch` error on a clean run (empty directory) and reliably removes stale higher-numbered frames from a prior longer run — otherwise ffmpeg would splice them into the next GIF, since it reads `frame-%04d.png` sequentially until it hits a gap.
 
 ### Step 3: Capture Frames with Playwright
 
@@ -144,7 +144,7 @@ Record an 11-second animation at 10fps, 800px wide:
 ```bash
 # 1. Prep
 mkdir -p /tmp/gif-frames
-trash /tmp/gif-frames/*.png 2>/dev/null || rm -f /tmp/gif-frames/*.png
+find /tmp/gif-frames -maxdepth 1 -name '*.png' -delete
 ```
 
 ```javascript

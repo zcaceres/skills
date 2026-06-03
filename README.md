@@ -42,6 +42,7 @@ npx skills add zcaceres/skills -s op-creds
 npx skills add zcaceres/skills -s perf-review
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s reflect-on-conversation
+npx skills add zcaceres/skills -s review-code
 npx skills add zcaceres/skills -s rm-rf-guard
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
@@ -74,6 +75,7 @@ settings wiring — see each skill's README.
 | `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
+| `review-code` | Review the current branch diff and report bugs as structured inline-style findings. |
 | `rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |

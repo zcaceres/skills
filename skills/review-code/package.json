@@ -1,0 +1,27 @@
+{
+  "name": "@zcaceres/skill-review-code",
+  "version": "0.0.0",
+  "description": "Review the current branch diff and report bugs as structured inline-style findings. Activates when the user asks for a code review.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "code-review",
+    "review",
+    "diff"
+  ]
+}

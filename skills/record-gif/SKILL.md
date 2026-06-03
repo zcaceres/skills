@@ -39,8 +39,10 @@ sleep 5
 
 ```bash
 mkdir -p /tmp/gif-frames
-trash /tmp/gif-frames/*.png 2>/dev/null; true   # or: rm -f /tmp/gif-frames/*.png
+trash /tmp/gif-frames/*.png 2>/dev/null || rm -f /tmp/gif-frames/*.png
 ```
+
+The fallback to `rm -f` matters: if `trash` is missing or fails, stale higher-numbered frames from a prior longer run would otherwise survive and get spliced into the next GIF (ffmpeg reads `frame-%04d.png` sequentially until it hits a gap).
 
 ### Step 3: Capture Frames with Playwright
 
@@ -142,7 +144,7 @@ Record an 11-second animation at 10fps, 800px wide:
 ```bash
 # 1. Prep
 mkdir -p /tmp/gif-frames
-trash /tmp/gif-frames/*.png 2>/dev/null; true
+trash /tmp/gif-frames/*.png 2>/dev/null || rm -f /tmp/gif-frames/*.png
 ```
 
 ```javascript

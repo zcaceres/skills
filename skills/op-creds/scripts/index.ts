@@ -26,10 +26,27 @@ interface ToolInput {
   };
 }
 
-// Safe wrapper: `<(op read ...)` or `<(op inject ...)`. The secret flows
-// through the file-descriptor pipe to the consumer; it never reaches the
-// agent's tool output.
-const SAFE_PROC_SUB_RE = /<\(\s*op\s+(?:read|inject)\b[^()]*\)/g;
+// Process substitutions of the form `<( op read|inject ... )` are masked
+// only when the body is *safe* — i.e., it's just an `op read/inject`
+// invocation with no extra shell wiring that could route the secret out
+// of the kernel pipe to disk, another process, or the agent's stdout.
+//
+// Unsafe bodies (redirects, pipes, command chaining, command substitution,
+// or op's own file-output flags) are left intact, so the bare `op read` /
+// `op inject` inside them is caught by the regular danger scan.
+const PROC_SUB_RE = /<\(([^()]*)\)/g;
+
+function isSafeProcsubBody(body: string): boolean {
+  if (!/^\s*op\s+(?:read|inject)\b/.test(body)) return false;
+  // Shell metacharacters that could redirect, pipe, or chain commands.
+  if (/[<>|;&`]/.test(body)) return false;
+  if (/\$\(/.test(body)) return false;
+  // op's own write-to-file flags.
+  if (/(?:^|\s)-o(?:\s|=|$)/.test(body)) return false;
+  if (/(?:^|\s)--out-file(?:\s|=|$)/.test(body)) return false;
+  if (/(?:^|\s)--output(?:\s|=|$)/.test(body)) return false;
+  return true;
+}
 
 interface DangerPattern {
   re: RegExp;
@@ -68,24 +85,24 @@ const DANGER_PATTERNS: DangerPattern[] = [
 // arg is still caught. Mirrors the technique used by dont-read-dot-env.
 const RAW_BYPASS_PATTERNS: DangerPattern[] = [
   {
-    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-c\s+[^|;&]*\bop\s+read\b/,
+    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-[a-zA-Z]*c\s+[^|;&]*\bop\s+read\b/,
     name: "op read (in subshell -c arg)",
     reason:
       "`op read` hidden inside a subshell `-c` arg would still write secrets to stdout.",
   },
   {
-    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-c\s+[^|;&]*\bop\s+inject\b/,
+    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-[a-zA-Z]*c\s+[^|;&]*\bop\s+inject\b/,
     name: "op inject (in subshell -c arg)",
     reason:
       "`op inject` hidden inside a subshell `-c` arg would still write resolved secrets out.",
   },
   {
-    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-c\s+[^|;&]*\bop\s+item\s+get\b[^|;&]*--reveal\b/,
+    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-[a-zA-Z]*c\s+[^|;&]*\bop\s+item\s+get\b[^|;&]*--reveal\b/,
     name: "op item get --reveal (in subshell -c arg)",
     reason: "`--reveal` hidden inside a subshell `-c` arg still prints secrets.",
   },
   {
-    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-c\s+[^|;&]*\bop\s+item\s+get\b[^|;&]*--format(?:=|\s+)json\b/,
+    re: /\b(?:sh|bash|zsh|dash|ksh|fish)\s+-[a-zA-Z]*c\s+[^|;&]*\bop\s+item\s+get\b[^|;&]*--format(?:=|\s+)json\b/,
     name: "op item get --format json (in subshell -c arg)",
     reason: "`--format json` hidden inside a subshell `-c` arg still prints secrets.",
   },
@@ -101,9 +118,20 @@ const RAW_BYPASS_PATTERNS: DangerPattern[] = [
   },
 ];
 
+// Heuristic quote handling: a quoted region that holds a single shell-style
+// token (no whitespace) is treated as an argv quoting flourish and unquoted
+// to its body, so `op item get foo "--reveal"` and `op read "op://..."`
+// still surface their dangerous flags. A quoted region containing whitespace
+// is treated as prose (echo strings, commit messages, grep patterns) and
+// erased, so legitimate documentation mentions of `op read` don't trip the
+// danger scan.
 function stripQuotes(text: string): string {
-  let out = text.replace(/"(?:[^"\\]|\\.)*"/g, '""');
-  out = out.replace(/'[^']*'/g, "''");
+  let out = text.replace(/"((?:[^"\\]|\\.)*)"/g, (_, body) =>
+    /\s/.test(body) ? '""' : body
+  );
+  out = out.replace(/'([^']*)'/g, (_, body) =>
+    /\s/.test(body) ? "''" : body
+  );
   return out;
 }
 
@@ -127,14 +155,18 @@ function findBlockedInBashCommand(command: string): DangerPattern | null {
   const rawHit = findRawBypass(command);
   if (rawHit) return rawHit;
 
-  // 2. Strip quoted substrings so legitimate mentions in echo strings,
-  //    commit messages, grep patterns, etc. don't trip the scan.
+  // 2. Strip quoted prose so documentation-style mentions don't false-trigger,
+  //    while keeping single-token quoted args (so `"--reveal"` and quoted
+  //    `op://...` refs still get seen by the scan).
   let scanned = stripQuotes(command);
 
-  // 3. Mask SAFE process substitutions — `<(op read ...)` and
-  //    `<(op inject ...)` deliver secrets through a kernel pipe, not stdout,
-  //    so they're the sanctioned consumption pattern.
-  scanned = scanned.replace(SAFE_PROC_SUB_RE, "<()");
+  // 3. Mask SAFE process substitutions — `<(op read|inject ...)` with no
+  //    redirects, pipes, command chaining, or op-side file-output flags.
+  //    Unsafe procsub bodies are left intact so the bare `op read/inject`
+  //    inside them is caught by the next scan.
+  scanned = scanned.replace(PROC_SUB_RE, (m, body) =>
+    isSafeProcsubBody(body) ? "<()" : m
+  );
 
   // 4. Anything left that matches a danger pattern is a real leak.
   return findDanger(scanned);

@@ -13,12 +13,8 @@ format.
 ## Install
 
 ```sh
-skills install @zcaceres/decompose
+npx skills add zcaceres/skills -s decompose
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=decompose).
-
 ## Origin
 
 Ported from

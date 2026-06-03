@@ -12,7 +12,5 @@ Analyze a codebase for dead code, duplicates, and circular dependencies using kn
 ## Install
 
 ```
-skills install @zcaceres/code-cleanup-analyzer
+npx skills add zcaceres/skills -s code-cleanup-analyzer
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=code-cleanup-analyzer).

@@ -12,7 +12,5 @@ Analyze a full-stack web application for evidence-based performance bottlenecks
 ## Install
 
 ```
-skills install @zcaceres/perf-review
+npx skills add zcaceres/skills -s perf-review
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=perf-review).

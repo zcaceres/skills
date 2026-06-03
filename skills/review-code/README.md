@@ -16,6 +16,3 @@ Pure-prompt skill — no scripts, no binaries.
 ```sh
 npx skills add zcaceres/skills -s review-code
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=review-code).

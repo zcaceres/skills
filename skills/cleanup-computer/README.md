@@ -12,7 +12,5 @@ Interactive file cleanup for Downloads, Desktop, and Documents. Goes file-by-fil
 ## Install
 
 ```
-skills install @zcaceres/cleanup-computer
+npx skills add zcaceres/skills -s cleanup-computer
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=cleanup-computer).

@@ -15,11 +15,9 @@ drawn from real sessions.
 ## Install
 
 ```sh
-skills install @zcaceres/reflect-on-conversation
+npx skills add zcaceres/skills -s reflect-on-conversation
 ```
 
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=reflect-on-conversation).
 Pure-markdown skill — no binaries, no install-time side effects.
 
 ## Origin

@@ -14,12 +14,8 @@ and the stack-merge guide.
 ## Install
 
 ```sh
-skills install @zcaceres/checkpoint
+npx skills add zcaceres/skills -s checkpoint
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=checkpoint).
-
 Best paired with:
 - [`commit-push-pr`](../commit-push-pr/) — commit + push without creating
   a new stack branch.

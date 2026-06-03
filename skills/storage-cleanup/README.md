@@ -15,11 +15,9 @@ session.
 ## Install
 
 ```sh
-skills install @zcaceres/storage-cleanup
+npx skills add zcaceres/skills -s storage-cleanup
 ```
 
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=storage-cleanup).
 Pure-markdown skill — no binaries.
 
 ## Origin

@@ -12,7 +12,5 @@ Retrieve authoritative, up-to-date docs, API references, and code examples for a
 ## Install
 
 ```
-skills install @zcaceres/find-docs
+npx skills add zcaceres/skills -s find-docs
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=find-docs).

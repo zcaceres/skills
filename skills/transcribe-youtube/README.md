@@ -12,7 +12,5 @@ Download and transcribe YouTube videos to a markdown file using yt-dlp and Whisp
 ## Install
 
 ```
-skills install @zcaceres/transcribe-youtube
+npx skills add zcaceres/skills -s transcribe-youtube
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=transcribe-youtube).

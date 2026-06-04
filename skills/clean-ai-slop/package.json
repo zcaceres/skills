@@ -1,0 +1,27 @@
+{
+  "name": "@zcaceres/skill-clean-ai-slop",
+  "version": "1.0.0",
+  "description": "Diff the current branch against main and strip AI-generated code slop — superfluous comments, defensive try/catch, casts to any, style inconsistent with the surrounding file.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "code-cleanup",
+    "ai-slop",
+    "diff-review"
+  ]
+}

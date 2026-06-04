@@ -49,9 +49,9 @@ gh issue create \
   --title "$CARD_TITLE" \
   --body "$CARD_BODY" \
   --project "$TITLE_FIELD" \
-  ${MILESTONE:+--milestone "$MILESTONE"} \
-  ${LABELS:+--label "$LABELS"} \
-  ${ASSIGNEES:+--assignee "$ASSIGNEES"}
+  ${MILESTONE:+--milestone="$MILESTONE"} \
+  ${LABELS:+--label="$LABELS"} \
+  ${ASSIGNEES:+--assignee="$ASSIGNEES"}
 ```
 
 Notes:

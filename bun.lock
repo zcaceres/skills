@@ -62,6 +62,10 @@
       "name": "@zcaceres/skill-gh-project-new-task",
       "version": "0.0.0",
     },
+    "skills/gh-project-next": {
+      "name": "@zcaceres/skill-gh-project-next",
+      "version": "0.0.0",
+    },
     "skills/gh-project-review": {
       "name": "@zcaceres/skill-gh-project-review",
       "version": "0.0.0",
@@ -216,6 +220,8 @@
     "@zcaceres/skill-gh-project-delete": ["@zcaceres/skill-gh-project-delete@workspace:skills/gh-project-delete"],
 
     "@zcaceres/skill-gh-project-new-task": ["@zcaceres/skill-gh-project-new-task@workspace:skills/gh-project-new-task"],
+
+    "@zcaceres/skill-gh-project-next": ["@zcaceres/skill-gh-project-next@workspace:skills/gh-project-next"],
 
     "@zcaceres/skill-gh-project-review": ["@zcaceres/skill-gh-project-review@workspace:skills/gh-project-review"],
 

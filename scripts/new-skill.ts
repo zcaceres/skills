@@ -29,14 +29,21 @@ if (existsSync(dest)) {
 
 await cp(join(root, "_template"), dest, { recursive: true });
 
+// In package.json the description sits inside a JSON string literal, so any
+// inner `"` or `\` must be escaped or the file won't parse. Markdown/YAML
+// templates take the description verbatim — embedded quotes are fine inside
+// an unquoted YAML scalar.
+const jsonEscaped = JSON.stringify(description).slice(1, -1);
+
 for (const file of ["package.json", "SKILL.md", "README.md"]) {
   const path = join(dest, file);
   const contents = await readFile(path, "utf8");
+  const desc = file === "package.json" ? jsonEscaped : description;
   await writeFile(
     path,
     contents
       .replaceAll("__SKILL_NAME__", name)
-      .replaceAll("__ONE_LINE_DESCRIPTION__", description),
+      .replaceAll("__ONE_LINE_DESCRIPTION__", desc),
   );
 }
 

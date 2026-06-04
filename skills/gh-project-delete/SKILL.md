@@ -19,7 +19,8 @@ Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect
 
 ```bash
 PROJECT_NUMBER=$(jq -r .projectNumber .github/gh-project.json)
-OWNER=$(jq -r .owner .github/gh-project.json)
+PROJECT_OWNER=$(jq -r .projectOwner .github/gh-project.json)
+REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 HELPER=.github/scripts/gh-project-board.sh
 test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
@@ -47,7 +48,7 @@ $HELPER get "$ITEM_ID"        # full row with body
 
 For issue-backed items, also pull the issue:
 ```bash
-gh issue view <issue-number> --repo "$OWNER/$REPO" --json title,body,state,labels,milestone,comments,closedByPullRequestsReferences
+gh issue view <issue-number> --repo "$REPO_OWNER/$REPO" --json title,body,state,labels,milestone,comments,closedByPullRequestsReferences
 ```
 
 Present:
@@ -111,7 +112,7 @@ Removing the card from the project (works for both drafts and issue/PR items):
 
 ```bash
 gh project item-delete "$PROJECT_NUMBER" \
-  --owner "$OWNER" \
+  --owner "$PROJECT_OWNER" \
   --id "$ITEM_ID"
 ```
 
@@ -119,12 +120,12 @@ For drafts, this is total deletion. For issues/PRs, the underlying object is unt
 
 If the user approved closing the underlying issue:
 ```bash
-gh issue close <issue-number> --repo "$OWNER/$REPO" --comment "<short reason>"
+gh issue close <issue-number> --repo "$REPO_OWNER/$REPO" --comment "<short reason>"
 ```
 
 If the user approved deleting the underlying issue (rare — admin-only):
 ```bash
-gh issue delete <issue-number> --repo "$OWNER/$REPO" --yes
+gh issue delete <issue-number> --repo "$REPO_OWNER/$REPO" --yes
 ```
 
 `gh issue delete --yes` permanently destroys the issue and all its comments. Do not run it unless the user typed yes a **second** time after seeing the consequence laid out.

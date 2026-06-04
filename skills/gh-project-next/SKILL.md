@@ -21,7 +21,7 @@ This skill **stops at the context dump**. It does not create branches, edit file
 HELPER=.github/scripts/gh-project-board.sh
 test -f .github/gh-project.json || { echo "Missing .github/gh-project.json — run /gh-project-setup"; exit 1; }
 test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
-OWNER=$(jq -r .owner .github/gh-project.json)
+REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 ```
 

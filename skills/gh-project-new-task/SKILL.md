@@ -33,11 +33,14 @@ Read `.github/gh-project.json`. If it doesn't exist, stop and tell the user to r
 ```bash
 CONFIG=$(cat .github/gh-project.json)
 PROJECT_NUMBER=$(echo "$CONFIG" | jq -r '.projectNumber')
-OWNER=$(echo "$CONFIG" | jq -r '.owner')
+PROJECT_OWNER=$(echo "$CONFIG" | jq -r '.projectOwner')
+REPO_OWNER=$(echo "$CONFIG" | jq -r '.repoOwner')
 REPO=$(echo "$CONFIG" | jq -r '.repo')
 TITLE_FIELD=$(echo "$CONFIG" | jq -r '.title')
 DEFAULT_MODE=$(echo "$CONFIG" | jq -r '.defaultMode')
 ```
+
+`PROJECT_OWNER` is for every `gh project ... --owner` call. `REPO_OWNER` is for every `gh issue ... --repo "$REPO_OWNER/$REPO"` and `gh api repos/$REPO_OWNER/$REPO/...` call. They are the same in the common case and diverge when the project owner was overridden during `/gh-project-setup`.
 
 ## Mode A — Real GitHub issue (default)
 
@@ -45,7 +48,7 @@ Issues are visible on the Issues tab, support assignees/labels/milestones, and c
 
 ```bash
 gh issue create \
-  --repo "$OWNER/$REPO" \
+  --repo "$REPO_OWNER/$REPO" \
   --title "$CARD_TITLE" \
   --body "$CARD_BODY" \
   --project "$TITLE_FIELD" \
@@ -63,13 +66,13 @@ Notes:
 If the user passed an unknown milestone, `gh` errors out — re-fetch valid milestones and offer them:
 
 ```bash
-gh api "repos/$OWNER/$REPO/milestones" --jq '.[] | "\(.number)\t\(.title)\t\(.state)"'
+gh api "repos/$REPO_OWNER/$REPO/milestones" --jq '.[] | "\(.number)\t\(.title)\t\(.state)"'
 ```
 
 To create a milestone first (only if the user confirms):
 
 ```bash
-gh api "repos/$OWNER/$REPO/milestones" -f title="$MILESTONE" -f state=open
+gh api "repos/$REPO_OWNER/$REPO/milestones" -f title="$MILESTONE" -f state=open
 ```
 
 ## Mode B — Draft (project-only)
@@ -78,7 +81,7 @@ Drafts live on the board and nowhere else. Use when the user explicitly asks for
 
 ```bash
 gh project item-create "$PROJECT_NUMBER" \
-  --owner "$OWNER" \
+  --owner "$PROJECT_OWNER" \
   --title "$CARD_TITLE" \
   --body "$CARD_BODY" \
   --format json
@@ -138,7 +141,7 @@ Print the URL last so it's easy to click.
 - **No `.github/gh-project.json`.** Stop and route to `/gh-project-setup`. Do not attempt to guess the project number.
 - **User invokes with `--draft` but config has `defaultMode: issue`.** Honor the flag. Don't write to the config — defaults stay sticky.
 - **Title contains shell metacharacters.** Quote it as a single argument. Don't echo it through `eval`.
-- **Issue creation succeeds but project linking fails.** `gh issue create --project` is atomic in normal cases; if it returns 0 but the card isn't on the board, fall back to `gh project item-add --url <issue-url>`.
+- **Issue creation succeeds but project linking fails.** `gh issue create --project` is atomic in normal cases; if it returns 0 but the card isn't on the board, fall back to `gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"`. Both the project number and project owner are required non-interactively — they come from the config read at the top of this skill; `$ISSUE_URL` is the URL printed by `gh issue create`.
 - **User wants to attach a milestone to a draft.** Tell them drafts don't support milestones; offer to either (a) make it an issue instead, or (b) add a custom text field via `gh project field-create` and store the milestone name there.
 
 ## Guidelines

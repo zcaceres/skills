@@ -20,7 +20,7 @@ Treat this like a code review with verdicts. False positives are expensive — m
 Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Also expect `.github/scripts/gh-project-board.sh` (installed by setup); if it's missing, surface that and offer to re-run setup before continuing — the script's truncation check is what keeps you from silently missing cards on a busy board.
 
 ```bash
-OWNER=$(jq -r .owner .github/gh-project.json)
+REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 HELPER=.github/scripts/gh-project-board.sh
 test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
@@ -118,7 +118,7 @@ $HELPER set-status "$ITEM_ID" "Done"          # or "Todo", "In Progress"
 If the card is an Issue (`content.type=="Issue"`) AND the verdict is `Looks Done` AND the issue is still open, also ask the user whether to close the underlying issue:
 
 ```bash
-gh issue close <issue-number> --repo "$OWNER/$REPO" --comment "Closing per project board review — see <PR or commit reference>."
+gh issue close <issue-number> --repo "$REPO_OWNER/$REPO" --comment "Closing per project board review — see <PR or commit reference>."
 ```
 
 Don't auto-close issues; closing is user-visible and notifies subscribers.

@@ -16,3 +16,10 @@ Pure-prompt skill — no scripts, no binaries.
 ```sh
 npx skills add zcaceres/skills -s review-code
 ```
+
+## GitHub Action
+
+To run these same review guidelines on every PR via OpenAI Codex, see
+[zcaceres/gh-actions-codex-review](https://github.com/zcaceres/gh-actions-codex-review).
+It ships a two-file workflow that vendors this skill's prompt and posts
+Codex's findings as a PR comment.

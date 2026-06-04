@@ -137,6 +137,10 @@
       "name": "@zcaceres/skill-transcribe-youtube",
       "version": "0.0.0",
     },
+    "skills/trip-planner": {
+      "name": "@zcaceres/skill-trip-planner",
+      "version": "0.0.0",
+    },
     "skills/zoom": {
       "name": "@zcaceres/skill-zoom",
       "version": "1.0.0",
@@ -256,6 +260,8 @@
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 
     "@zcaceres/skill-transcribe-youtube": ["@zcaceres/skill-transcribe-youtube@workspace:skills/transcribe-youtube"],
+
+    "@zcaceres/skill-trip-planner": ["@zcaceres/skill-trip-planner@workspace:skills/trip-planner"],
 
     "@zcaceres/skill-zoom": ["@zcaceres/skill-zoom@workspace:skills/zoom"],
 

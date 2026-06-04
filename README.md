@@ -50,6 +50,7 @@ npx skills add zcaceres/skills -s safety-op-creds
 npx skills add zcaceres/skills -s safety-rm-rf-guard
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
+npx skills add zcaceres/skills -s trip-planner
 npx skills add zcaceres/skills -s zoom
 ```
 
@@ -87,6 +88,7 @@ settings wiring — see each skill's README.
 | `safety-rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
+| `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |
 | `zoom` | Shift abstraction level (`in` for internals, `out` for context). |
 
 ## Layout

@@ -16,47 +16,38 @@ You are updating a single card on the GitHub Projects kanban board with new find
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`.
+Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup before continuing.
 
 ```bash
-CONFIG=$(cat .github/gh-project.json)
-PROJECT_NUMBER=$(echo "$CONFIG" | jq -r '.projectNumber')
-PROJECT_ID=$(echo "$CONFIG" | jq -r '.projectId')
-OWNER=$(echo "$CONFIG" | jq -r '.owner')
-REPO=$(echo "$CONFIG" | jq -r '.repo')
-STATUS_FIELD_ID=$(echo "$CONFIG" | jq -r '.statusField.id')
+OWNER=$(jq -r .owner .github/gh-project.json)
+REPO=$(jq -r .repo .github/gh-project.json)
+HELPER=.github/scripts/gh-project-board.sh
+test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
 ```
 
 ## Step 1 — Identify the target card
 
-Three possible inputs, in priority order:
+Three possible inputs, in priority order. Use the helper's `find` subcommand — it auto-detects which kind of selector you passed.
 
 ### A. Explicit project item id (`PVTI_…`)
-Use as-is. Skip lookup.
-
-### B. Issue number or project card title
-Resolve via `item-list`:
-
 ```bash
-gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json -L 200 > /tmp/board.json
+ROW=$($HELPER find "$ITEM_ID")
 ```
 
-- **Issue number `23`** → match against `content.url` ending in `/issues/23`:
-  ```bash
-  jq -r --arg n "23" '.items[] | select(.content.url? | test("/issues/" + $n + "$")) | .id' /tmp/board.json
-  ```
-- **Title or substring** → case-insensitive substring match on `title`:
-  ```bash
-  jq -r --arg q "csv" '.items[] | select(.title | ascii_downcase | contains($q | ascii_downcase)) | "\(.id)\t\(.title)\t\(.status)"' /tmp/board.json
-  ```
-  If more than one matches, list them all and ask the user to pick. Do not silently update the first match.
+### B. Issue number or title substring
+```bash
+$HELPER find 23        # treats as issue number
+$HELPER find "csv"     # treats as title substring (case-insensitive)
+```
+
+The helper outputs zero or more JSONL rows. If multiple match, **list them all and ask the user to pick** — do not silently update the first match.
 
 ### C. Infer from conversation
 If the user invoked the skill bare ("update that card with what we just figured out"), you must guess. Strategy:
 
-1. Pull the full board (above).
+1. Pull the board: `$HELPER list > /tmp/board.jsonl`.
 2. Identify keywords from the recent conversation — files touched, function names, feature nouns the user used.
-3. Score each non-Done card by keyword overlap with title + body.
+3. Score each non-Done card by keyword overlap with title + bodyPreview.
 4. If the top match is unambiguously ahead of the next, present it with one-line evidence and confirm before editing.
 5. If two or more cards score similarly, list the top 3 and ask which one.
 
@@ -64,7 +55,13 @@ If the user invoked the skill bare ("update that card with what we just figured 
 
 ## Step 2 — Show current state + proposed update
 
-Fetch the card's current title, body, and status. For drafts, item-list already has the body. For issues:
+Fetch the card's current title, body, and status:
+
+```bash
+$HELPER get "$ITEM_ID"   # includes body for both drafts and issue-backed cards
+```
+
+For issue-backed cards you may want richer issue metadata (labels, milestone, assignees) — fetch that separately:
 
 ```bash
 gh issue view <issue-number> --repo "$OWNER/$REPO" --json title,body,state,milestone,labels
@@ -124,19 +121,18 @@ gh issue edit <issue-number> --repo "$OWNER/$REPO" --body-file /tmp/new-body.md
 ### Status (both card types)
 
 ```bash
-TARGET_OPTION_ID=$(echo "$CONFIG" | jq -r '.statusField.options["In Progress"]')
-gh project item-edit \
-  --id "$ITEM_ID" \
-  --project-id "$PROJECT_ID" \
-  --field-id "$STATUS_FIELD_ID" \
-  --single-select-option-id "$TARGET_OPTION_ID"
+$HELPER set-status "$ITEM_ID" "In Progress"
 ```
 
-Pass the status option name exactly as it appears in `.github/gh-project.json` under `statusField.options`.
+The helper looks up the field id and option id from `.github/gh-project.json`. Pass the status name exactly as it appears under `statusField.options`. If you pass an unknown name, the helper prints the valid options.
 
 ### Custom fields (e.g. a "Notes" text field)
 
+The helper only knows about Status. For other fields, drop to raw `gh`:
+
 ```bash
+PROJECT_ID=$(jq -r .projectId .github/gh-project.json)
+
 gh project item-edit \
   --id "$ITEM_ID" \
   --project-id "$PROJECT_ID" \

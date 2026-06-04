@@ -92,17 +92,22 @@ Limitations to surface up front:
 
 ## Setting initial status (optional)
 
-Both modes land the card in `Todo`. If the user wants to start in `In Progress` (e.g. they're already working on it), update after creation:
+Both modes land the card in `Todo`. If the user wants to start in `In Progress` (e.g. they're already working on it), use the shared helper:
 
 ```bash
-PROJECT_ID=$(echo "$CONFIG" | jq -r '.projectId')
-STATUS_FIELD_ID=$(echo "$CONFIG" | jq -r '.statusField.id')
-IN_PROGRESS_ID=$(echo "$CONFIG" | jq -r '.statusField.options."In Progress"')
+# For a draft: .id is the PVTI_… from item-create.
+# For an issue: find the project item id by issue number.
+ITEM_ID=$(.github/scripts/gh-project-board.sh find "$ISSUE_NUMBER" | jq -r '.id')
 
-# ITEM_ID is .id from item-create (drafts), or you have to fetch it for issues.
-# For an issue, you need to find the item-id of the issue on the project:
-ITEM_ID=$(gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json -L 200 \
-  | jq -r --arg url "$ISSUE_URL" '.items[] | select(.content.url==$url) | .id')
+.github/scripts/gh-project-board.sh set-status "$ITEM_ID" "In Progress"
+```
+
+If `.github/scripts/gh-project-board.sh` is missing (setup was run before this script existed), fall back to the raw command — but mention the gap to the user and offer to re-run `/gh-project-setup`:
+
+```bash
+PROJECT_ID=$(jq -r .projectId .github/gh-project.json)
+STATUS_FIELD_ID=$(jq -r .statusField.id .github/gh-project.json)
+IN_PROGRESS_ID=$(jq -r '.statusField.options["In Progress"]' .github/gh-project.json)
 
 gh project item-edit \
   --id "$ITEM_ID" \
@@ -111,7 +116,7 @@ gh project item-edit \
   --single-select-option-id "$IN_PROGRESS_ID"
 ```
 
-Note: `item-edit` for an issue-backed item only supports updating **one field per invocation** and requires `--project-id`. Drafts can be edited via `--id` alone.
+Note: `gh project item-edit` for an issue-backed item only supports updating **one field per invocation** and requires `--project-id`. Drafts can be edited via `--id` alone.
 
 ## Output
 

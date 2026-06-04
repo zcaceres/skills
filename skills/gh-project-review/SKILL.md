@@ -17,45 +17,37 @@ Treat this like a code review with verdicts. False positives are expensive — m
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`.
+Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Also expect `.github/scripts/gh-project-board.sh` (installed by setup); if it's missing, surface that and offer to re-run setup before continuing — the script's truncation check is what keeps you from silently missing cards on a busy board.
 
 ```bash
-CONFIG=$(cat .github/gh-project.json)
-PROJECT_NUMBER=$(echo "$CONFIG" | jq -r '.projectNumber')
-PROJECT_ID=$(echo "$CONFIG" | jq -r '.projectId')
-OWNER=$(echo "$CONFIG" | jq -r '.owner')
-REPO=$(echo "$CONFIG" | jq -r '.repo')
-STATUS_FIELD_ID=$(echo "$CONFIG" | jq -r '.statusField.id')
-TODO_ID=$(echo "$CONFIG" | jq -r '.statusField.options.Todo')
-IN_PROGRESS_ID=$(echo "$CONFIG" | jq -r '.statusField.options."In Progress"')
-DONE_ID=$(echo "$CONFIG" | jq -r '.statusField.options.Done')
+OWNER=$(jq -r .owner .github/gh-project.json)
+REPO=$(jq -r .repo .github/gh-project.json)
+HELPER=.github/scripts/gh-project-board.sh
+test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
 ```
 
 ## Workflow
 
 ### 1. Pull the current board
 
+Use the helper. It fetches up to 500 items, asserts `fetched == totalCount`, and outputs one compact JSON row per line:
+
 ```bash
-gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json -L 200 > /tmp/board.json
+# Cards not yet Done — most reviews want this.
+$HELPER list --query "-status:Done" > /tmp/board.jsonl
+
+# Or everything (rarely needed):
+$HELPER list > /tmp/board.jsonl
 ```
 
-The JSON shape per item:
+Each row has the shape:
 ```json
-{
-  "id": "PVTI_…",
-  "title": "…",
-  "status": "Todo" | "In Progress" | "Done" | "",
-  "content": {
-    "type": "DraftIssue" | "Issue" | "PullRequest",
-    "id": "…",
-    "title": "…",
-    "body": "…",
-    "url": "…"          // present for Issue / PullRequest
-  }
-}
+{"id":"PVTI_…","title":"…","status":"Todo","type":"Issue","number":23,"url":"https://…","bodyPreview":"first 120 chars…"}
 ```
 
-By default, audit all cards NOT in `Done`. If the user asks for a narrower scope ("just In Progress", "just the 'docs' label"), filter accordingly.
+If the helper exits with `TRUNCATED: fetched N of M items`, the board is too big — narrow with `--query` (e.g. `--query "is:open -status:Done"`) before retrying.
+
+Need the full body for a specific card? Use `$HELPER get <PVTI_…>` for that one card rather than re-fetching everything with `--include-body`.
 
 ### 2. Gather codebase evidence per card
 
@@ -115,17 +107,13 @@ Handle responses:
 
 ### 5. Apply an approved update
 
-For both drafts and issues, status moves are field updates on the item:
+Use the helper — it looks up the field id and option id from the config so you can't mix them up:
 
 ```bash
-gh project item-edit \
-  --id "$ITEM_ID" \
-  --project-id "$PROJECT_ID" \
-  --field-id "$STATUS_FIELD_ID" \
-  --single-select-option-id "$TARGET_OPTION_ID"
+$HELPER set-status "$ITEM_ID" "Done"          # or "Todo", "In Progress"
 ```
 
-`$ITEM_ID` is the `PVTI_…` from the item-list output; `$TARGET_OPTION_ID` is `$TODO_ID`, `$IN_PROGRESS_ID`, or `$DONE_ID` from the config.
+`$ITEM_ID` is the `.id` from the board JSONL row. The status name must match a key in `.statusField.options` in `.github/gh-project.json` — the helper will list the valid options if you pass an unknown one.
 
 If the card is an Issue (`content.type=="Issue"`) AND the verdict is `Looks Done` AND the issue is still open, also ask the user whether to close the underlying issue:
 

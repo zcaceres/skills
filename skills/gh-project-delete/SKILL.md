@@ -15,23 +15,25 @@ You are removing a card from the GitHub Projects kanban board. **Confirmation is
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`.
+Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup.
 
 ```bash
-CONFIG=$(cat .github/gh-project.json)
-PROJECT_NUMBER=$(echo "$CONFIG" | jq -r '.projectNumber')
-OWNER=$(echo "$CONFIG" | jq -r '.owner')
-REPO=$(echo "$CONFIG" | jq -r '.repo')
+PROJECT_NUMBER=$(jq -r .projectNumber .github/gh-project.json)
+OWNER=$(jq -r .owner .github/gh-project.json)
+REPO=$(jq -r .repo .github/gh-project.json)
+HELPER=.github/scripts/gh-project-board.sh
+test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
 ```
 
 ## Step 1 — Resolve the target
 
-Same lookup logic as `/gh-project-update`. Accept:
-- A `PVTI_…` item ID directly.
-- An issue number (`23`) → resolve to item id via `gh project item-list ... --format json` and matching `content.url` ending in `/issues/23`.
-- A title (full or substring) → case-insensitive match.
+Use the helper's `find` subcommand:
 
-If the resolution returns more than one card, **list all candidates and ask the user to pick**. Do not delete the first match.
+```bash
+$HELPER find "$SELECTOR"   # auto-detects PVTI_… / issue# / title-substring
+```
+
+If the resolution returns more than one row, **list all candidates and ask the user to pick**. Do not delete the first match.
 
 If the user invoked the skill bare (no identifier), **stop and ask**. Inferring deletion targets from conversation context is too risky.
 
@@ -40,8 +42,7 @@ If the user invoked the skill bare (no identifier), **stop and ask**. Inferring 
 Pull everything visible about the card before asking for confirmation. The user needs to see exactly what they're about to lose.
 
 ```bash
-gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --format json -L 200 \
-  | jq --arg id "$ITEM_ID" '.items[] | select(.id==$id)'
+$HELPER get "$ITEM_ID"        # full row with body
 ```
 
 For issue-backed items, also pull the issue:

@@ -223,10 +223,11 @@ truncation, so an agent that "doesn't see" a card will fail loudly instead
 of silently missing it.
 
 Card workflow:
-- Create: `/gh-project-new-task` (creates a linked GitHub issue by default)
-- Edit:   `/gh-project-update [id|number|title]`
-- Audit:  `/gh-project-review` (board vs codebase)
-- Delete: `/gh-project-delete [id|number|title]`
+- Create:  `/gh-project-new-task` (creates a linked GitHub issue by default)
+- Pick:    `/gh-project-next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:    `/gh-project-update [id|number|title]`
+- Audit:   `/gh-project-review` (board vs codebase)
+- Delete:  `/gh-project-delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.
@@ -260,6 +261,7 @@ Agent docs updated: CLAUDE.md, AGENTS.md  (or "skipped — user declined")
 Next: open <url> and add a Board view grouped by Status.
 Sibling skills:
   /gh-project-new-task — create a card
+  /gh-project-next     — pick the next Todo card and start
   /gh-project-review   — audit board vs codebase
   /gh-project-update   — edit a card
   /gh-project-delete   — remove a card

@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-gh-project-next",
+  "version": "0.0.0",
+  "description": "Pick the next Todo card from the repo's GitHub Projects kanban, move it to In Progress, and dump the full context for the agent to start work.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "github",
+    "github-projects",
+    "kanban",
+    "next"
+  ]
+}

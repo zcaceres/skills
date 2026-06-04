@@ -28,6 +28,7 @@ npx skills add zcaceres/skills -s acid-trip
 npx skills add zcaceres/skills -s chaos-monkey
 npx skills add zcaceres/skills -s checkpoint
 npx skills add zcaceres/skills -s cleanup-computer
+npx skills add zcaceres/skills -s clean-ai-slop
 npx skills add zcaceres/skills -s cli-agent-friendly-audit
 npx skills add zcaceres/skills -s code-cleanup-analyzer
 npx skills add zcaceres/skills -s commit-push-pr
@@ -64,6 +65,7 @@ settings wiring — see each skill's README.
 | `chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
 | `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
+| `clean-ai-slop` | Diff the current branch against `main` and strip AI-generated slop — superfluous comments, defensive `try/catch`, `any`-casts, style inconsistent with the file. |
 | `cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
 | `code-cleanup-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |

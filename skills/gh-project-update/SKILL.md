@@ -19,11 +19,13 @@ You are updating a single card on the GitHub Projects kanban board with new find
 Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup before continuing.
 
 ```bash
-OWNER=$(jq -r .owner .github/gh-project.json)
+REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 HELPER=.github/scripts/gh-project-board.sh
 test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
 ```
+
+(This skill only talks to `gh issue` directly — the board helper handles all `gh project` calls — so only `REPO_OWNER` is needed here.)
 
 ## Step 1 — Identify the target card
 
@@ -64,7 +66,7 @@ $HELPER get "$ITEM_ID"   # includes body for both drafts and issue-backed cards
 For issue-backed cards you may want richer issue metadata (labels, milestone, assignees) — fetch that separately:
 
 ```bash
-gh issue view <issue-number> --repo "$OWNER/$REPO" --json title,body,state,milestone,labels
+gh issue view <issue-number> --repo "$REPO_OWNER/$REPO" --json title,body,state,milestone,labels
 ```
 
 Present:
@@ -109,13 +111,13 @@ gh project item-edit --id "$ITEM_ID" --body "$NEW_BODY"
 
 The issue's title and body live on the issue, not the project item:
 ```bash
-gh issue edit <issue-number> --repo "$OWNER/$REPO" --title "$NEW_TITLE"
-gh issue edit <issue-number> --repo "$OWNER/$REPO" --body  "$NEW_BODY"
+gh issue edit <issue-number> --repo "$REPO_OWNER/$REPO" --title "$NEW_TITLE"
+gh issue edit <issue-number> --repo "$REPO_OWNER/$REPO" --body  "$NEW_BODY"
 ```
 
 For long bodies, write to a temp file and use `--body-file`:
 ```bash
-gh issue edit <issue-number> --repo "$OWNER/$REPO" --body-file /tmp/new-body.md
+gh issue edit <issue-number> --repo "$REPO_OWNER/$REPO" --body-file /tmp/new-body.md
 ```
 
 ### Status (both card types)

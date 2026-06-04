@@ -46,11 +46,12 @@ Sibling skills read these from the config file below — capture them all at set
 
 ```bash
 REPO_JSON=$(gh repo view --json owner,name,nameWithOwner)
-OWNER=$(echo "$REPO_JSON" | jq -r '.owner.login')
+REPO_OWNER=$(echo "$REPO_JSON" | jq -r '.owner.login')
 REPO=$(echo "$REPO_JSON" | jq -r '.name')
+PROJECT_OWNER="$REPO_OWNER"   # default; may be overridden below
 ```
 
-Confirm with the user: "Create a project owned by `$OWNER` for repo `$OWNER/$REPO`?" If they want a different owner (e.g. an org), accept the override.
+Confirm with the user: "Create a project owned by `$PROJECT_OWNER` for repo `$REPO_OWNER/$REPO`?" If they want a different project owner (e.g. a personal project against an org repo), accept the override and update **only** `PROJECT_OWNER` — `REPO_OWNER` is fixed by `gh repo view` and is what every `gh issue --repo` call needs downstream.
 
 ### 2. Pick a title and default mode
 
@@ -62,7 +63,7 @@ Ask:
 
 ```bash
 CREATE_JSON=$(gh project create \
-  --owner "$OWNER" \
+  --owner "$PROJECT_OWNER" \
   --title "$TITLE" \
   --format json)
 
@@ -74,7 +75,7 @@ PROJECT_URL=$(echo "$CREATE_JSON" | jq -r '.url')
 ### 4. Link to the repo
 
 ```bash
-gh project link "$PROJECT_NUMBER" --owner "$OWNER" --repo "$REPO"
+gh project link "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --repo "$REPO_OWNER/$REPO"
 ```
 
 Linking makes the repo's issues addable via the project picker on the Issues UI and lets `gh issue create --project "$TITLE"` work without `--owner`.
@@ -84,7 +85,7 @@ Linking makes the repo's issues addable via the project picker on the Issues UI 
 The default project ships with a `Status` single-select field (`Todo`, `In Progress`, `Done`). Capture the IDs:
 
 ```bash
-FIELDS_JSON=$(gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json)
+FIELDS_JSON=$(gh project field-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --format json)
 STATUS_FIELD_ID=$(echo "$FIELDS_JSON" | jq -r '.fields[] | select(.name=="Status") | .id')
 STATUS_TODO_ID=$(echo "$FIELDS_JSON" | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="Todo") | .id')
 STATUS_IN_PROGRESS_ID=$(echo "$FIELDS_JSON" | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="In Progress") | .id')
@@ -105,7 +106,8 @@ Write to `.github/gh-project.json` (create `.github/` if missing). This is what 
 {
   "projectNumber": 4,
   "projectId": "PVT_kwHOAJkXU84BZADT",
-  "owner": "zcaceres",
+  "projectOwner": "zcaceres",
+  "repoOwner": "anthropic",
   "repo": "skills",
   "title": "skills",
   "url": "https://github.com/users/zcaceres/projects/4",
@@ -118,12 +120,13 @@ Write to `.github/gh-project.json` (create `.github/` if missing). This is what 
       "Done": "98236657"
     }
   },
-  "version": 1
+  "version": 2
 }
 ```
 
 Notes:
 - Substitute the captured values, not the literal example IDs above.
+- `projectOwner` is the GitHub login that owns the **project** (passed to every `gh project --owner` call). `repoOwner` is the GitHub login that owns the **repo** (used in `gh issue --repo "$repoOwner/$repo"`). They are equal in the common case; they diverge when a user runs a personal project against an org repo.
 - If the user picked `draft` mode, set `"defaultMode": "draft"`.
 - Add any extra status options the user created to `statusField.options`.
 

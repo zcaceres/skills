@@ -47,7 +47,7 @@ cmd_list() {
 
   require_config
   local owner project_number
-  owner=$(cfg .owner)
+  owner=$(cfg .projectOwner)
   project_number=$(cfg .projectNumber)
 
   local args=( "$project_number" --owner "$owner" --format json --limit "$ITEM_LIMIT" )

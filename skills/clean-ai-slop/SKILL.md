@@ -1,37 +1,91 @@
 ---
 name: clean-ai-slop
-description: Find and remove AI-generated code slop introduced on the current branch — superfluous comments, defensive try/catch, casts to any, and other stylistic noise inconsistent with the rest of the file. Use when user says "clean ai slop", "remove ai slop", "strip ai code", or "/clean-ai-slop".
+description: Find AI-generated noise on the current branch — tombstone comments, restating-the-code comments, callsite-reference comments, unused imports, dead internal symbols — propose each finding for confirmation, and apply only what's approved. Verify with the project's typecheck and tests after. Use when user says "clean ai slop", "remove ai slop", "strip ai code", or "/clean-ai-slop".
 ---
 
 # Remove AI code slop
 
-Check the diff against `main`, and remove all AI-generated slop introduced on
-this branch.
+Find AI-generated noise in this branch's diff, propose each finding for confirmation, and apply only what's approved. Verify with the project's typecheck and tests after.
 
-This includes:
+## Scope
 
-- Extra comments that a human wouldn't add or that are inconsistent with the
-  rest of the file
-- Extra defensive checks or `try/catch` blocks that are abnormal for that area
-  of the codebase (especially when called by trusted / already-validated
-  codepaths)
-- Casts to `any` (or equivalent escape hatches) used to paper over type issues
-  rather than fix them
-- Any other style that is inconsistent with the surrounding file — naming,
-  formatting, abstraction level, error-handling conventions
+Only act on lines in the current diff. Don't expand into ambient cruft from older commits.
 
-## Workflow
+**In scope:**
+- *Comment/text slop:* tombstones (`// removed X`, `// previously did Y`, `// no longer needed`), restating-the-code comments above obvious lines, verbose docstrings on self-evident functions, emoji and em-dash tells, framing comments (`// for clarity`, `// helper`, `// utility function`), callsite references (`// used by Y`, `// added for the X flow`, `// handles issue #123`), renamed `_unused` params with no callers, comments out of step with the file's norms.
+- *Dead code & unused symbols (internal only):* unused imports, unused local variables, unused parameters (only when safe to drop — not interface-required positions), unreachable code, dead internal functions.
 
-1. Run `git diff main...HEAD` (or the repo's actual trunk branch) to see what
-   this branch changed.
-2. For each changed file, read enough surrounding context to learn the local
-   conventions — don't judge slop in a vacuum.
-3. Remove the noise. Don't refactor beyond what the slop fix requires; this
-   skill cleans, it doesn't redesign.
-4. Leave behavior unchanged. If a defensive check was load-bearing (catches a
-   real failure mode at a trust boundary), keep it.
+**Out of scope — leave untouched even if spotted:**
+- `try/catch` and defensive null/undefined checks
+- `any` / `unknown` casts
+- Redundant variable extractions, one-call-site helpers
+- **Unused exports** — too risky (may be external API)
+- Anything outside the diff
+
+Those concerns belong to `/simplify` or `/code-review`, not this command.
+
+## Procedure
+
+### 1. Determine the diff base
+
+Resolve in this order:
+1. If the user passed a base argument, use it.
+2. `git config branch.$(git branch --show-current).stack-parent` — stacked PR parent
+3. Upstream tracking branch (`git rev-parse --abbrev-ref @{upstream}`) if it points to a real parent
+4. `main`, then `master`
+
+If nothing resolves, stop and ask. Collect the full diff: `git diff <base>...HEAD` plus uncommitted changes (`git diff` + `git diff --cached`). That set of touched lines is the search surface.
+
+### 2. Sample local norms
+
+For each directory touched in the diff, read 2–3 sibling files (not in the diff) to establish baseline style — comment density, docstring conventions, naming. Use this when judging "inconsistent with file" findings. Don't claim inconsistency without a sampled baseline.
+
+### 3. Find dead code & unused symbols
+
+Detection order:
+1. **LSP** — if the LSP tool is available, use its unused-symbol diagnostics.
+2. **Project linter** — fall back to whatever's configured: `tsc --noEmit`, `eslint`, `ruff check --select F401,F841`, `pyflakes`, `go vet` + `staticcheck`, `cargo check` warnings, etc.
+3. If neither is available, **skip the dead-code pass entirely**. Do not grep-guess at structural removals.
+
+Filter results to only symbols touched or introduced in the current diff. **Skip test files** for this pass — fixtures and unused mocks are frequently retained on purpose.
+
+### 4. Find comment & text slop
+
+Scan the diff directly for the patterns listed under Scope. Apply these rules to test files too.
+
+### 5. Propose interactively
+
+For each finding, present:
+- `file:line`
+- Category (e.g. "tombstone comment", "unused import")
+- Exact text to remove
+- One-line rationale
+
+Use `AskUserQuestion` with options `Apply`, `Skip`, `Skip category` (skip all remaining findings of this category). Apply each approval immediately so the running diff stays accurate as the user works through the list. Do not batch.
+
+### 6. Verify
+
+After all approved findings are applied:
+1. Detect the project's typecheck command from `package.json` scripts, `tsconfig.json` presence, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.
+2. Detect the test command similarly.
+3. Run typecheck, then tests.
+4. On failure, stop and report the finding(s) most likely responsible. Do **not** auto-revert — let the user decide.
+
+If neither command is configured for the project, say so and skip verification.
 
 ## Report
 
-End with a 1–3 sentence summary of what you changed. No bullet lists, no
-file-by-file breakdown — the diff is the detailed view.
+End with a short categorized summary:
+
+```
+Applied:
+- 5 tombstone comments (3 files)
+- 4 unused imports (2 files)
+
+Skipped:
+- 1 docstring (kept by user)
+
+Verification: typecheck ✓ · tests ✓
+```
+
+No prose padding.

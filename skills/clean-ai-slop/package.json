@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-clean-ai-slop",
   "version": "1.0.0",
-  "description": "Diff the current branch against main and strip AI-generated code slop — superfluous comments, defensive try/catch, casts to any, style inconsistent with the surrounding file.",
+  "description": "Find AI-generated noise on the current branch — tombstone comments, restating-the-code comments, callsite references, unused imports, dead internal symbols — propose interactively, apply only approved findings, and verify with typecheck and tests.",
   "license": "MIT",
   "type": "module",
   "scripts": {

@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-gh-project-delete",
+  "version": "0.0.0",
+  "description": "Remove a card from the repo's GitHub Projects kanban after explicit confirmation, surfacing whether deletion destroys data (drafts) or only unlinks (issues).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "github",
+    "github-projects",
+    "kanban",
+    "delete"
+  ]
+}

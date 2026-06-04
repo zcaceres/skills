@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-gh-project-new-task",
+  "version": "0.0.0",
+  "description": "Create a new card on the repo's GitHub Projects kanban; defaults to a linked GitHub issue, supports drafts and optional milestone.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "github",
+    "github-projects",
+    "kanban",
+    "issue"
+  ]
+}

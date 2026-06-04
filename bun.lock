@@ -54,6 +54,26 @@
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
     },
+    "skills/gh-project-delete": {
+      "name": "@zcaceres/skill-gh-project-delete",
+      "version": "0.0.0",
+    },
+    "skills/gh-project-new-task": {
+      "name": "@zcaceres/skill-gh-project-new-task",
+      "version": "0.0.0",
+    },
+    "skills/gh-project-review": {
+      "name": "@zcaceres/skill-gh-project-review",
+      "version": "0.0.0",
+    },
+    "skills/gh-project-setup": {
+      "name": "@zcaceres/skill-gh-project-setup",
+      "version": "0.0.0",
+    },
+    "skills/gh-project-update": {
+      "name": "@zcaceres/skill-gh-project-update",
+      "version": "0.0.0",
+    },
     "skills/investigate-repo": {
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
@@ -192,6 +212,16 @@
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
+
+    "@zcaceres/skill-gh-project-delete": ["@zcaceres/skill-gh-project-delete@workspace:skills/gh-project-delete"],
+
+    "@zcaceres/skill-gh-project-new-task": ["@zcaceres/skill-gh-project-new-task@workspace:skills/gh-project-new-task"],
+
+    "@zcaceres/skill-gh-project-review": ["@zcaceres/skill-gh-project-review@workspace:skills/gh-project-review"],
+
+    "@zcaceres/skill-gh-project-setup": ["@zcaceres/skill-gh-project-setup@workspace:skills/gh-project-setup"],
+
+    "@zcaceres/skill-gh-project-update": ["@zcaceres/skill-gh-project-update@workspace:skills/gh-project-update"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 

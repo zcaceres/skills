@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-gh-project-update",
+  "version": "0.0.0",
+  "description": "Update a card on the repo's GitHub Projects kanban — title, body, or status — folding in context from the current conversation.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "github",
+    "github-projects",
+    "kanban",
+    "update"
+  ]
+}

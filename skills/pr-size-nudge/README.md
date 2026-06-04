@@ -38,12 +38,8 @@ they're gitignored.
 ## Install
 
 ```sh
-skills install @zcaceres/pr-size-nudge
+npx skills add zcaceres/skills -s pr-size-nudge
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=pr-size-nudge).
-
 Best paired with [`checkpoint`](../checkpoint/) — the nudge points the
 agent at that slash command.
 

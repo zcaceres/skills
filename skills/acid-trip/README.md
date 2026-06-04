@@ -42,12 +42,8 @@ python3 scripts/roll.py --seed 0123456789abcdef   # reproduce a prior trip
 ## Install
 
 ```sh
-skills install @zcaceres/acid-trip
+npx skills add zcaceres/skills -s acid-trip
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=acid-trip).
-
 ## Origin
 
 Ported from

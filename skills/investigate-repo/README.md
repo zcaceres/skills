@@ -12,11 +12,9 @@ red-flag reference.
 ## Install
 
 ```sh
-skills install @zcaceres/investigate-repo
+npx skills add zcaceres/skills -s investigate-repo
 ```
 
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=investigate-repo).
 This is a pure-markdown skill — no binaries, no install-time side effects.
 
 ## Origin

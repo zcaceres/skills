@@ -12,7 +12,7 @@ __ONE_LINE_DESCRIPTION__
 ## Install
 
 ```
-skills install @zcaceres/__SKILL_NAME__
+npx skills add zcaceres/skills -s __SKILL_NAME__
 ```
 
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=__SKILL_NAME__).
+Add `-g` for global install, or `-a <agent>` to target a specific agent.

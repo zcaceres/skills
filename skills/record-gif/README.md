@@ -12,7 +12,5 @@ Record animated GIFs of web page animations using Playwright screenshots and ffm
 ## Install
 
 ```
-skills install @zcaceres/record-gif
+npx skills add zcaceres/skills -s record-gif
 ```
-
-Or grab the tarball from the latest [GitHub release](https://github.com/zcaceres/skills/releases?q=record-gif).

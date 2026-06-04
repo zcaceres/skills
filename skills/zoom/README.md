@@ -22,12 +22,8 @@ output format.
 ## Install
 
 ```sh
-skills install @zcaceres/zoom
+npx skills add zcaceres/skills -s zoom
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=zoom).
-
 ## Origin
 
 Consolidated from

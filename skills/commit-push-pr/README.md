@@ -18,12 +18,8 @@ If you have uncommitted work that represents the *next slice* in a stack
 ## Install
 
 ```sh
-skills install @zcaceres/commit-push-pr
+npx skills add zcaceres/skills -s commit-push-pr
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=commit-push-pr).
-
 ## Origin
 
 Ported from

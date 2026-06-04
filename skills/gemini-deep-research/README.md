@@ -12,10 +12,6 @@ session.
 ```sh
 npx skills add zcaceres/skills -s gemini-deep-research
 ```
-
-Or grab the tarball from the latest
-[GitHub release](https://github.com/zcaceres/skills/releases?q=gemini-deep-research).
-
 ## Configuration
 
 **API key (required):**

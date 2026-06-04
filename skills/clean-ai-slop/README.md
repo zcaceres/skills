@@ -1,9 +1,15 @@
 # clean-ai-slop
 
-Diffs the current branch against `main` and strips AI-generated slop —
-superfluous comments, defensive `try/catch`, casts to `any`, and other style
-that doesn't match the surrounding file. Activates when the user says "clean
-ai slop", "remove ai slop", "strip ai code", or invokes `/clean-ai-slop`.
+Find AI-generated noise in the current branch's diff — tombstone comments,
+restating-the-code comments, callsite references, unused imports, dead internal
+symbols — propose each finding for confirmation, apply only what's approved,
+and verify with the project's typecheck and tests. Activates when the user
+says "clean ai slop", "remove ai slop", "strip ai code", or invokes
+`/clean-ai-slop`.
+
+Scope is intentionally tight: this skill does **not** touch `try/catch`,
+`any` casts, or redundant extractions — those belong to `/simplify` or
+`/code-review`.
 
 See [SKILL.md](./SKILL.md) for the full workflow.
 

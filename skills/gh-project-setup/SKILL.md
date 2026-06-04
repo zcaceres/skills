@@ -127,7 +127,62 @@ Notes:
 - If the user picked `draft` mode, set `"defaultMode": "draft"`.
 - Add any extra status options the user created to `statusField.options`.
 
-### 7. Update agent docs to point at the config
+### 7. Install the shared board helper script
+
+Sibling `gh-project-*` skills delegate board access to a small bash helper so they don't each re-invent (and get wrong) the `gh project item-list` + `jq` recipe. The big wins:
+
+- **Truncation safety** — asserts `fetched == totalCount`; exits non-zero if the limit was hit. Silent truncation is the #1 reason an agent "misses" a card.
+- **Compact JSONL output** — projects to `{id, title, status, type, number, url, bodyPreview}`. Each row is ~80 bytes instead of ~300, so the agent can scan 200+ items without context bloat.
+- **Single source of truth for IDs** — reads `.github/gh-project.json`; no hard-coded IDs in any sibling skill.
+
+Install the script alongside the config:
+
+```bash
+mkdir -p .github/scripts
+
+# The canonical script ships with this skill. When this skill is installed
+# globally, find it under ~/.claude/skills; for repo-local installs it's
+# under node_modules/@zcaceres/skill-gh-project-setup/scripts.
+SOURCE=$(command -v claude-skill-find 2>/dev/null \
+  && claude-skill-find gh-project-setup scripts/gh-project-board.sh)
+
+# Fallback: search the usual install locations.
+if [[ -z "$SOURCE" || ! -f "$SOURCE" ]]; then
+  for candidate in \
+    "$HOME/.claude/skills/gh-project-setup/scripts/gh-project-board.sh" \
+    "./node_modules/@zcaceres/skill-gh-project-setup/scripts/gh-project-board.sh" \
+    "./skills/gh-project-setup/scripts/gh-project-board.sh"; do
+    [[ -f "$candidate" ]] && SOURCE="$candidate" && break
+  done
+fi
+
+[[ -f "$SOURCE" ]] || { echo "Could not find gh-project-board.sh; paste it manually into .github/scripts/"; exit 1; }
+
+cp "$SOURCE" .github/scripts/gh-project-board.sh
+chmod +x .github/scripts/gh-project-board.sh
+```
+
+If the file copy fails (e.g. the skill is loaded from an unusual location), the agent should fall back to writing the script body inline from its own context. The script's source lives in `gh-project-setup/scripts/gh-project-board.sh` in this repo.
+
+After install, smoke-test it:
+
+```bash
+.github/scripts/gh-project-board.sh --help
+.github/scripts/gh-project-board.sh list | head -3
+```
+
+The first call should print usage. The second should emit JSONL rows (or nothing if the board is empty). If it errors with `missing .github/gh-project.json`, step 6 didn't write the config — back up and fix.
+
+**Subcommands** (record in the summary so the user knows what's available):
+
+- `list [--query <q>] [--include-body]` — all items as JSONL, with completeness check
+- `find <PVTI_… | issue# | title-substring>` — resolve a selector to matching rows
+- `get <item-id>` — full row including body
+- `set-status <item-id> <status-name>` — move a card to a status column
+
+Commit `.github/scripts/gh-project-board.sh` alongside `.github/gh-project.json`. Both belong to the user's repo from here on — they're versioned, auditable, and modifiable.
+
+### 8. Update agent docs to point at the config
 
 Agents won't discover `.github/gh-project.json` on their own. Surface it in whatever agent-facing docs this repo already uses, so future invocations of `/gh-project-*` skills (and other agents like Codex, Cursor) know where to look.
 
@@ -156,6 +211,17 @@ and status option IDs — is stored in `.github/gh-project.json`. Agents managin
 this board should read that file rather than hard-coding IDs (IDs change if the
 project is recreated).
 
+Board access goes through `.github/scripts/gh-project-board.sh`:
+
+- `list [--query <q>] [--include-body]` — compact JSONL of all items
+- `find <PVTI_… | issue# | title-substring>` — resolve a selector
+- `get <item-id>` — full row with body
+- `set-status <item-id> <status-name>` — move card between columns
+
+The helper asserts completeness against `totalCount` and exits non-zero on
+truncation, so an agent that "doesn't see" a card will fail loudly instead
+of silently missing it.
+
 Card workflow:
 - Create: `/gh-project-new-task` (creates a linked GitHub issue by default)
 - Edit:   `/gh-project-update [id|number|title]`
@@ -170,7 +236,7 @@ Deleted draft items lose their history.
 
 **Confirm before writing.** Show the user the diff you intend to apply for each file and ask for approval — these files are user-curated. If they reject the edit, skip and continue; setup still succeeds.
 
-### 8. Board view caveat
+### 9. Board view caveat
 
 `gh project` cannot create or edit views — only fields and items. The new project starts with a Table view. To get the kanban look:
 
@@ -178,7 +244,7 @@ Deleted draft items lose their history.
 
 Don't pretend the board view exists if you didn't see the user confirm they made one.
 
-### 9. Output
+### 10. Output
 
 End with a short summary:
 
@@ -188,6 +254,7 @@ Linked to <owner>/<repo>
 Default card mode: issue|draft
 Status columns: Todo, In Progress, Done
 Config written to .github/gh-project.json
+Helper installed: .github/scripts/gh-project-board.sh
 Agent docs updated: CLAUDE.md, AGENTS.md  (or "skipped — user declined")
 
 Next: open <url> and add a Board view grouped by Status.

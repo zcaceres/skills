@@ -1,8 +1,9 @@
 # AGENTS.md
 
-> **Sync with `CLAUDE.md`.** This file and `CLAUDE.md` at the repo root are
-> kept identical so other agents (Codex, Cursor, etc.) get the same context.
-> When you edit one, mirror the change to the other in the same commit.
+> **Sync with `CLAUDE.md`.** This file's body is kept in sync with `CLAUDE.md`
+> so other agents (Codex, Cursor, etc.) get the same context. Only the title
+> and this self-reference line differ between the two; when you edit one,
+> mirror the change to the other in the same commit.
 
 ## Project tracker
 

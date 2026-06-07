@@ -129,6 +129,10 @@
       "name": "@zcaceres/skill-safety-rm-rf-guard",
       "version": "1.0.0",
     },
+    "skills/stacked-pr": {
+      "name": "@zcaceres/skill-stacked-pr",
+      "version": "1.0.0",
+    },
     "skills/storage-cleanup": {
       "name": "@zcaceres/skill-storage-cleanup",
       "version": "1.0.0",
@@ -256,6 +260,8 @@
     "@zcaceres/skill-safety-op-creds": ["@zcaceres/skill-safety-op-creds@workspace:skills/safety-op-creds"],
 
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
+
+    "@zcaceres/skill-stacked-pr": ["@zcaceres/skill-stacked-pr@workspace:skills/stacked-pr"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 

@@ -48,6 +48,7 @@ npx skills add zcaceres/skills -s safety-dotenv-guard
 npx skills add zcaceres/skills -s safety-git-reset-guard
 npx skills add zcaceres/skills -s safety-op-creds
 npx skills add zcaceres/skills -s safety-rm-rf-guard
+npx skills add zcaceres/skills -s stacked-pr
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
 npx skills add zcaceres/skills -s trip-planner
@@ -86,6 +87,7 @@ settings wiring — see each skill's README.
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `safety-rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
+| `stacked-pr` | One skill for the full stacked-PR workflow: `/stacked-pr checkpoint` ships the next slice, `/stacked-pr update` updates the current PR. Supersedes `checkpoint` + `commit-push-pr` (and bundles the `pr-size-nudge` hook in a later release). |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |

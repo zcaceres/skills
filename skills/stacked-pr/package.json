@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-stacked-pr",
+  "version": "1.0.0",
+  "description": "Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), and more. Uses git stack when installed, falls back to gh + git.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "stacked-prs",
+    "git",
+    "github"
+  ]
+}

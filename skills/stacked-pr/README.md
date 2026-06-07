@@ -19,9 +19,12 @@ if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 | `submit` | Push the whole stack (force-with-lease) and create/update one PR per branch. Requires `git stack`. |
 | `log` | Read-only. Print the stack tree, each branch's PR, base, and state. Falls back to `gh pr list` when `git stack` isn't installed. |
 | `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack bottom-up with retarget verification between merges. Default strategy `--merge` preserves SHAs. `--rebase`/`--squash` rewrite SHAs and trigger the rebase-onto-main dance for child PRs. Refuses `--delete-branch`. |
 
-`merge` lands in the next PR in this consolidation stack. The
-PostToolUse hook (`pr-size-nudge`) joins this skill in the final PR.
+The PostToolUse hook (`pr-size-nudge`) joins this skill in the final PR.
+
+See [references/recovery.md](references/recovery.md) if a `--delete-branch`
+mishap has already auto-closed a child PR.
 
 `/stacked-pr` alone runs `checkpoint`. `/stacked-pr "fix the retry loop"`
 also runs `checkpoint` with that as the slice description — the

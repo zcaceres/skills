@@ -38,10 +38,23 @@ reference file and follow it exactly.
 A PostToolUse hook is also shipped with this skill. It fires after
 every `Edit`/`Write`/`MultiEdit`/`NotebookEdit` tool call and nudges
 toward `/stacked-pr checkpoint` when the uncommitted diff crosses
-size/file thresholds. See [references/nudge.md](references/nudge.md)
-for thresholds, env-var overrides, and the `~/.claude/settings.json`
-wiring (required until Claude Code substitutes `${CLAUDE_SKILL_DIR}`
-in frontmatter hook commands).
+size/file thresholds.
+
+Two-step install:
+
+```sh
+npx skills add zcaceres/skills -s stacked-pr
+~/.claude/skills/stacked-pr/scripts/install.sh
+```
+
+The second step wires the hook into `~/.claude/settings.json` so it
+fires on every matching tool call, not just when the skill is active
+in context (`${CLAUDE_SKILL_DIR}` substitution in frontmatter hook
+commands is not supported by Claude Code today). The script
+self-locates, so the same command works whether the skill was
+installed at user scope or project scope. Flags: `--project`,
+`--target PATH`. Requires `jq`. See [references/nudge.md](references/nudge.md)
+for thresholds, env-var overrides, and manual wiring as an alternative.
 
 ## Dispatcher
 

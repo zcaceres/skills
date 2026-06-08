@@ -55,18 +55,41 @@ repos entirely.
 
 ## Install
 
-> **Important.** The `hooks:` block in SKILL.md is the spec-correct
-> shape for a Claude Code skill that registers a hook, but as of today
-> Claude Code does **not** substitute `${CLAUDE_SKILL_DIR}` in
-> frontmatter hook commands — see
-> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
-> (closed as "not planned"). Until that lands, the only reliable
-> install path is to wire the hook into your settings file directly
-> with an absolute path.
+```sh
+npx skills add zcaceres/skills -s stacked-pr
+~/.claude/skills/stacked-pr/scripts/install.sh
+```
 
-After unpacking the skill, add this to `~/.claude/settings.json` (or
-your project's `.claude/settings.json`), replacing `<path>` with the
-unpacked skill's absolute path:
+The second step wires this hook into `~/.claude/settings.json` so it
+fires on every matching tool call, not just when the skill is active
+in context. The script is idempotent, backs up the target file with a
+timestamp, and is a no-op if the hook is already wired. It derives
+the runner path from its own location, so it works whether the skill
+was installed at user scope or project scope. Flags: `--project`
+(writes to `./.claude/settings.json`), `--target PATH` (explicit
+file). Requires `jq`.
+
+If you're migrating from the standalone `pr-size-nudge` skill,
+**remove its hook entry from settings.json before running this
+install.sh** — otherwise you'll get two nudges per fire, with
+different state files. The script prints a warning when it detects
+an existing pr-size-nudge entry.
+
+### Why two steps
+
+The `hooks:` block in SKILL.md is the spec-correct shape for a Claude
+Code skill that registers a hook, but as of today Claude Code does
+**not** substitute `${CLAUDE_SKILL_DIR}` in frontmatter hook commands
+— see [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
+(closed as "not planned"). And frontmatter `hooks:` blocks only fire
+while the skill is loaded into context — not always-on. `install.sh`
+writes an absolute path into `settings.json`, closing both gaps.
+
+### Manual wiring (alternative)
+
+If you'd rather not run a script, paste this into
+`~/.claude/settings.json` (or your project's `.claude/settings.json`),
+replacing `<path>` with the unpacked skill's absolute path:
 
 ```json
 {
@@ -84,10 +107,6 @@ unpacked skill's absolute path:
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-If you're migrating from the standalone `pr-size-nudge` skill,
-**remove its hook entry from settings.json before adding this one** —
-otherwise you'll get two nudges per fire, with different state files.
 
 ## How it works
 

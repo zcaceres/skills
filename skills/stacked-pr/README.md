@@ -32,14 +32,14 @@ This skill also ships the diff-size nudge hook (formerly the
 run `/stacked-pr checkpoint` when the uncommitted diff crosses
 size/file thresholds.
 
-See [references/nudge.md](references/nudge.md) for thresholds,
-env-var overrides, and how to wire it into `~/.claude/settings.json`
-(required until `${CLAUDE_SKILL_DIR}` substitution lands in
-frontmatter hook commands).
+The hook is wired up by the bundled `scripts/install.sh` (see Install
+below). See [references/nudge.md](references/nudge.md) for thresholds,
+env-var overrides, and manual wiring as an alternative.
 
 If you're migrating from the standalone `pr-size-nudge` skill, remove
 its `settings.json` hook entry before adding this one — otherwise
-both fire and you'll get double nudges.
+both fire and you'll get double nudges. The bundled `install.sh`
+prints a warning when it detects an existing pr-size-nudge entry.
 
 `/stacked-pr` alone runs `checkpoint`. `/stacked-pr "fix the retry loop"`
 also runs `checkpoint` with that as the slice description — the
@@ -52,7 +52,18 @@ references for the full workflows.
 
 ```sh
 npx skills add zcaceres/skills -s stacked-pr
+~/.claude/skills/stacked-pr/scripts/install.sh
 ```
+
+The second step wires the bundled PostToolUse nudge hook into
+`~/.claude/settings.json` so it fires on every matching tool call,
+not just when the skill is active in context. The script is
+idempotent, backs up the target file with a timestamp, and is a
+no-op if the hook is already wired. The script self-locates, so it
+works whether the skill was installed at user scope or project
+scope. Flags: `--project`, `--target PATH`. Requires `jq`. Skip
+this step if you only want the slash commands and don't want the
+nudge.
 
 Optional but recommended:
 

@@ -14,10 +14,6 @@
       "name": "@zcaceres/skill-acid-trip",
       "version": "1.0.0",
     },
-    "skills/boilerplate-openssf": {
-      "name": "@zcaceres/skill-boilerplate-openssf",
-      "version": "0.0.0",
-    },
     "skills/chaos-monkey": {
       "name": "@zcaceres/skill-chaos-monkey",
       "version": "1.0.0",
@@ -108,6 +104,10 @@
       "dependencies": {
         "zod": "^3.23.8",
       },
+    },
+    "skills/quality-openssf": {
+      "name": "@zcaceres/skill-quality-openssf",
+      "version": "0.0.0",
     },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
@@ -224,8 +224,6 @@
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
-    "@zcaceres/skill-boilerplate-openssf": ["@zcaceres/skill-boilerplate-openssf@workspace:skills/boilerplate-openssf"],
-
     "@zcaceres/skill-chaos-monkey": ["@zcaceres/skill-chaos-monkey@workspace:skills/chaos-monkey"],
 
     "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
@@ -269,6 +267,8 @@
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
+
+    "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
 
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 

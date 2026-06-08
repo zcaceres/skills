@@ -1,6 +1,6 @@
 ---
 name: safety-op-creds
-description: Fetch credentials from 1Password via the `op` CLI and feed them to programs through bash process substitution (/dev/fd/N file descriptors) or `op run` env vars, so secrets never touch disk or the agent's tool output. Ships a `with-creds` wrapper plus a PreToolUse hook that blocks bare `op read` and other secret-printing op subcommands.
+description: Fetch credentials from 1Password via the `op` CLI and feed them to programs through bash process substitution (/dev/fd/N file descriptors) or `op run` env vars, so secrets never touch disk or the agent's tool output. Ships a `with-creds` wrapper plus a PreToolUse hook that blocks bare `op read` and other secret-printing op subcommands. Frontmatter hook fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:
     - matcher: "Bash"
@@ -235,11 +235,35 @@ session, the `safety-dotenv-guard` skill, and an honest threat model.
 
 ## Install
 
-The `hooks:` block in the frontmatter above auto-wires the hook on
-skill load when installed at the standard personal-install location
-(`~/.claude/skills/safety-op-creds/`). If you install elsewhere, paste this
-into `~/.claude/settings.json` or your project's `.claude/settings.json`
-with `<path>` set to the unpacked skill's absolute path:
+```sh
+npx skills add zcaceres/skills -s safety-op-creds
+~/.claude/skills/safety-op-creds/scripts/install.sh
+```
+
+The second step wires this skill's `PreToolUse:Bash` hook into
+`~/.claude/settings.json` so bare `op read` and other secret-printing
+subcommands are blocked on every Bash call, not just when this skill is
+active in context. The script is idempotent, backs up the target file
+with a timestamp, and is a no-op if the hook is already wired. Flags:
+`--project`, `--target PATH`. Requires `jq`.
+
+Frontmatter `hooks:` blocks fire only while the skill is loaded into
+context, so they're not real always-on protection — `install.sh` closes
+that gap. See
+[`safety-rm-rf-guard`'s Install section](../safety-rm-rf-guard/SKILL.md#install)
+for the full explanation.
+
+For convenient use of the wrapper, symlink it onto your PATH:
+
+```sh
+ln -s ~/.claude/skills/safety-op-creds/scripts/with-creds ~/.local/bin/with-creds
+```
+
+Verify the hook is wired by asking Claude Code to run
+`op read "op://Vault/Item/field"` (after a restart); the hook prints
+`BLOCKED:` on stderr and exit-2s.
+
+### Manual wiring (alternative)
 
 ```json
 {
@@ -257,16 +281,6 @@ with `<path>` set to the unpacked skill's absolute path:
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-For convenient use, symlink the wrapper onto your PATH:
-
-```sh
-ln -s ~/.claude/skills/safety-op-creds/scripts/with-creds ~/.local/bin/with-creds
-```
-
-Verify the hook is wired by asking Claude Code to run
-`op read "op://Vault/Item/field"`; the hook prints `BLOCKED:` on stderr
-and exit-2s.
 
 ## Prerequisites
 

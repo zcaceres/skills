@@ -1,6 +1,6 @@
 ---
 name: safety-dotenv-guard
-description: Blocks Read, Bash, Grep, and Glob tool calls that touch .env files in Claude Code so secrets never enter the agent's context. Allows .env.example / .env.sample / .env.template / .env.dist. PreToolUse hook — activates automatically.
+description: Blocks Read, Bash, Grep, and Glob tool calls that touch .env files in Claude Code so secrets never enter the agent's context. Allows .env.example / .env.sample / .env.template / .env.dist. PreToolUse hook. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:
     - matcher: "Read|Bash|Grep|Glob"
@@ -102,12 +102,28 @@ hygiene, OS-level file permissions, sandboxing, and a secrets manager.
 
 ## Install
 
-The `hooks:` block in the frontmatter above auto-wires the hook on skill
-load, assuming the skill is installed at the standard personal-install
-location (`~/.claude/skills/safety-dotenv-guard/`). If you install elsewhere,
-or prefer explicit wiring, paste the snippet below into
-`~/.claude/settings.json` or your project's `.claude/settings.json` with
-`<path>` set to the unpacked skill's absolute path:
+```sh
+npx skills add zcaceres/skills -s safety-dotenv-guard
+~/.claude/skills/safety-dotenv-guard/scripts/install.sh
+```
+
+The second step wires this skill's `PreToolUse:Read|Bash|Grep|Glob` hook
+into `~/.claude/settings.json` so it fires on every matching tool call,
+not just when this skill is active in context. The script is idempotent,
+backs up the target file with a timestamp, and is a no-op if the hook is
+already wired. Flags: `--project`, `--target PATH`. Requires `jq`.
+
+Frontmatter `hooks:` blocks fire only while the skill is loaded into
+context, so they're not real always-on protection — `install.sh` closes
+that gap. See
+[`safety-rm-rf-guard`'s Install section](../safety-rm-rf-guard/SKILL.md#install)
+for the full explanation.
+
+Verify it's wired by asking Claude Code to read a `.env` file in any
+project (after a restart); the hook prints `BLOCKED: …` on stderr and
+exit-2s.
+
+### Manual wiring (alternative)
 
 ```json
 {
@@ -125,9 +141,6 @@ or prefer explicit wiring, paste the snippet below into
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-Verify it's wired up by asking Claude Code to read a `.env` file in any
-project; the hook prints `BLOCKED: …` on stderr and exit-2s.
 
 ## Prerequisites
 

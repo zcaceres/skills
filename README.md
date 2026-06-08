@@ -56,8 +56,24 @@ npx skills add zcaceres/skills -s zoom
 ```
 
 Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
-Hook skills (`pr-size-nudge`, `safety-dotenv-guard`, `safety-git-reset-guard`, `safety-op-creds`, `safety-rm-rf-guard`, `stacked-pr`) require additional
-settings wiring — see each skill's README.
+
+**Hook skills.** `pr-size-nudge`, `safety-dotenv-guard`,
+`safety-git-reset-guard`, `safety-op-creds`, and `safety-rm-rf-guard`
+each ship a `scripts/install.sh` that idempotently wires the hook into
+`~/.claude/settings.json` (with a timestamped backup). Two-step install:
+
+```sh
+npx skills add zcaceres/skills -s <hook-skill>
+~/.claude/skills/<hook-skill>/scripts/install.sh
+```
+
+Why two steps: the `skills` CLI is a pure file copier and runs no
+publisher code on install. The SKILL.md frontmatter `hooks:` block only
+fires while the skill is active in context — not always-on. `install.sh`
+gets the hook onto every matching tool call. Requires `jq`. See each
+skill's `SKILL.md` for `--project` / `--target` flags and manual wiring
+as an alternative. `stacked-pr` also requires settings wiring — see its
+README.
 
 ## Skills
 

@@ -20,6 +20,20 @@ Two pieces:
 See [SKILL.md](./SKILL.md) for the full reference: usage examples,
 blocked/allowed patterns, install steps, and known limitations.
 
+## Install
+
+```sh
+npx skills add zcaceres/skills -s safety-op-creds
+~/.claude/skills/safety-op-creds/scripts/install.sh
+```
+
+The bundled `install.sh` idempotently wires the hook into
+`~/.claude/settings.json` (with timestamped backup) so bare `op read`
+and other secret-printing subcommands are blocked on every Bash call,
+not just while this skill is loaded. Requires `jq` and the `op` CLI.
+See [SKILL.md](./SKILL.md#install) for why two steps are needed and for
+manual wiring as an alternative.
+
 ## Develop
 
 ```sh

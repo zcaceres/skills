@@ -4,8 +4,21 @@ PreToolUse hook for Claude Code that blocks destructive file deletion and
 redirects to the `trash` CLI. Pre-built binaries for macOS arm64, Linux x64,
 and Windows x64 ship in the published tarball.
 
-See [SKILL.md](./SKILL.md) for the full reference: blocked patterns, manual
-wiring, and how it works.
+See [SKILL.md](./SKILL.md) for the full reference: blocked patterns, install
+script, manual wiring, and how it works.
+
+## Install
+
+```sh
+npx skills add zcaceres/skills -s safety-rm-rf-guard
+~/.claude/skills/safety-rm-rf-guard/scripts/install.sh
+```
+
+The bundled `install.sh` idempotently wires the hook into
+`~/.claude/settings.json` (with timestamped backup) so it fires on every
+Bash call, not just while this skill is loaded. Requires `jq`. See
+[SKILL.md](./SKILL.md#install) for why two steps are needed and for
+manual wiring as an alternative.
 
 ## Develop
 

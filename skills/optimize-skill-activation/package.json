@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-optimize-skill-activation",
+  "version": "0.0.0",
+  "description": "Audit installed skills and right-size their activation mode — slash-only, model-invocable (name+description in context), or eager-loaded (full body up front). Preview changes, then rewrite each SKILL.md frontmatter. Use when the user says 'optimize skills', 'right-size skills', 'reduce skill tokens', 'audit skill activation', or '/optimize-skill-activation'.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

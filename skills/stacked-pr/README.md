@@ -21,10 +21,25 @@ if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 | `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack bottom-up with retarget verification between merges. Default strategy `--merge` preserves SHAs. `--rebase`/`--squash` rewrite SHAs and trigger the rebase-onto-main dance for child PRs. Refuses `--delete-branch`. |
 
-The PostToolUse hook (`pr-size-nudge`) joins this skill in the final PR.
-
 See [references/recovery.md](references/recovery.md) if a `--delete-branch`
 mishap has already auto-closed a child PR.
+
+## Bundled PostToolUse hook
+
+This skill also ships the diff-size nudge hook (formerly the
+`pr-size-nudge` skill). It fires after every `Edit`/`Write`/
+`MultiEdit`/`NotebookEdit` tool call and emits a soft reminder to
+run `/stacked-pr checkpoint` when the uncommitted diff crosses
+size/file thresholds.
+
+See [references/nudge.md](references/nudge.md) for thresholds,
+env-var overrides, and how to wire it into `~/.claude/settings.json`
+(required until `${CLAUDE_SKILL_DIR}` substitution lands in
+frontmatter hook commands).
+
+If you're migrating from the standalone `pr-size-nudge` skill, remove
+its `settings.json` hook entry before adding this one — otherwise
+both fire and you'll get double nudges.
 
 `/stacked-pr` alone runs `checkpoint`. `/stacked-pr "fix the retry loop"`
 also runs `checkpoint` with that as the slice description — the
@@ -51,7 +66,8 @@ Consolidates these previously-separate skills into one distributable unit:
 
 - [`checkpoint`](../checkpoint/) → `/stacked-pr checkpoint`
 - [`commit-push-pr`](../commit-push-pr/) → `/stacked-pr update`
-- [`pr-size-nudge`](../pr-size-nudge/) → bundled hook (added in a later PR)
+- [`pr-size-nudge`](../pr-size-nudge/) → bundled PostToolUse hook (see
+  [references/nudge.md](references/nudge.md))
 
 The originals remain installable for one release cycle, then will be
 removed in favor of this consolidated skill.

@@ -7,6 +7,13 @@ disable-model-invocation: true
 
 # Checkpoint — Ship Current Slice as a Stacked PR
 
+> **Deprecated — use [`/stacked-pr checkpoint`](../stacked-pr/) instead.**
+> This skill has been folded into the consolidated `stacked-pr` skill,
+> which bundles the full stacked-PR workflow (checkpoint, update,
+> submit, log, sync, merge) and the PostToolUse nudge hook as one
+> install. The body of this skill is preserved verbatim for the
+> deprecation window and will be removed after one release cycle.
+
 Commit the current uncommitted work as the next branch in a stack, push it, and open a PR against the parent branch. Leave the user on the new child branch, ready to keep working.
 
 Uses `git stack` when available, otherwise falls back to `gh` CLI + `git`.

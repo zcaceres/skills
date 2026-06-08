@@ -56,7 +56,7 @@ npx skills add zcaceres/skills -s zoom
 ```
 
 Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
-Hook skills (`pr-size-nudge`, `safety-dotenv-guard`, `safety-git-reset-guard`, `safety-op-creds`, `safety-rm-rf-guard`) require additional
+Hook skills (`pr-size-nudge`, `safety-dotenv-guard`, `safety-git-reset-guard`, `safety-op-creds`, `safety-rm-rf-guard`, `stacked-pr`) require additional
 settings wiring — see each skill's README.
 
 ## Skills
@@ -87,7 +87,7 @@ settings wiring — see each skill's README.
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `safety-rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
-| `stacked-pr` | One skill for the full stacked-PR workflow: `/stacked-pr checkpoint` ships the next slice, `/stacked-pr update` updates the current PR. Supersedes `checkpoint` + `commit-push-pr` (and bundles the `pr-size-nudge` hook in a later release). |
+| `stacked-pr` | **Hook + slash command.** One skill for the full stacked-PR workflow: `/stacked-pr checkpoint` ships the next slice, `update` updates the current PR, `submit` pushes the whole stack, `log` visualizes it, `sync` rebases onto trunk, `merge` lands bottom-up. Also bundles the PostToolUse nudge. Supersedes `checkpoint`, `commit-push-pr`, and `pr-size-nudge`. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |

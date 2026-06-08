@@ -1,6 +1,6 @@
 ---
 name: pr-size-nudge
-description: Claude Code PostToolUse hook that injects a soft system-reminder when the uncommitted diff grows past size/file thresholds. Nudges toward /checkpoint to land a stacked PR. Cooldowns + dedup state.
+description: Claude Code PostToolUse hook that injects a soft system-reminder when the uncommitted diff grows past size/file thresholds. Nudges toward /checkpoint to land a stacked PR. Cooldowns + dedup state. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on nudging.
 hooks:
   PostToolUse:
     - matcher: "Edit|Write|MultiEdit|NotebookEdit"
@@ -9,6 +9,16 @@ hooks:
 ---
 
 # pr-size-nudge
+
+> **Deprecated — use the bundled hook in [`stacked-pr`](../stacked-pr/)
+> instead.** This skill has been folded into the consolidated
+> `stacked-pr` skill, which ships the same PostToolUse nudge alongside
+> the full stacked-PR slash-command workflow (checkpoint, update,
+> submit, log, sync, merge). The body of this skill is preserved
+> verbatim for the deprecation window and will be removed after one
+> release cycle. If you migrate, **remove the old `pr-size-nudge`
+> entry from `~/.claude/settings.json` before adding the new one** —
+> otherwise both hooks fire and you'll get double nudges.
 
 A PostToolUse hook that runs after every file-modifying tool call (`Edit`,
 `Write`, `MultiEdit`, `NotebookEdit`). It opens the current repo, runs
@@ -55,18 +65,37 @@ entirely.
 
 ## Install
 
-> **Important.** The `hooks:` block above is the spec-correct shape for a
-> Claude Code skill that registers a hook, but as of today Claude Code
-> does **not** substitute `${CLAUDE_SKILL_DIR}` in frontmatter hook
-> commands — see
-> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
-> (closed as "not planned"). Until that lands, the only reliable install
-> path is to wire the hook into your settings file directly with an
-> absolute path.
+```sh
+npx skills add zcaceres/skills -s pr-size-nudge
+~/.claude/skills/pr-size-nudge/scripts/install.sh
+```
 
-After unpacking the skill, add this to `~/.claude/settings.json` (or
-your project's `.claude/settings.json`), replacing `<path>` with the
-unpacked skill's absolute path:
+The second step wires this skill's
+`PostToolUse:Edit|Write|MultiEdit|NotebookEdit` hook into
+`~/.claude/settings.json` so the nudge fires after every file-modifying
+tool call, not just when this skill is active in context. The script is
+idempotent, backs up the target file with a timestamp, and is a no-op
+if the hook is already wired. Flags: `--project`, `--target PATH`.
+Requires `jq`.
+
+Frontmatter `hooks:` blocks fire only while the skill is loaded into
+context, so they're not real always-on nudging — `install.sh` closes
+that gap. See
+[`safety-rm-rf-guard`'s Install section](../safety-rm-rf-guard/SKILL.md#install)
+for the full explanation.
+
+> **Note on the frontmatter command.** The `hooks:` block above uses
+> `${CLAUDE_SKILL_DIR}/scripts/run.sh`, which is the spec-correct shape
+> for a portable frontmatter hook. As of today Claude Code does **not**
+> substitute `${CLAUDE_SKILL_DIR}` in frontmatter hook commands — see
+> [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
+> (closed as "not planned"). The `install.sh` writes an absolute path
+> into `settings.json`, sidestepping the substitution issue.
+
+The hook is best paired with the [`checkpoint`](../checkpoint/SKILL.md) skill,
+which is what the nudge tells the agent to invoke.
+
+### Manual wiring (alternative)
 
 ```json
 {
@@ -84,9 +113,6 @@ unpacked skill's absolute path:
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-The hook is best paired with the [`checkpoint`](../checkpoint/SKILL.md) skill,
-which is what the nudge tells the agent to invoke.
 
 ## How it works
 

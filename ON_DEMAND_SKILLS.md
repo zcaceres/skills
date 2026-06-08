@@ -1,24 +1,39 @@
 # On-Demand Skill Pattern (Token-Saving Workflows in Gemini CLI)
 
-This document describes a powerful pattern for using **Agent Skills** in a token-efficient manner. 
+This document describes a pattern for using **Agent Skills** in a token-efficient manner, alongside a critical system constraint identified during implementation.
 
 By default, Gemini CLI registers and exposes all enabled skills to the model, consuming precious tokens in the system prompt on every turn of a conversation—even when those skills are completely unused.
 
-By combining **Disabled Skills** and **Custom TOML Commands**, we can achieve **zero-cost standby** for all skills while keeping them fully accessible via direct slash-command invocations (e.g., `/review-code`).
+The **On-Demand Skill Pattern** was conceived to achieve **zero-cost standby** for all skills by disabling background/automatic skill scanning globally and mapping each skill to an explicit **Custom TOML Command** that loads the skill's `SKILL.md` file on-demand only.
 
 ---
 
-## The Problem: Automatic Token Bloat
+## 🛑 Critical System Constraint: Workspace Sandboxing
 
-In standard configurations, every active skill in `~/.gemini/skills/` is registered with the CLI. This injects metadata into the system prompt so the model can auto-discover and trigger them.
-* While progressive disclosure limits loading the entire `SKILL.md` body initially, the cumulative metadata overhead for dozens of skills still adds up.
-* More importantly, the model might accidentally auto-trigger or load skills when they are not strictly needed, ballooning your context window and increasing response latency/billing.
+During real-world usage of this pattern, we discovered a major security constraint in Gemini CLI's file-injection mechanism:
+
+> **File-injection directives (`@{path}`) are strictly sandboxed to the active workspace directory.**
+
+If you attempt to load a file from outside the current workspace (such as your global `~/.gemini/skills/` directory) via a custom command, the CLI will block the access and fail with the following error:
+
+```
+✕ Failed to inject content for '@{~/.gemini/skills/review-code/SKILL.md}': Path not found in workspace:
+  ~/.gemini/skills/review-code/SKILL.md
+```
+
+### Why this happens:
+To maintain security and prevent malicious prompts or scripts from reading sensitive user files, Gemini CLI restricts all file-reading directives to files residing within the allowed project workspace directories. 
+
+### Conclusion:
+Because of this sandboxing constraint, **the On-Demand Skill Pattern cannot be used for global/machine-level skills when working across arbitrary repositories.** 
+
+For global, machine-wide skills, **you must rely on standard, native skill loading** rather than custom TOML command wrappers.
 
 ---
 
-## The Solution: The On-Demand Skill Pattern
+## The Original Concept (For Workspace-Local Reference)
 
-We can configure Gemini CLI to completely disable background/automatic skill discovery, and instead map each skill to an explicit **Custom TOML Command** that loads the skill's `SKILL.md` file **on-demand only**.
+If you are implementing this pattern for **workspace-local** skills (where the skill directory is checked into the repository and resides fully within the active workspace), the pattern is still fully valid.
 
 ### Step 1: Disable Automatic Skill Scanning globally
 

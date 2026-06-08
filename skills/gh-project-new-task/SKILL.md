@@ -28,9 +28,19 @@ If the user invoked `/gh-project-new-task` with arguments, parse the title from 
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If it doesn't exist, stop and tell the user to run `/gh-project-setup` first. Don't try to guess the project number.
+**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
+- If it does NOT exist, **log a prominent warning** to the user:
+  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
+- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Do NOT attempt to guess IDs, project numbers, or proceed with the command. Stop immediately.
 
 ```bash
+if [ ! -f .github/gh-project.json ]; then
+  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
+  echo "Please run /gh-project-setup first to configure your project board."
+  exit 1
+fi
+
 CONFIG=$(cat .github/gh-project.json)
 PROJECT_NUMBER=$(echo "$CONFIG" | jq -r '.projectNumber')
 PROJECT_OWNER=$(echo "$CONFIG" | jq -r '.projectOwner')

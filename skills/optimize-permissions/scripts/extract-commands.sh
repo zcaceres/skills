@@ -7,14 +7,14 @@
 #   extract-commands.sh --dir <path>     # scan a specific transcript dir
 #   extract-commands.sh --limit <n>      # only the N most recent sessions (default 20)
 #
-# Output: one command per line, prefixed by approval status:
-#   APPROVED  git status
-#   REJECTED  rm -rf node_modules
-#   AUTO      ls
+# Output: one command per line, prefixed with UNKNOWN:
+#   UNKNOWN  git status
+#   UNKNOWN  rm -rf node_modules
 #
-# Approval inference is best-effort — we treat the absence of a
-# tool_result with is_error=true and a user "rejected"/"denied" marker
-# as APPROVED. If we can't tell, we emit UNKNOWN.
+# Approval-state inference (APPROVED / REJECTED / AUTO) is not implemented —
+# transcript shapes vary across versions and parsing them reliably is out of
+# scope. The prefix is reserved for future work; for now treat every line as
+# unclassified and let the calling agent infer intent from context.
 
 set -euo pipefail
 
@@ -79,6 +79,6 @@ printf '%s\n' "$files" | while IFS= read -r f; do
     | (.message.content // [])
     | map(select(.type == "tool_use" and .name == "Bash"))
     | .[]?
-    | "APPROVED\t" + (.input.command // "")
+    | "UNKNOWN\t" + (.input.command // "")
   ' "$f" 2>/dev/null
 done | awk -F'\t' '$2 != "" { print }'

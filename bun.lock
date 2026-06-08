@@ -54,6 +54,10 @@
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
     },
+    "skills/gh-project-decompose": {
+      "name": "@zcaceres/skill-gh-project-decompose",
+      "version": "0.0.0",
+    },
     "skills/gh-project-delete": {
       "name": "@zcaceres/skill-gh-project-delete",
       "version": "0.0.0",
@@ -235,6 +239,8 @@
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
+
+    "@zcaceres/skill-gh-project-decompose": ["@zcaceres/skill-gh-project-decompose@workspace:skills/gh-project-decompose"],
 
     "@zcaceres/skill-gh-project-delete": ["@zcaceres/skill-gh-project-delete@workspace:skills/gh-project-delete"],
 

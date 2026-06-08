@@ -16,10 +16,12 @@ if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 |---|---|
 | `checkpoint [slice description]` | Cut current diff as the next stacked branch + PR. Default when no subcommand is given. |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). Doesn't change an existing PR's base. |
+| `submit` | Push the whole stack (force-with-lease) and create/update one PR per branch. Requires `git stack`. |
+| `log` | Read-only. Print the stack tree, each branch's PR, base, and state. Falls back to `gh pr list` when `git stack` isn't installed. |
+| `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 
-More subcommands (`submit`, `log`, `sync`, `merge`) land in later PRs in
-this stack. The PostToolUse hook (`pr-size-nudge`) joins this skill in
-the final PR.
+`merge` lands in the next PR in this consolidation stack. The
+PostToolUse hook (`pr-size-nudge`) joins this skill in the final PR.
 
 `/stacked-pr` alone runs `checkpoint`. `/stacked-pr "fix the retry loop"`
 also runs `checkpoint` with that as the slice description — the

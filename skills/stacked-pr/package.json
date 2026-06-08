@@ -1,13 +1,21 @@
 {
   "name": "@zcaceres/skill-stacked-pr",
-  "version": "1.0.0",
-  "description": "Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), and more. Uses git stack when installed, falls back to gh + git.",
+  "version": "1.3.0",
+  "description": "Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), merge bottom-up (merge). Also bundles the PostToolUse pr-size-nudge hook. Uses git stack when installed, falls back to gh + git.",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "fetch-tools": "echo 'no bundled tools'",
-    "build": "echo 'no build step'",
-    "test": "echo 'no tests'"
+    "dev": "bun run scripts/index.ts",
+    "test": "bun test",
+    "build:linux": "bun build scripts/index.ts --compile --target=bun-linux-x64 --outfile scripts/bin/stacked-pr-nudge-linux-x64",
+    "build:macos": "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/stacked-pr-nudge-darwin-arm64",
+    "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64 --outfile scripts/bin/stacked-pr-nudge-windows-x64.exe",
+    "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
+    "build": "bun run build:all",
+    "fetch-tools": "bun run build:all"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
   },
   "files": [
     "SKILL.md",
@@ -21,6 +29,7 @@
     "claude-code",
     "skill",
     "slash-command",
+    "hook",
     "stacked-prs",
     "git",
     "github"

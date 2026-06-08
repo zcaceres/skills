@@ -1,8 +1,13 @@
 ---
 name: stacked-pr
-description: Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), and merge bottom-up (merge). Uses git stack when installed, falls back to gh + git. Invoke via /stacked-pr [subcommand] [args].
+description: Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), and merge bottom-up (merge). Also ships a PostToolUse hook that nudges toward /stacked-pr checkpoint when the uncommitted diff grows large. Uses git stack when installed, falls back to gh + git. Invoke via /stacked-pr [subcommand] [args].
 argument-hint: "[checkpoint | update | submit | log | sync | merge] [args]"
 disable-model-invocation: true
+hooks:
+  PostToolUse:
+    - matcher: "Edit|Write|MultiEdit|NotebookEdit"
+      type: command
+      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
 ---
 
 # Stacked PRs — One Skill
@@ -28,8 +33,15 @@ reference file and follow it exactly.
 | `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | Land the stack bottom-up with retarget verification between merges. Default strategy is `--merge` (preserves SHAs). `--rebase`/`--squash` rewrite SHAs and trigger the rebase-onto-main dance for child PRs. Refuses `--delete-branch`. |
 
-The PostToolUse hook (`pr-size-nudge`) joins this skill in the next PR
-in this consolidation stack.
+## Bundled hook
+
+A PostToolUse hook is also shipped with this skill. It fires after
+every `Edit`/`Write`/`MultiEdit`/`NotebookEdit` tool call and nudges
+toward `/stacked-pr checkpoint` when the uncommitted diff crosses
+size/file thresholds. See [references/nudge.md](references/nudge.md)
+for thresholds, env-var overrides, and the `~/.claude/settings.json`
+wiring (required until Claude Code substitutes `${CLAUDE_SKILL_DIR}`
+in frontmatter hook commands).
 
 ## Dispatcher
 

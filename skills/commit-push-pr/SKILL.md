@@ -7,6 +7,13 @@ disable-model-invocation: true
 
 # Commit, Push, and PR
 
+> **Deprecated — use [`/stacked-pr update`](../stacked-pr/) instead.**
+> This skill has been folded into the consolidated `stacked-pr` skill,
+> which bundles the full stacked-PR workflow (checkpoint, update,
+> submit, log, sync, merge) and the PostToolUse nudge hook as one
+> install. The body of this skill is preserved verbatim for the
+> deprecation window and will be removed after one release cycle.
+
 Commit only the changes made in this conversation, push them, and open a PR if one doesn't exist. Stack-aware: uses `git stack submit` when on a stacked branch, otherwise uses `gh` directly. Preserves the existing base branch.
 
 **Usage:** `/commit-push-pr [base-branch]`

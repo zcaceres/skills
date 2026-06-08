@@ -115,6 +115,21 @@ git checkout "$CURRENT" 2>/dev/null || git checkout main
 Walk the stack bottom-up. For each iteration, work on the
 *lowest-remaining* branch in the stack.
 
+#### Detect trunk (once, before the loop)
+
+```bash
+if git rev-parse --verify origin/main >/dev/null 2>&1; then
+  TRUNK=main
+elif git rev-parse --verify origin/master >/dev/null 2>&1; then
+  TRUNK=master
+else
+  echo "Couldn't detect trunk (neither origin/main nor origin/master). Aborting." >&2
+  exit 1
+fi
+```
+
+All retargets and fetches below use `"$TRUNK"`.
+
 #### Common pre-checks (every iteration)
 
 ```bash
@@ -144,12 +159,12 @@ NEXT="${STACK[1]}"
 if [[ -n "$NEXT" ]]; then
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
   NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "main" && "$NEXT_BASE" != "master" ]]; then
-    gh pr edit "$NEXT_PR" --base main
+  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+    gh pr edit "$NEXT_PR" --base "$TRUNK"
   fi
   # Re-read to confirm
   NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "main" && "$NEXT_BASE" != "master" ]]; then
+  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
     echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
     exit 1
   fi
@@ -161,46 +176,44 @@ contain the merged commits and don't need rebasing.
 
 #### Strategy B: `--rebase` or `--squash` (SHA-rewriting)
 
-These rewrite the bottom PR's SHAs as it lands on main, so child
+These rewrite the bottom PR's SHAs as it lands on trunk, so child
 branches still have the old SHAs and need their unique commits
-rebased onto the new main tip *before* merging.
+rebased onto the new trunk tip *before* merging.
 
 For the **bottom PR**:
 
 ```bash
-# 1. Retarget the bottom PR's child to main first (so the bottom PR's
-#    base is already main if it isn't — for a clean rebase/squash).
-#    The bottom PR's base should already be main; if it isn't, retarget
-#    before merging.
-if [[ "$PR_BASE" != "main" && "$PR_BASE" != "master" ]]; then
-  gh pr edit "$PR_NUMBER" --base main
+# The bottom PR's base should already be trunk; if it isn't, retarget
+# before merging.
+if [[ "$PR_BASE" != "$TRUNK" ]]; then
+  gh pr edit "$PR_NUMBER" --base "$TRUNK"
 fi
 
 gh pr merge "$PR_NUMBER" --rebase   # or --squash
-git fetch origin main
+git fetch origin "$TRUNK"
 ```
 
 Then, for **each remaining branch** in `STACK[1..]` (top-down or
-bottom-up, but be consistent), retarget + rebase onto main + force-push:
+bottom-up, but be consistent), retarget + rebase onto trunk + force-push:
 
 ```bash
 for NEXT in "${STACK[@]:1}"; do
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
   ORIG_PARENT_SHA=$(git rev-parse "origin/$NEXT~1")  # recorded pre-rebase
 
-  # 1. Retarget to main
-  gh pr edit "$NEXT_PR" --base main
+  # 1. Retarget to trunk
+  gh pr edit "$NEXT_PR" --base "$TRUNK"
 
-  # 2. Rebase only this PR's unique commits onto the new main
-  git fetch origin main
-  git rebase --onto origin/main "$ORIG_PARENT_SHA" "origin/$NEXT"
+  # 2. Rebase only this PR's unique commits onto the new trunk
+  git fetch origin "$TRUNK"
+  git rebase --onto "origin/$TRUNK" "$ORIG_PARENT_SHA" "origin/$NEXT"
 
   # 3. Force-push the rebased branch
   git push --force-with-lease origin "HEAD:refs/heads/$NEXT"
 done
 ```
 
-After all children are rebased onto main, continue merging the next
+After all children are rebased onto trunk, continue merging the next
 one if `--all` was passed; otherwise stop after merging the bottom PR.
 
 #### After each merge
@@ -209,7 +222,7 @@ Refetch trunk and re-derive the stack — branches may have been
 deleted, retargeted, or merged.
 
 ```bash
-git fetch origin main
+git fetch origin "$TRUNK"
 STACK=("${STACK[@]:1}")  # drop the bottom that just merged
 ```
 
@@ -222,7 +235,7 @@ Otherwise, loop.
 Print:
 
 - Which PRs merged (URLs)
-- Which child PRs were retargeted to `main`
+- Which child PRs were retargeted to trunk
 - Which branches were rebased + force-pushed (for `--rebase`/`--squash`)
 - A note on which branches can now be deleted locally (`git branch -D
   <branch>` — only after the user confirms they're done with them)
@@ -232,9 +245,9 @@ Print:
 - **Never** pass `--delete-branch` to `gh pr merge`. Deleting a base
   branch can auto-close child PRs irrecoverably. See
   [recovery.md](recovery.md) if this already happened.
-- **Always** verify each child's `baseRefName` is `main` (or `master`)
-  before merging the next PR. Don't trust auto-retarget — it's a repo
-  setting that may not be on.
+- **Always** verify each child's `baseRefName` is `$TRUNK` (detected
+  in step 4B as `main` or `master`) before merging the next PR. Don't
+  trust auto-retarget — it's a repo setting that may not be on.
 - Merge **bottom-up**. Top-down is never correct for stacks.
 - For `--rebase`/`--squash`: keep the original (pre-rebase) parent
   SHAs handy — they're the seed for `git rebase --onto`.

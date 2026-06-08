@@ -154,7 +154,12 @@ to the agent's native wildcard:
 For Claude Code specifically, group by the leading token(s) of the command:
 - `git status` → `Bash(git status:*)` (covers `git status`, `git status -s`)
 - `npm ls` → `Bash(npm ls:*)`
-- `cat path/to/file` → `Bash(cat:*)`
+
+Some commands can't be generalized by leading token. `cat` is the canonical
+example — `Bash(cat:*)` would match `cat .env`, `cat ~/.ssh/id_rsa`, etc., all
+of which `references/safe-commands.md` Tier 2 says to flag, not auto-allow.
+For these, either propose narrower patterns tied to specific safe paths
+(`Bash(cat README*)`) or drop the candidate entirely.
 
 Don't over-broaden. `Bash(*)` is never a valid proposal. `Bash(git:*)` is too
 broad because it includes `git push` and `git reset`.

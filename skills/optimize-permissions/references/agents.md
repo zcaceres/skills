@@ -1,7 +1,7 @@
 # Per-agent config + transcript reference
 
 Each agent stores its allowlist and its session history differently. This
-reference captures what's االknown at the time of writing — but **verify before
+reference captures what's known at the time of writing — but **verify before
 writing**, because agents change layouts often.
 
 ## Claude Code

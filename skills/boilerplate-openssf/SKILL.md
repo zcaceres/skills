@@ -1,6 +1,6 @@
 ---
 name: boilerplate-openssf
-description: Scaffold OpenSSF Scorecard GitHub Action in a repo with a safe two-phase rollout — first run with publish_results false so issues can be triaged privately, then flip to true and add a badge once the score is acceptable. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/boilerplate-openssf".
+description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/boilerplate-openssf".
 ---
 
 # boilerplate-openssf
@@ -32,24 +32,28 @@ Capture:
 - `DEFAULT_BRANCH` (most often `main`)
 - `REPO` (`owner/name`)
 
-**Visibility gate — default: refuse on private/internal repos.**
+**Visibility gate — refuse on private/internal repos. No exceptions.**
 
-| Repo visibility | Default action |
-|-----------------|----------------|
-| Public          | Run the full two-phase flow. |
-| Private / Internal | **Decline by default.** Explain why and ask. |
+| Repo visibility | Action |
+|-----------------|--------|
+| Public          | Proceed with phase 1. |
+| Private / Internal | **Refuse. Stop.** |
 
-Scorecard's whole value proposition is the public trust signal at `scorecard.dev`, and that endpoint refuses private repos. What's left on a private repo:
+Empirically verified on a real private repo: the Scorecard action hard-fails before producing any SARIF —
 
-- **You lose:** the published score, the badge, and several checks (Branch-Protection, Webhooks) that return `?` without a fine-grained PAT with admin read.
-- **You keep:** SARIF findings in the Security tab for Token-Permissions, Dangerous-Workflow, Pinned-Dependencies, etc. — which overlap heavily with what CodeQL + Dependabot + the branch-protection settings UI already surface natively.
-- **You pay:** Actions minutes (real money on private repos past the free tier).
+```
+scorecard had an error: internal error: ListCommits:
+  error during graphqlHandler.setup:
+  internal error: githubv4.Query: Resource not accessible by integration
+```
 
-So when the repo is private/internal, **don't install by default**. Say:
+The default `GITHUB_TOKEN` can't run the GraphQL queries Scorecard needs against a private repository. A fine-grained PAT via the action's `repo_token` input works around this, but adding that complexity defeats the point of a boilerplate, and the public-score outcome still doesn't apply. Don't install it.
 
-> This repo is private. Scorecard's main value is the public score at scorecard.dev, which doesn't work for private repos — you'd be paying Actions minutes for SARIF that mostly duplicates CodeQL + Dependabot. I'd skip it unless: (a) you're planning to make this repo public soon and want phase-1 cleanup, or (b) you have a specific reason to want the Scorecard checks on top of your existing tooling. Which is it?
+If the repo is private/internal, say:
 
-Only proceed if the user confirms one of those reasons. If they confirm "going public soon", install phase 1 normally and note that phase 2 happens after the visibility flip. If they confirm "want it anyway", install phase 1 and tell them phase 2 will never apply.
+> This repo is private. Scorecard hard-fails on private repos under the default GitHub token (`Resource not accessible by integration`), and the public scorecard.dev dashboard refuses private repos either way — installing the workflow now would just generate weekly failure emails. Re-run /boilerplate-openssf after you flip the repo to public.
+
+That's it — no install, no escape hatches, end the session.
 
 ## Phase 1 — Install the trial workflow
 
@@ -119,7 +123,7 @@ If the user comes back mid-rollout asking "what does this finding mean" or "how 
 | **Token-Permissions** | Add `permissions: read-all` (or scoped per-job) to every workflow. One line, no behavior change. |
 | **Pinned-Dependencies** | Pin Actions to commit SHAs. Dependabot can do this with `package-ecosystem: github-actions`. |
 | **Dangerous-Workflow** | Audit for `pull_request_target` + checkout of PR head. Replace with `pull_request` or split into two workflows. |
-| **Branch-Protection** | Enable required reviews + status checks on the default branch via repo settings. On a private repo this check returns `?` unless a fine-grained PAT with admin read is provided — usually not worth it for phase 1. |
+| **Branch-Protection** | Enable required reviews + status checks on the default branch via repo settings. |
 | **Code-Review** | Enforce 1+ reviewer in branch protection. Solo-maintainer repos legitimately can't pass this; that's OK. |
 | **Security-Policy** | Add a `SECURITY.md` at repo root with a contact channel. |
 | **Signed-Releases** | Sign release artifacts via `cosign` or use `gh release create` with attestation. Skip if the repo doesn't publish releases. |
@@ -187,7 +191,7 @@ The irreversibility of historical publication is the single thing the user most 
 - **Repo has no default branch yet** (fresh repo). Scorecard can't run. Tell the user to push at least one commit to `main` first.
 - **Org disables third-party Actions.** The workflow will fail with a permissions error. Surface this immediately — the fix is an org-level setting, not a workflow edit.
 - **Repo is a fork.** Scorecard works but `publish_results: true` is wasted effort — scorecard.dev keys on the canonical repo. Recommend skipping; if the user insists, phase 1 only.
-- **User asks "why not on my private repo?"** The visibility-gate explanation above is the answer — paraphrase, don't re-litigate.
+- **User insists on private/internal install.** Refuse. The visibility-gate explanation above is the answer — paraphrase, don't re-litigate.
 - **Repo already has a `scorecard.yml`** under `.github/workflows/`. Read it, diff against the template, and ask before overwriting. The user may have customized it.
 - **User asks for `--fix` automation** to address findings. Out of scope for this skill — point at the per-check fixes above and let them open PRs.
 

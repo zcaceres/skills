@@ -2,7 +2,7 @@
 
 Audit the repo's GitHub Projects kanban against the actual state of the
 codebase, then update statuses one card at a time with explicit user
-approval. Mirrors the structure of `/review-code-reproduce`: each
+approval. Mirrors the structure of `/review-code-repro`: each
 proposed change comes with cited code evidence and a yes/no/skip prompt.
 
 Activates on "review the board", "audit the kanban", "what's stale on

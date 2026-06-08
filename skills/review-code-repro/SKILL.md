@@ -1,9 +1,9 @@
 ---
-name: review-code-reproduce
-description: Reproduce and validate each finding from a code review to filter out false positives. Use after /review-code or when the user says "reproduce the bugs", "validate findings", or "/review-code-reproduce".
+name: review-code-repro
+description: Reproduce and validate each finding from a code review to filter out false positives. Use after /review-code or when the user says "reproduce the bugs", "validate findings", or "/review-code-repro".
 ---
 
-# review-code-reproduce
+# review-code-repro
 
 You are validating a list of findings produced by a prior code review (typically `/review-code`). For each finding, your job is to **prove the bug is real** — or admit you cannot — before any fix gets planned.
 
@@ -15,7 +15,7 @@ Activate when the user says:
 - "reproduce the bugs" / "reproduce the findings"
 - "validate the review" / "validate findings"
 - "are these bugs real" / "double-check the review"
-- "/review-code-reproduce"
+- "/review-code-repro"
 
 If there is no prior review output visible (in this conversation, a file, a paste, or PR comments), ask the user where the findings are before proceeding.
 

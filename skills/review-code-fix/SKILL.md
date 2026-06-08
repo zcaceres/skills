@@ -1,13 +1,13 @@
 ---
 name: review-code-fix
-description: Plan fixes for validated code-review findings and present the plan for user approval before editing. Use after /review-code-reproduce or when the user says "fix the findings", "plan fixes", or "/review-code-fix".
+description: Plan fixes for validated code-review findings and present the plan for user approval before editing. Use after /review-code-repro or when the user says "fix the findings", "plan fixes", or "/review-code-fix".
 ---
 
 # review-code-fix
 
-You are planning fixes for a set of **validated** code-review findings (typically the output of `/review-code-reproduce`). Plan first, get approval, then implement. Do not edit code before the user signs off on the plan.
+You are planning fixes for a set of **validated** code-review findings (typically the output of `/review-code-repro`). Plan first, get approval, then implement. Do not edit code before the user signs off on the plan.
 
-The fix step is where bad reviews cause real damage: applying a "fix" for a false positive can introduce a regression. This skill assumes reproduction has already happened — if it hasn't, push back and run `/review-code-reproduce` first.
+The fix step is where bad reviews cause real damage: applying a "fix" for a false positive can introduce a regression. This skill assumes reproduction has already happened — if it hasn't, push back and run `/review-code-repro` first.
 
 ## When to Use This Skill
 
@@ -17,7 +17,7 @@ Activate when the user says:
 - "apply the review" / "address the review"
 - "/review-code-fix"
 
-If the user invokes this directly without a prior reproduction step, ask whether they want to run `/review-code-reproduce` first. If they decline, proceed but explicitly flag in the plan that fixes are based on un-validated findings.
+If the user invokes this directly without a prior reproduction step, ask whether they want to run `/review-code-repro` first. If they decline, proceed but explicitly flag in the plan that fixes are based on un-validated findings.
 
 ## Inputs
 
@@ -37,7 +37,7 @@ Skip:
 - **Out of scope** — no fix on this branch. Suggest the user open a separate issue/PR if they want it addressed.
 - **Cannot determine** — no fix. Ask the user whether to gather more info or skip.
 
-If `/review-code-reproduce` was not run, treat every finding as "Confirmed (traced only)" and warn explicitly.
+If `/review-code-repro` was not run, treat every finding as "Confirmed (traced only)" and warn explicitly.
 
 ## Planning the Fix
 

@@ -14,6 +14,10 @@
       "name": "@zcaceres/skill-acid-trip",
       "version": "1.0.0",
     },
+    "skills/boilerplate-openssf": {
+      "name": "@zcaceres/skill-boilerplate-openssf",
+      "version": "0.0.0",
+    },
     "skills/chaos-monkey": {
       "name": "@zcaceres/skill-chaos-monkey",
       "version": "1.0.0",
@@ -53,6 +57,10 @@
     "skills/gemini-deep-research": {
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
+    },
+    "skills/gh-project-decompose": {
+      "name": "@zcaceres/skill-gh-project-decompose",
+      "version": "0.0.0",
     },
     "skills/gh-project-delete": {
       "name": "@zcaceres/skill-gh-project-delete",
@@ -216,6 +224,8 @@
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
+    "@zcaceres/skill-boilerplate-openssf": ["@zcaceres/skill-boilerplate-openssf@workspace:skills/boilerplate-openssf"],
+
     "@zcaceres/skill-chaos-monkey": ["@zcaceres/skill-chaos-monkey@workspace:skills/chaos-monkey"],
 
     "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
@@ -235,6 +245,8 @@
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
+
+    "@zcaceres/skill-gh-project-decompose": ["@zcaceres/skill-gh-project-decompose@workspace:skills/gh-project-decompose"],
 
     "@zcaceres/skill-gh-project-delete": ["@zcaceres/skill-gh-project-delete@workspace:skills/gh-project-delete"],
 

@@ -1,6 +1,6 @@
-# @zcaceres/skills
+# Zach's Awesome AI Skills
 
-Open-source AI agent skills.
+Open-source AI agent skills focused on engineering and personal productivity.
 
 Skills conform to [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)
 and are versioned/released independently.

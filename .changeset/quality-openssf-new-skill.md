@@ -1,8 +1,8 @@
 ---
-"@zcaceres/skill-boilerplate-openssf": minor
+"@zcaceres/skill-quality-openssf": minor
 ---
 
-New skill `boilerplate-openssf` — scaffolds the OpenSSF Scorecard GitHub
+New skill `quality-openssf` — scaffolds the OpenSSF Scorecard GitHub
 Action with a two-phase rollout. Phase 1 installs the workflow with
 `publish_results: false` so findings stay in the repo's Security tab and
 the score never reaches scorecard.dev. The user triages on their own time.

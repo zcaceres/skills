@@ -1,4 +1,4 @@
-# boilerplate-openssf
+# quality-openssf
 
 Scaffold the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub
 Action in a repo with a deliberate two-phase rollout:
@@ -12,14 +12,14 @@ Action in a repo with a deliberate two-phase rollout:
 The skill stops between phases on purpose — a bad first public score is
 hard to unwind because old scores stay in the dashboard history.
 
-**Private/internal repos: declines by default.** The whole value
-proposition (public score at scorecard.dev) doesn't apply, and the
-remaining SARIF findings mostly duplicate CodeQL + Dependabot. The
-skill only proceeds if the user confirms they're about to make the
-repo public or have a specific reason to want it anyway.
+**Private/internal repos: refuses outright.** The default `GITHUB_TOKEN`
+can't run Scorecard's GraphQL queries on a private repository, so the
+action hard-fails before producing any SARIF — installing it on a
+private repo generates nothing but weekly failure notifications. The
+skill stops the session with a one-line explanation instead.
 
 Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
-`/boilerplate-openssf`.
+`/quality-openssf`.
 
 ## Layout
 
@@ -30,7 +30,7 @@ Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
 ## Install
 
 ```
-npx skills add zcaceres/skills -s boilerplate-openssf
+npx skills add zcaceres/skills -s quality-openssf
 ```
 
 Add `-g` for global install, or `-a <agent>` to target a specific agent.

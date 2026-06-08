@@ -23,7 +23,11 @@ HOOK_EVENT="PreToolUse"
 HOOK_MATCHER="Read|Bash|Grep|Glob"
 
 CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-HOOK_COMMAND="$CLAUDE_HOME/skills/$SKILL_NAME/scripts/run.sh"
+# Resolve HOOK_COMMAND from this script's own location so it points at the
+# correct runner whether the skill was installed at user scope, project
+# scope, or under a custom CLAUDE_CONFIG_DIR.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+HOOK_COMMAND="$SCRIPT_DIR/run.sh"
 
 TARGET=""
 while [ $# -gt 0 ]; do
@@ -39,6 +43,12 @@ while [ $# -gt 0 ]; do
   esac
 done
 TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+
+[ -x "$HOOK_COMMAND" ] || {
+  echo "install.sh: runner not found at $HOOK_COMMAND" >&2
+  echo "Run install.sh from inside the unpacked skill's scripts/ directory." >&2
+  exit 1
+}
 
 command -v jq >/dev/null || {
   echo "install.sh: requires jq. Install:" >&2

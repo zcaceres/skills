@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Wire the pr-size-nudge PostToolUse hook (matchers: Edit, Write, MultiEdit,
-# NotebookEdit) into a Claude Code settings.json so it nudges toward
-# /checkpoint after every file-modifying tool call. Idempotent — re-running
-# is a no-op.
+# Wire the stacked-pr PostToolUse hook (matchers: Edit, Write, MultiEdit,
+# NotebookEdit) into a Claude Code settings.json so the diff-size nudge fires
+# after every file-modifying tool call, not just when this skill is loaded
+# into context. Idempotent — re-running is a no-op.
 #
 # Usage:
 #   scripts/install.sh                 # user scope: $HOME/.claude/settings.json
@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-SKILL_NAME="pr-size-nudge"
+SKILL_NAME="stacked-pr"
 HOOK_EVENT="PostToolUse"
 HOOK_MATCHER="Edit|Write|MultiEdit|NotebookEdit"
 
@@ -70,6 +70,20 @@ if jq -e --arg event "$HOOK_EVENT" --arg cmd "$HOOK_COMMAND" \
     "$TARGET" > /dev/null 2>&1; then
   echo "✓ $SKILL_NAME hook already wired at $TARGET. No changes."
   exit 0
+fi
+
+# Warn — but don't block — when an older standalone pr-size-nudge hook
+# is also wired. The two hooks namespaced separately so both can coexist,
+# but the user will get double nudges until they remove the old entry.
+if jq -e --arg event "$HOOK_EVENT" \
+    '(.hooks[$event] // []) | map(.hooks[]?.command) | flatten
+     | any(test("/pr-size-nudge/scripts/run\\.(sh|cmd)$"))' \
+    "$TARGET" > /dev/null 2>&1; then
+  echo "⚠ Detected an older pr-size-nudge hook entry in $TARGET."
+  echo "  Both hooks will fire and you'll get double nudges until you"
+  echo "  remove the old entry. See the deprecation banner in"
+  echo "  pr-size-nudge/SKILL.md for migration."
+  echo
 fi
 
 BACKUP="$TARGET.bak.$(date +%Y%m%d-%H%M%S)"

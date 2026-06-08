@@ -7,7 +7,7 @@
   "scripts": {
     "fetch-tools": "echo 'no bundled tools'",
     "build": "echo 'no build step'",
-    "test": "echo 'no tests'"
+    "test": "bun test"
   },
   "files": [
     "SKILL.md",

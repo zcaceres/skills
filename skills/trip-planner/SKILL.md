@@ -12,7 +12,7 @@ The output is a single markdown file with Obsidian-style checkboxes so the user 
 ## Layout
 
 - `SKILL.md` — this file
-- `scripts/weather_helper.py` — fetches forecast from [wttr.in](https://wttr.in) (free, no API key, no auth)
+- `scripts/weather-helper.ts` — fetches forecast from [wttr.in](https://wttr.in) (free, no API key, no auth); runs under `bun`
 - `assets/packing_template.md` — packing list template with conditional sections
 
 ## When to Use
@@ -44,7 +44,7 @@ Use AskUserQuestion to collect:
 Run the bundled weather helper:
 
 ```bash
-python3 scripts/weather_helper.py "DESTINATION" --json
+bun scripts/weather-helper.ts "DESTINATION" --json
 ```
 
 The script writes JSON to stdout. Parse and extract:
@@ -157,13 +157,13 @@ Key items flagged:
 
 ```bash
 # Human-readable
-python3 scripts/weather_helper.py "Paris"
+bun scripts/weather-helper.ts "Paris"
 
 # JSON (for parsing)
-python3 scripts/weather_helper.py "Tokyo" --json
+bun scripts/weather-helper.ts "Tokyo" --json
 
 # Date range (forecast is only accurate ~3 days out)
-python3 scripts/weather_helper.py "London" --start 2026-01-15 --end 2026-01-20
+bun scripts/weather-helper.ts "London" --start 2026-01-15 --end 2026-01-20
 ```
 
 ### Temperature categories

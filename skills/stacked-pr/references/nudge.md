@@ -75,7 +75,7 @@ unpacked skill's absolute path:
       {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "command", "command": "<path>/stacked-pr/scripts/run.sh" }
+          { "type": "command", "command": "<path>/scripts/run.sh" }
         ]
       }
     ]

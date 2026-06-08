@@ -86,6 +86,10 @@
       "name": "@zcaceres/skill-optimize-permissions",
       "version": "0.0.0",
     },
+    "skills/optimize-skill-activation": {
+      "name": "@zcaceres/skill-optimize-skill-activation",
+      "version": "0.0.0",
+    },
     "skills/perf-review": {
       "name": "@zcaceres/skill-perf-review",
       "version": "0.0.0",
@@ -247,6 +251,8 @@
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
     "@zcaceres/skill-optimize-permissions": ["@zcaceres/skill-optimize-permissions@workspace:skills/optimize-permissions"],
+
+    "@zcaceres/skill-optimize-skill-activation": ["@zcaceres/skill-optimize-skill-activation@workspace:skills/optimize-skill-activation"],
 
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 

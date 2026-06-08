@@ -1,4 +1,4 @@
-# boilerplate-openssf
+# quality-openssf
 
 Scaffold the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub
 Action in a repo with a deliberate two-phase rollout:
@@ -19,7 +19,7 @@ private repo generates nothing but weekly failure notifications. The
 skill stops the session with a one-line explanation instead.
 
 Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
-`/boilerplate-openssf`.
+`/quality-openssf`.
 
 ## Layout
 
@@ -30,7 +30,7 @@ Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
 ## Install
 
 ```
-npx skills add zcaceres/skills -s boilerplate-openssf
+npx skills add zcaceres/skills -s quality-openssf
 ```
 
 Add `-g` for global install, or `-a <agent>` to target a specific agent.

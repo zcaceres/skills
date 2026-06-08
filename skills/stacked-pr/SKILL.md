@@ -1,7 +1,7 @@
 ---
 name: stacked-pr
-description: Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), and more. Uses git stack when installed, falls back to gh + git. Invoke via /stacked-pr [subcommand] [args].
-argument-hint: "[checkpoint | update | submit | log | sync] [args]"
+description: Bundled stacked-PR workflow as one skill. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), and merge bottom-up (merge). Uses git stack when installed, falls back to gh + git. Invoke via /stacked-pr [subcommand] [args].
+argument-hint: "[checkpoint | update | submit | log | sync | merge] [args]"
 disable-model-invocation: true
 ---
 
@@ -26,17 +26,19 @@ reference file and follow it exactly.
 | `submit` | [references/submit.md](references/submit.md) | Push the whole stack (force-with-lease) and create/update one PR per branch. Requires `git stack`. |
 | `log` | [references/log.md](references/log.md) | Read-only. Print the stack tree, each branch's PR, base, and state. Falls back to `gh pr list` when `git stack` isn't installed. |
 | `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | Land the stack bottom-up with retarget verification between merges. Default strategy is `--merge` (preserves SHAs). `--rebase`/`--squash` rewrite SHAs and trigger the rebase-onto-main dance for child PRs. Refuses `--delete-branch`. |
 
-`merge` lands in the next PR in this consolidation stack.
+The PostToolUse hook (`pr-size-nudge`) joins this skill in the next PR
+in this consolidation stack.
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`checkpoint`, `update`,
-   `submit`, `log`, `sync`) → read `references/<keyword>.md`, then follow
-   its workflow with the remaining `$ARGUMENTS` (everything after the
-   first token) as that subcommand's arguments.
+   `submit`, `log`, `sync`, `merge`) → read `references/<keyword>.md`,
+   then follow its workflow with the remaining `$ARGUMENTS` (everything
+   after the first token) as that subcommand's arguments.
 
 2. **First token is anything else, OR `$ARGUMENTS` is empty** → default to
    `checkpoint`. Read `references/checkpoint.md`, then follow its workflow

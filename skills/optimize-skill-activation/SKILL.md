@@ -198,8 +198,12 @@ For each accepted recommendation:
 3. **Eager-loaded**: append (don't replace) a `hooks:` block to the
    frontmatter with a `SessionStart` entry, *and* drop a
    `scripts/inject-context.sh` that `cat`s `SKILL.md` (minus frontmatter)
-   to stdout — that's what Claude Code reads. See
-   `references/activation-modes.md` for the exact shapes.
+   to stdout — that's what Claude Code reads. For project-scoped skills use
+   `${CLAUDE_PROJECT_DIR}/.claude/skills/<name>/scripts/inject-context.sh`;
+   for user-scoped skills resolve and write the absolute path (e.g.
+   `$HOME/.claude/skills/<name>/scripts/inject-context.sh`) — there is no
+   `CLAUDE_SKILL_DIR` env var. See `references/activation-modes.md` for the
+   exact shapes.
 4. **Removal**: only after a second confirmation; `rm -rf` the skill
    directory, and remove the workspace entry if the user's setup uses
    bun/npm workspaces.

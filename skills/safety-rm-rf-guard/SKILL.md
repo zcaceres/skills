@@ -1,6 +1,6 @@
 ---
 name: safety-rm-rf-guard
-description: Blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants in Claude Code; redirects to the trash CLI so deletions stay recoverable. PreToolUse hook on Bash — activates automatically.
+description: Blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants in Claude Code; redirects to the trash CLI so deletions stay recoverable. PreToolUse hook on Bash. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:
     - matcher: Bash
@@ -39,12 +39,34 @@ sandboxing, version control, and backups — not in place of them.
 
 ## Install
 
-The `hooks:` block in the frontmatter above auto-wires the hook on skill
-load, assuming the skill is installed at the standard personal-install
-location (`~/.claude/skills/safety-rm-rf-guard/`). If you install elsewhere, or
-prefer explicit wiring, paste the snippet below into `~/.claude/settings.json`
-or your project's `.claude/settings.json` with `<path>` set to the unpacked
-skill's absolute path:
+```sh
+npx skills add zcaceres/skills -s safety-rm-rf-guard
+~/.claude/skills/safety-rm-rf-guard/scripts/install.sh
+```
+
+The second step wires this skill's `PreToolUse:Bash` hook into
+`~/.claude/settings.json` so it fires on every Bash call, not just when
+this skill is active in context. The script is idempotent, backs up the
+target file with a timestamp, and is a no-op if the hook is already
+wired. Flags: `--project` (writes to `./.claude/settings.json`),
+`--target PATH` (explicit file). Requires `jq`.
+
+**Why two steps.** The `skills` CLI is a pure file copier and runs no
+publisher code on install. The frontmatter `hooks:` block above does
+register the hook, but only while this skill is loaded into the
+conversation context — not always-on. `install.sh` is what closes that
+gap for users who want every `rm` blocked regardless of which skill
+happens to be active.
+
+Verify it's wired up by running any Bash command in Claude Code (after a
+restart); the hook prints `BLOCKED: …` on stderr and exit-2s when it
+catches `rm`/`shred`/etc.
+
+### Manual wiring (alternative)
+
+If you'd rather not run a script, paste this into `~/.claude/settings.json`
+(or your project's `.claude/settings.json`) with `<path>` set to the
+unpacked skill's absolute path:
 
 ```json
 {
@@ -62,9 +84,6 @@ skill's absolute path:
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-Verify it's wired up by running any Bash command in Claude Code; the hook
-prints `BLOCKED: …` on stderr and exit-2s when it catches `rm`/`shred`/etc.
 
 ## Prerequisites
 

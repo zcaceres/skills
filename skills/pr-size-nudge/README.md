@@ -39,7 +39,15 @@ they're gitignored.
 
 ```sh
 npx skills add zcaceres/skills -s pr-size-nudge
+~/.claude/skills/pr-size-nudge/scripts/install.sh
 ```
+
+The bundled `install.sh` idempotently wires the hook into
+`~/.claude/settings.json` (with timestamped backup) so the nudge fires
+after every Edit/Write/MultiEdit/NotebookEdit call, not just while this
+skill is loaded. Requires `jq`. See [SKILL.md](./SKILL.md#install) for
+why two steps are needed and for manual wiring as an alternative.
+
 Best paired with [`checkpoint`](../checkpoint/) — the nudge points the
 agent at that slash command.
 

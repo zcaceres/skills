@@ -58,10 +58,15 @@ Walk the stack from bottom to top, rebasing each branch onto the
 updated tip of the branch below it.
 
 ```bash
-# Determine trunk
-TRUNK=main
-git rev-parse --verify origin/main >/dev/null 2>&1 || TRUNK=master
-git fetch origin "$TRUNK"
+# Detect trunk (fail loudly if neither main nor master exists)
+if git rev-parse --verify origin/main >/dev/null 2>&1; then
+  TRUNK=main
+elif git rev-parse --verify origin/master >/dev/null 2>&1; then
+  TRUNK=master
+else
+  echo "Couldn't detect trunk (neither origin/main nor origin/master). Aborting." >&2
+  exit 1
+fi
 
 # Build the stack list bottom-up using stack-parent config
 CURRENT=$(git branch --show-current)
@@ -71,6 +76,11 @@ while [[ -n "$BRANCH" ]]; do
   STACK=("$BRANCH" "${STACK[@]}")
   BRANCH=$(git config "branch.$BRANCH.stack-parent" 2>/dev/null)
 done
+
+# Fetch trunk + every stacked branch so --force-with-lease (step 4) has
+# fresh remote-tracking refs to compare against — a hours-old origin/<branch>
+# would let a concurrent teammate push slip past the lease check.
+git fetch origin "$TRUNK" "${STACK[@]}"
 ```
 
 `STACK` is now ordered bottom (closest to trunk) → top (current

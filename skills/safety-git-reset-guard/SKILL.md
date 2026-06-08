@@ -1,6 +1,6 @@
 ---
 name: safety-git-reset-guard
-description: Blocks destructive git commands (reset --hard, push --force, clean -f, checkout <path>, branch -D, stash drop/clear, worktree remove --force) in Claude Code while letting safer alternatives (--force-with-lease, --soft/--mixed, restore, branch -d) through. Installed as a PreToolUse hook on the Bash tool — activates automatically, no slash-command invocation needed.
+description: Blocks destructive git commands (reset --hard, push --force, clean -f, checkout <path>, branch -D, stash drop/clear, worktree remove --force) in Claude Code while letting safer alternatives (--force-with-lease, --soft/--mixed, restore, branch -d) through. PreToolUse hook on Bash. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:
     - matcher: Bash
@@ -51,12 +51,27 @@ sandboxing, code review, and backups — not in place of them.
 
 ## Install
 
-The `hooks:` block in the frontmatter above auto-wires the hook on skill
-load, assuming the skill is installed at the standard personal-install
-location (`~/.claude/skills/safety-git-reset-guard/`). If you install elsewhere,
-or prefer explicit wiring, paste the snippet below into
-`~/.claude/settings.json` or your project's `.claude/settings.json` with
-`<path>` set to the unpacked skill's absolute path:
+```sh
+npx skills add zcaceres/skills -s safety-git-reset-guard
+~/.claude/skills/safety-git-reset-guard/scripts/install.sh
+```
+
+The second step wires this skill's `PreToolUse:Bash` hook into
+`~/.claude/settings.json` so it fires on every Bash call, not just when
+this skill is active in context. The script is idempotent, backs up the
+target file with a timestamp, and is a no-op if the hook is already
+wired. Flags: `--project`, `--target PATH`. Requires `jq`.
+
+Frontmatter `hooks:` blocks fire only while the skill is loaded into
+context, so they're not real always-on protection — `install.sh` closes
+that gap. See
+[`safety-rm-rf-guard`'s Install section](../safety-rm-rf-guard/SKILL.md#install)
+for the full explanation.
+
+You can stack this alongside [`safety-rm-rf-guard`](../safety-rm-rf-guard/SKILL.md) — both
+hooks run on every Bash call and either can block.
+
+### Manual wiring (alternative)
 
 ```json
 {
@@ -74,9 +89,6 @@ or prefer explicit wiring, paste the snippet below into
 ```
 
 On Windows, point at `scripts\\run.cmd` instead.
-
-You can stack this alongside [`safety-rm-rf-guard`](../safety-rm-rf-guard/SKILL.md) — both
-hooks run on every Bash call and either can block.
 
 ## How it works
 

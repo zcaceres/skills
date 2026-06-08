@@ -80,6 +80,13 @@ already in context before the first user message — no trigger needed.
 
 **Frontmatter shape:**
 
+Claude Code does **not** expose a `CLAUDE_SKILL_DIR` env var to hooks. The
+documented variables are `CLAUDE_PROJECT_DIR`, `CLAUDE_PLUGIN_ROOT`,
+`CLAUDE_PLUGIN_DATA`, `CLAUDE_ENV_FILE`, `CLAUDE_EFFORT`, `CLAUDE_CODE_REMOTE`.
+Pick the right `command:` shape based on where the skill lives:
+
+*Project-scoped skill* (`<repo>/.claude/skills/my-skill/`):
+
 ```yaml
 ---
 name: my-skill
@@ -88,18 +95,40 @@ hooks:
   SessionStart:
     - matcher: "*"
       type: command
-      command: "${CLAUDE_SKILL_DIR}/scripts/inject-context.sh"
+      command: "${CLAUDE_PROJECT_DIR}/.claude/skills/my-skill/scripts/inject-context.sh"
 ---
 ```
 
-**Companion script** (`scripts/inject-context.sh`):
+*User-scoped skill* (`~/.claude/skills/my-skill/`): no env var points here, so
+bake the absolute path. The installer step in the parent
+`optimize-skill-activation` skill is responsible for writing the resolved path
+into this field at install time:
+
+```yaml
+---
+name: my-skill
+description: ...
+hooks:
+  SessionStart:
+    - matcher: "*"
+      type: command
+      command: "$HOME/.claude/skills/my-skill/scripts/inject-context.sh"
+---
+```
+
+`$HOME` is inherited by the hook process, so it expands in the shell Claude
+Code spawns to run the command.
+
+**Companion script** (`scripts/inject-context.sh`) — self-resolving so it works
+regardless of install scope:
 
 ```bash
 #!/usr/bin/env bash
 # Print the SKILL.md body (without frontmatter) so Claude Code injects it
 # into the session at startup.
 set -euo pipefail
-SKILL_MD="${CLAUDE_SKILL_DIR}/SKILL.md"
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SKILL_MD="$SKILL_DIR/SKILL.md"
 # Strip the leading YAML frontmatter block (between the first two `---` lines).
 awk 'BEGIN{f=0} /^---$/{f++; next} f>=2{print}' "$SKILL_MD"
 ```

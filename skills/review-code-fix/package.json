@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-review-code-fix",
   "version": "0.0.0",
-  "description": "Plan fixes for validated code-review findings and present the plan for user approval before editing. Use after /review-code-reproduce or when the user says 'fix the findings', 'plan fixes', or '/review-code-fix'.",
+  "description": "Plan fixes for validated code-review findings and present the plan for user approval before editing. Use after /review-code-repro or when the user says 'fix the findings', 'plan fixes', or '/review-code-fix'.",
   "license": "MIT",
   "type": "module",
   "scripts": {

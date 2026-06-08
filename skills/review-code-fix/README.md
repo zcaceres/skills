@@ -1,6 +1,6 @@
 # review-code-fix
 
-Third step in the code-review trio (`review-code` → `review-code-reproduce` →
+Third step in the code-review trio (`review-code` → `review-code-repro` →
 `review-code-fix`). Takes validated findings from the reproduction step,
 writes a fix plan (per-finding: approach, risk, verification), and **stops
 for user approval** before applying anything.

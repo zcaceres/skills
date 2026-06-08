@@ -66,7 +66,7 @@ Spawn parallel `Explore` or `Bash` calls — don't audit cards one at a time seq
 
 ### 3. Classify each card
 
-Use these verdict categories (mirror `/review-code-reproduce`):
+Use these verdict categories (mirror `/review-code-repro`):
 
 - **Looks Done** — strong evidence the work shipped (merged PR + matching commits + files exist). Propose move to `Done`.
 - **Looks In Progress** — partial evidence (some files exist, recent commits but no merged PR, open PR linked). Propose move to `In Progress` if currently `Todo`; leave alone if already there.

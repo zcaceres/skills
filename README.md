@@ -43,7 +43,7 @@ npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
-npx skills add zcaceres/skills -s review-code-reproduce
+npx skills add zcaceres/skills -s review-code-repro
 npx skills add zcaceres/skills -s review-code-fix
 npx skills add zcaceres/skills -s safety-dotenv-guard
 npx skills add zcaceres/skills -s safety-git-reset-guard
@@ -100,7 +100,7 @@ whether the skill was installed at user scope or project scope.
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `review-code` | Review the current branch diff and report bugs as structured inline-style findings. |
-| `review-code-reproduce` | Second step of the code-review trio: reproduce and validate each finding to filter false positives before any fix is planned. |
+| `review-code-repro` | Second step of the code-review trio: reproduce and validate each finding to filter false positives before any fix is planned. |
 | `review-code-fix` | Third step of the code-review trio: plan fixes for validated findings, stop for user approval, then apply and verify. |
 | `safety-dotenv-guard` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |

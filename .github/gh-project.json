@@ -1,0 +1,19 @@
+{
+  "projectNumber": 4,
+  "projectId": "PVT_kwHOAJkXU84BZADT",
+  "projectOwner": "zcaceres",
+  "repoOwner": "zcaceres",
+  "repo": "skills",
+  "title": "skills",
+  "url": "https://github.com/users/zcaceres/projects/4",
+  "defaultMode": "issue",
+  "statusField": {
+    "id": "PVTSSF_lAHOAJkXU84BZADTzhUB2Sk",
+    "options": {
+      "Todo": "f75ad846",
+      "In Progress": "47fc9ee4",
+      "Done": "98236657"
+    }
+  },
+  "version": 2
+}

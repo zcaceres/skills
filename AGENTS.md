@@ -7,18 +7,30 @@
 
 ## Project tracker
 
-Work for this repo is tracked on the **skills** GitHub Project board:
-https://github.com/users/zcaceres/projects/4
+Work for this repo is tracked on the GitHub Project board at https://github.com/users/zcaceres/projects/4.
+
+The project's configuration — number, owner, project node ID, status field ID,
+and status option IDs — is stored in `.github/gh-project.json`. Agents managing
+this board should read that file rather than hard-coding IDs (IDs change if the
+project is recreated).
+
+Board access goes through `.github/scripts/gh-project-board.sh`:
+
+- `list [--query <q>] [--include-body]` — compact JSONL of all items
+- `find <PVTI_… | issue# | title-substring>` — resolve a selector
+- `get <item-id>` — full row with body
+- `set-status <item-id> <status-name>` — move card between columns
+
+The helper asserts completeness against `totalCount` and exits non-zero on
+truncation, so an agent that "doesn't see" a card will fail loudly instead
+of silently missing it.
+
+Card workflow:
+- Create:  `/gh-project-new-task` (creates a linked GitHub issue by default)
+- Pick:    `/gh-project-next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:    `/gh-project-update [id|number|title]`
+- Audit:   `/gh-project-review` (board vs codebase)
+- Delete:  `/gh-project-delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
-Deleted draft issues lose their history; `Done` keeps the trail of what shipped
-and why.
-
-```bash
-# Mark a project item as Done
-gh project item-edit \
-  --project-id PVT_kwHOAJkXU84BZADT \
-  --field-id  PVTSSF_lAHOAJkXU84BZADTzhUB2Sk \
-  --id        <PVTI_… item id> \
-  --single-select-option-id 98236657   # "Done"
-```
+Deleted draft items lose their history.

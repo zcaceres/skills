@@ -3,7 +3,7 @@
 Claude Code skill that generates a customized packing list from a
 destination weather forecast. Asks for destination + dates + trip
 shape (business/leisure, flying, international, pool/gym), fetches a
-forecast from [wttr.in](https://wttr.in) via the bundled Python
+forecast from [wttr.in](https://wttr.in) via the bundled `bun`
 helper, computes clothing quantities from trip length, fills a
 template with conditional sections, and writes a single markdown
 file with checkboxes to the current working directory.
@@ -21,7 +21,7 @@ Add `-g` for global install, or `-a <agent>` to target a specific agent.
 
 ## Requirements
 
-- `python3` on `$PATH` (used to run `scripts/weather_helper.py`)
+- `bun` on `$PATH` (used to run `scripts/weather-helper.ts`)
 - Network access to `wttr.in` (no API key required)
 
 ## Origin

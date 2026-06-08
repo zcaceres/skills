@@ -69,10 +69,24 @@ done
 git stack --version 2>/dev/null
 ```
 
-If this succeeds → **git-stack path** (step 3A).
-Otherwise → **fallback path** (step 3B).
+If this succeeds → **git-stack path** (step 4A).
+Otherwise → **fallback path** (step 4B).
 
-### 3A. git-stack Path (preferred)
+### 3. `--dry-run` short-circuit
+
+If the user passed `--dry-run`, print the plan and stop *here*, before any
+destructive command in step 4A/4B runs. Do **not** call `gh pr merge`,
+`gh pr edit`, `git rebase`, or `git push`. Show:
+
+- The stack (bottom → top) with each branch's PR number and current base
+- Which strategy will be used
+- For `--rebase`/`--squash`: which branches will be rebased onto main,
+  in what order
+- The order of `gh pr merge` calls
+
+Stop without changes.
+
+### 4A. git-stack Path (preferred)
 
 `git stack merge` handles bottom-up merging, retarget verification,
 and the rebase-onto-main dance for `--rebase`/`--squash` strategies.
@@ -96,7 +110,7 @@ exists locally):
 git checkout "$CURRENT" 2>/dev/null || git checkout main
 ```
 
-### 3B. Fallback Path (no `git stack`)
+### 4B. Fallback Path (no `git stack`)
 
 Walk the stack bottom-up. For each iteration, work on the
 *lowest-remaining* branch in the stack.
@@ -202,19 +216,6 @@ STACK=("${STACK[@]:1}")  # drop the bottom that just merged
 If `--all` was not passed, stop here.
 If `STACK` is empty, the stack is fully landed; stop.
 Otherwise, loop.
-
-### 4. `--dry-run`
-
-If the user passed `--dry-run`, print the plan and *do not* call
-`gh pr merge`, `gh pr edit`, `git rebase`, or `git push`. Show:
-
-- The stack (bottom → top) with each branch's PR number and current base
-- Which strategy will be used
-- For `--rebase`/`--squash`: which branches will be rebased onto main,
-  in what order
-- The order of `gh pr merge` calls
-
-Stop without changes.
 
 ### 5. Report
 

@@ -52,16 +52,16 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    then follow its workflow with the remaining `$ARGUMENTS` (everything
    after the first token) as that subcommand's arguments.
 
-2. **First token is anything else, OR `$ARGUMENTS` is empty** → default to
+2. **First token starts with `-`** (e.g. `--help`, `-h`) → print this
+   subcommand list and stop.
+
+3. **First token is anything else, OR `$ARGUMENTS` is empty** → default to
    `checkpoint`. Read `references/checkpoint.md`, then follow its workflow
    with the *full* `$ARGUMENTS` string as the slice description.
 
    This means `/stacked-pr` ≡ `/stacked-pr checkpoint` (no args), and
    `/stacked-pr "fix the retry loop"` runs checkpoint with that slice
    description — no need to type the `checkpoint` keyword.
-
-3. **First token starts with `-`** (e.g. `--help`, `-h`) → print this
-   subcommand list and stop.
 
 If the agent is unsure which mode the user wants — e.g. the first token is
 ambiguous between a subcommand and a description — ask the user before

@@ -82,6 +82,10 @@
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
     },
+    "skills/optimize-permissions": {
+      "name": "@zcaceres/skill-optimize-permissions",
+      "version": "0.0.0",
+    },
     "skills/perf-review": {
       "name": "@zcaceres/skill-perf-review",
       "version": "0.0.0",
@@ -131,7 +135,7 @@
     },
     "skills/stacked-pr": {
       "name": "@zcaceres/skill-stacked-pr",
-      "version": "1.3.0",
+      "version": "0.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
@@ -241,6 +245,8 @@
     "@zcaceres/skill-gh-project-update": ["@zcaceres/skill-gh-project-update@workspace:skills/gh-project-update"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-optimize-permissions": ["@zcaceres/skill-optimize-permissions@workspace:skills/optimize-permissions"],
 
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 

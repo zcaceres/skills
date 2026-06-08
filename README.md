@@ -38,6 +38,7 @@ npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s perf-review
+npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
@@ -94,6 +95,7 @@ whether the skill was installed at user scope or project scope.
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
+| `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `pr-size-nudge` | **Hook.** Nudges toward `/checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |

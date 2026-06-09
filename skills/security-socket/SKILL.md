@@ -72,7 +72,7 @@ Once the user says they finished, run the verification. Two things to confirm:
 ```bash
 # Step 1: list the App installations the authenticated gh user can see.
 # The Socket Security App's slug is "socket-security".
-gh api /user/installations \
+gh api --paginate /user/installations \
   --jq '.installations[] | select(.app_slug == "socket-security")
         | {id: .id, account: .account.login, target_type: .target_type,
            repository_selection: .repository_selection}'
@@ -102,7 +102,7 @@ If output appears but `account` ≠ `OWNER` (e.g. installed on personal account,
 # Step 2: if the install exists and `repository_selection == "selected"`,
 # confirm the current repo is in the selected list.
 INSTALLATION_ID=<id from step 1>
-gh api "/user/installations/$INSTALLATION_ID/repositories" \
+gh api --paginate "/user/installations/$INSTALLATION_ID/repositories" \
   --jq ".repositories[] | select(.full_name == \"$REPO\") | .full_name"
 ```
 
@@ -158,10 +158,10 @@ The CLI needs a Socket API key. Walk the user through it — this is one-time, n
 ```
 1. Open https://socket.dev/dashboard → top right avatar → API tokens.
 2. Create a new token (read-only is enough for `socket scan create`).
-3. Copy it. Then:
+3. Pipe it into `gh secret set` so the token never lands in shell history:
 
-     gh secret set SOCKET_SECURITY_API_KEY --body '<paste the token>' \
-       --repo __REPO__
+     gh secret set SOCKET_SECURITY_API_KEY --repo __REPO__
+     # paste the token when prompted, then press Ctrl-D
 ```
 
 If `gh secret set` errors (`Resource not accessible by integration` on org repos), the user has to set the secret via the GitHub web UI instead — Settings → Secrets and variables → Actions → New repository secret.

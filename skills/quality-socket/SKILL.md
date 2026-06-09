@@ -93,7 +93,6 @@ If the JQ filter returns *nothing*, the App isn't installed under any account th
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Empty output | User clicked through OAuth login but never reached the GitHub install screen | Re-do step 3 of phase 1 — the "Add repositories" link |
-| Empty output, repo is in an org | App was installed on personal account, repo is in an org | Install on the org from https://github.com/apps/socket-security (may need org-admin approval) |
 | Empty output, `gh auth status` shows wrong account | gh is authed as a different GitHub user than the browser session | `gh auth switch` to the matching account, re-run |
 
 If output appears but `account` ≠ `OWNER` (e.g. installed on personal account, repo is in an org): tell the user explicitly *which* account it landed on and link them back to the install screen for the correct account.

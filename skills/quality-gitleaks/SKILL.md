@@ -1,6 +1,6 @@
 ---
 name: quality-gitleaks
-description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. Use when the user says "add gitleaks", "set up secret scanning", "gitleaks boilerplate", or "/quality-gitleaks".
+description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. User-triggered only — activate when the user invokes `/quality-gitleaks`.
 ---
 
 # quality-gitleaks
@@ -14,10 +14,7 @@ Do not commit on the user's behalf. Write the files, show diffs, let them stage 
 
 ## When to use
 
-- "add gitleaks [to this repo]"
-- "set up secret scanning"
-- "gitleaks boilerplate" / "/quality-gitleaks"
-- User mentions a leaked credential and wants to prevent the next one
+User-triggered only. Activate when the user invokes `/quality-gitleaks`. Do not self-activate on related natural-language phrasing ("add gitleaks", "set up secret scanning", a mention of a leaked credential, etc.) — surface the slash command to the user instead and let them decide.
 
 ## Hard prerequisites — check before doing anything
 
@@ -32,7 +29,7 @@ command -v gitleaks >/dev/null 2>&1 \
 
 # 3. Capture default branch — needed for the CI workflow
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null \
-  || git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' \
+  || { git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' | grep . ; } \
   || echo "main"
 ```
 

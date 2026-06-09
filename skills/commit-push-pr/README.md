@@ -13,7 +13,7 @@ detection and the rules around staging only your changes.
 
 If you have uncommitted work that represents the *next slice* in a stack
 (not the current branch's PR), use
-[`/checkpoint`](../checkpoint/) instead.
+[`/stacked-pr checkpoint`](../stacked-pr/) instead.
 
 ## Install
 

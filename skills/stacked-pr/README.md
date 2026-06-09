@@ -75,10 +75,11 @@ Optional but recommended:
 
 Consolidates these previously-separate skills into one distributable unit:
 
-- [`checkpoint`](../checkpoint/) → `/stacked-pr checkpoint`
+- `checkpoint` (removed) → `/stacked-pr checkpoint`
 - [`commit-push-pr`](../commit-push-pr/) → `/stacked-pr update`
 - [`pr-size-nudge`](../pr-size-nudge/) → bundled PostToolUse hook (see
   [references/nudge.md](references/nudge.md))
 
-The originals remain installable for one release cycle, then will be
-removed in favor of this consolidated skill.
+`checkpoint` has been removed in favor of `/stacked-pr checkpoint`.
+`commit-push-pr` and `pr-size-nudge` remain installable for one release
+cycle, then will be removed too.

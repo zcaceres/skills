@@ -18,10 +18,6 @@
       "name": "@zcaceres/skill-chaos-monkey",
       "version": "1.0.0",
     },
-    "skills/checkpoint": {
-      "name": "@zcaceres/skill-checkpoint",
-      "version": "1.0.0",
-    },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
       "version": "1.0.0",
@@ -229,8 +225,6 @@
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
     "@zcaceres/skill-chaos-monkey": ["@zcaceres/skill-chaos-monkey@workspace:skills/chaos-monkey"],
-
-    "@zcaceres/skill-checkpoint": ["@zcaceres/skill-checkpoint@workspace:skills/checkpoint"],
 
     "@zcaceres/skill-clean-ai-slop": ["@zcaceres/skill-clean-ai-slop@workspace:skills/clean-ai-slop"],
 

@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-pr-size-nudge",
   "version": "1.0.0",
-  "description": "Claude Code PostToolUse hook that nudges toward /checkpoint when the uncommitted diff grows past size thresholds. Reads diff stats, dedupes via state file.",
+  "description": "Claude Code PostToolUse hook that nudges toward /stacked-pr checkpoint when the uncommitted diff grows past size thresholds. Reads diff stats, dedupes via state file.",
   "license": "MIT",
   "type": "module",
   "scripts": {

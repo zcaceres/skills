@@ -3,7 +3,7 @@
 PostToolUse hook for Claude Code that injects a soft system-reminder
 when the uncommitted diff in the current repo crosses size/file
 thresholds without a commit. Tells the agent to consider
-[`/checkpoint`](../checkpoint/) to land the slice as a stacked PR.
+[`/stacked-pr checkpoint`](../stacked-pr/) to land the slice as a stacked PR.
 
 Non-blocking by design — never exits non-zero, never returns block
 payloads. Reads `git diff --numstat HEAD` + `git status --porcelain`
@@ -48,8 +48,8 @@ after every Edit/Write/MultiEdit/NotebookEdit call, not just while this
 skill is loaded. Requires `jq`. See [SKILL.md](./SKILL.md#install) for
 why two steps are needed and for manual wiring as an alternative.
 
-Best paired with [`checkpoint`](../checkpoint/) — the nudge points the
-agent at that slash command.
+Best paired with [`stacked-pr`](../stacked-pr/) — the nudge points the
+agent at `/stacked-pr checkpoint`.
 
 ## Origin
 

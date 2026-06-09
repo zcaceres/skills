@@ -105,6 +105,6 @@ describe("buildNudgeMessage", () => {
     const msg = buildNudgeMessage(321, 9);
     expect(msg).toContain("321 lines");
     expect(msg).toContain("9 files");
-    expect(msg).toContain("/checkpoint");
+    expect(msg).toContain("/stacked-pr checkpoint");
   });
 });

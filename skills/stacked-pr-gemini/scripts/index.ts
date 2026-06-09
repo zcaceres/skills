@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * PostToolUse hook bundled with /stacked-pr. Injects a soft
+ * PostToolUse hook bundled with /stacked-pr-gemini. Injects a soft
  * system-reminder when the uncommitted diff in the current repo crosses
  * size/file thresholds without a commit, nudging the agent to run
- * /stacked-pr checkpoint to land the slice as a stacked PR.
+ * /stacked-pr-gemini checkpoint to land the slice as a stacked PR.
  *
  * Output is JSON on stdout (additionalContext) — never blocks the agent.
  * Every error path returns silently; the hook must never break the loop.

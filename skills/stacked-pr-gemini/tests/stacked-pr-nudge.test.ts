@@ -101,10 +101,10 @@ describe("shouldFire", () => {
 });
 
 describe("buildNudgeMessage", () => {
-  test("includes line and file counts and the /stacked-pr checkpoint pointer", () => {
+  test("includes line and file counts and the /stacked-pr-gemini checkpoint pointer", () => {
     const msg = buildNudgeMessage(321, 9);
     expect(msg).toContain("321 lines");
     expect(msg).toContain("9 files");
-    expect(msg).toContain("/stacked-pr checkpoint");
+    expect(msg).toContain("/stacked-pr-gemini checkpoint");
   });
 });

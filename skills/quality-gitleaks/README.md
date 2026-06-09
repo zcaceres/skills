@@ -14,7 +14,7 @@ repo with the right order of operations:
    with `--redact`. Per-clone opt-in via `git config core.hooksPath .githooks`.
 4. **CI workflow.** `.github/workflows/gitleaks.yml` scans both `git` history
    and the `dir` working tree on every push and PR. gitleaks is installed via
-   a SHA-pinned curl tarball rather than a marketplace action, so the version
+   a curl-pinned tarball rather than a marketplace action, so the version
    pin lives in the workflow file itself.
 
 Activates on "add gitleaks", "set up secret scanning", "gitleaks boilerplate",

@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-quality-socket",
+  "version": "0.0.0",
+  "description": "Set up Socket Security (socket.dev) on a repo. The integration is a GitHub App, not a config file, so most of the skill is walking the user through the OAuth install in two browser steps and then verifying via the GitHub API that the install actually landed on the right account and the current repo is in the selected-repos list. Optionally scaffolds a pinned CI workflow as a status-check backstop. User-triggered only — activate when the user invokes '/quality-socket'.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

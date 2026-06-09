@@ -1,0 +1,44 @@
+# Socket Security CLI scan — installed via /quality-socket.
+#
+# This workflow is OPTIONAL. The Socket GitHub App already comments on every
+# PR that changes a dependency manifest, with no config required. This file
+# exists for users who want one of:
+#
+#   - A required status check for branch protection (the App's PR comment
+#     isn't a check and can't gate merges on its own).
+#   - Belt-and-braces scanning on direct pushes and force-pushes.
+#   - A scan command they can reproduce locally and read out of CI.
+#
+# Requires the SOCKET_SECURITY_API_KEY secret. See /quality-socket Phase 3
+# for how to create the token and `gh secret set` it.
+
+name: socket-security
+
+on:
+  push:
+    branches: [__DEFAULT_BRANCH__]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write   # allow Socket CLI to comment on the PR
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    env:
+      SOCKET_CLI_VERSION: "__SOCKET_CLI_VERSION__"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Install Socket CLI
+        run: |
+          set -euo pipefail
+          npm install -g "socket@${SOCKET_CLI_VERSION}"
+          socket --version
+
+      - name: Scan dependency manifests
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+        run: socket scan create . --no-interactive

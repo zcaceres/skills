@@ -152,6 +152,13 @@
         "zod": "^3.23.8",
       },
     },
+    "skills/stacked-pr-gemini": {
+      "name": "@zcaceres/skill-stacked-pr-gemini",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "^3.23.8",
+      },
+    },
     "skills/storage-cleanup": {
       "name": "@zcaceres/skill-storage-cleanup",
       "version": "1.0.0",
@@ -289,6 +296,8 @@
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
 
     "@zcaceres/skill-stacked-pr": ["@zcaceres/skill-stacked-pr@workspace:skills/stacked-pr"],
+
+    "@zcaceres/skill-stacked-pr-gemini": ["@zcaceres/skill-stacked-pr-gemini@workspace:skills/stacked-pr-gemini"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 

@@ -1,0 +1,37 @@
+{
+  "name": "@zcaceres/skill-stacked-pr-gemini",
+  "version": "0.0.0",
+  "description": "Gemini CLI version of the bundled stacked-PR workflow. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), merge bottom-up (merge). Also bundles the AfterTool pr-size-nudge hook. Uses git stack when installed, falls back to gh + git.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run scripts/index.ts",
+    "test": "bun test",
+    "build:linux": "bun build scripts/index.ts --compile --target=bun-linux-x64 --outfile scripts/bin/stacked-pr-gemini-nudge-linux-x64",
+    "build:macos": "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/stacked-pr-gemini-nudge-darwin-arm64",
+    "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64 --outfile scripts/bin/stacked-pr-gemini-nudge-windows-x64.exe",
+    "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
+    "build": "bun run build:all",
+    "fetch-tools": "bun run build:all"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "gemini-cli",
+    "skill",
+    "slash-command",
+    "hook",
+    "stacked-prs",
+    "git",
+    "github"
+  ]
+}

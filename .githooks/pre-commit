@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Pre-commit hook: block commits that contain secrets.
+#
+# Activated by running once per clone:
+#   git config core.hooksPath .githooks
+#
+# Installed by /quality-gitleaks.
+
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "ERROR: gitleaks is not installed." >&2
+  echo "Install with: brew install gitleaks  (or see https://github.com/gitleaks/gitleaks)" >&2
+  exit 1
+fi
+
+# Scan only staged changes. --redact hides any matched secret from the output
+# so a leaked value isn't echoed to the terminal or shell history.
+gitleaks git --staged --redact --verbose --config .gitleaks.toml .

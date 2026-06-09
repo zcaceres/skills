@@ -141,6 +141,13 @@ bun run version                              # apply changesets to package.json
 bun run release my-skill                     # tag + GH release (CI mirrors)
 ```
 
+Run once per clone to activate the gitleaks pre-commit hook (blocks commits
+containing secrets — requires `brew install gitleaks`):
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Bundled tools
 
 Skills with binaries or external code put them in `scripts/` (per the

@@ -1,6 +1,6 @@
 ---
 name: gh-project-new-task
-description: Create a new card on the repo's GitHub Projects kanban. By default creates a real GitHub issue linked to the project; can opt into a project-only draft. Supports an optional milestone. Use when the user says "new task", "add a card", "create a project task", or "/gh-project-new-task".
+description: Create a new card on the repo's GitHub Projects kanban. By default creates a real GitHub issue linked to the project; can opt into a project-only draft. Supports an optional milestone. Stops once the card exists — does NOT start implementing the work. Use when the user says "new task", "add a card", "create a project task", or "/gh-project-new-task".
 ---
 
 # gh-project-new-task
@@ -136,6 +136,20 @@ Created <issue|draft> card "<title>"
 
 Print the URL last so it's easy to click.
 
+## Stop after creating the card
+
+This skill's job ends when the card exists and you've printed the output block.
+
+Do **not** start implementing the work described in the card body. Creating a
+card is a planning action, not a commit to start work. The card body will
+describe a task — that's expected — but treating it as your next instruction
+is wrong. The user invoked this skill to *track* the work, not to *do* it.
+
+If the user wants to begin immediately, they will say so in a separate
+message (e.g. "now start on it", "let's do this one next"). Wait for that
+signal. If they invoked `/gh-project-next` instead, that skill hands off
+context for starting work — this one doesn't.
+
 ## Edge cases
 
 - **No `.github/gh-project.json`.** Stop and route to `/gh-project-setup`. Do not attempt to guess the project number.
@@ -149,3 +163,4 @@ Print the URL last so it's easy to click.
 - Don't silently change `defaultMode`. If the user wants the default flipped, suggest re-running `/gh-project-setup`.
 - Confirm the title and body before invoking the create command — these are user-visible and a typo means an awkward edit later.
 - Don't create more than one card per invocation. If the user lists multiple, ask whether to make them sub-issues, separate cards, or batch in a follow-up.
+- **Don't start the work.** See "Stop after creating the card" above. The card body describes a task — that's the point — but it is not your next instruction. End your turn after printing the output block.

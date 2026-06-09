@@ -11,7 +11,7 @@ Pass `--board-order` to skip ranking and use the raw kanban column order
 (the previous default — useful when the user has already curated the board).
 
 Stops at the context handoff — no branch creation, no edits, no planning.
-Clean seam with `/checkpoint` for what comes after.
+Clean seam with `/stacked-pr checkpoint` for what comes after.
 
 Activates on "what's next", "pick next ticket", "what should I work on",
 or `/gh-project-next`.

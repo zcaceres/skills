@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Wire the pr-size-nudge PostToolUse hook (matchers: Edit, Write, MultiEdit,
 # NotebookEdit) into a Claude Code settings.json so it nudges toward
-# /checkpoint after every file-modifying tool call. Idempotent — re-running
+# /stacked-pr checkpoint after every file-modifying tool call. Idempotent — re-running
 # is a no-op.
 #
 # Usage:

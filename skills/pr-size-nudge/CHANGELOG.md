@@ -7,7 +7,7 @@
 - Initial release: Claude Code PostToolUse hook that injects a soft
   system-reminder when the uncommitted diff in the current repo crosses
   size/file thresholds (defaults: 300 lines OR 8 files). Tells the agent
-  to consider `/checkpoint` to land the slice as a stacked PR.
+  to consider `/stacked-pr checkpoint` to land the slice as a stacked PR.
 
   Non-blocking by design — never exits non-zero, never returns block
   payloads. Reads `git diff --numstat HEAD` + `git status --porcelain`

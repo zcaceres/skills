@@ -20,7 +20,7 @@ Commit only the changes made in this conversation, push them, and open a PR if o
 
 **Base branch:** $ARGUMENTS (default: `main`, fallback to `master`) — only used in the plain `gh` path when creating a **new** PR with no existing base.
 
-> If you have uncommitted work that represents the *next* slice in a stack (not the current branch's PR), use `/checkpoint` instead — it creates a new stacked branch rather than amending the current PR.
+> If you have uncommitted work that represents the *next* slice in a stack (not the current branch's PR), use `/stacked-pr checkpoint` instead — it creates a new stacked branch rather than amending the current PR.
 
 ## Workflow
 

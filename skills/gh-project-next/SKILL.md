@@ -9,7 +9,7 @@ You are picking the next card for the user to work on from the repository's GitH
 
 By default this skill ranks Todo cards using a **contextual** notion of "logically next" — it inspects whatever organizational signals the project actually uses (milestones, phase/priority labels, age) and picks an ordering that fits. The raw column order is treated as a tiebreaker, not the primary signal. Pass `--board-order` to skip ranking and use the column's manual order verbatim (today's behavior).
 
-This skill **stops at the context dump**. It does not create branches, edit files, or start coding — that's deliberate. The user picks the next slicing/branching decision themselves, or invokes `/checkpoint` later.
+This skill **stops at the context dump**. It does not create branches, edit files, or start coding — that's deliberate. The user picks the next slicing/branching decision themselves, or invokes `/stacked-pr checkpoint` later.
 
 ## When to use
 
@@ -181,7 +181,7 @@ Don't open the files. Don't grep them. Just list. The user/agent decides what to
 
 End with a single line that nudges next action without committing to it:
 
-> "Card is now In Progress. When you've cut your first slice, run `/checkpoint` to stack a PR."
+> "Card is now In Progress. When you've cut your first slice, run `/stacked-pr checkpoint` to stack a PR."
 
 If the card has linked PRs (suggesting work is already underway), instead say:
 

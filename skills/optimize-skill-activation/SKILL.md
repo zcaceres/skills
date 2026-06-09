@@ -110,7 +110,7 @@ Combine signals from Steps 2–3 with the heuristics below.
 - **Destructive or expensive workflows** — anything that pushes, deletes,
   publishes, sends, charges, or kicks off long-running compute. The user
   should always be the one to start it.
-- **Strongly user-intent gated** — `/checkpoint`, `/decompose`, `/acid-trip`,
+- **Strongly user-intent gated** — `/stacked-pr`, `/decompose`, `/acid-trip`,
   `/zoom`, `/roast`. The whole point is the user explicitly asking for it.
 - **Workflows whose description would over-trigger** — if the description
   contains broad nouns like "code", "files", "review" the model will pull it

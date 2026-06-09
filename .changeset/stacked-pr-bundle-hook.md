@@ -22,6 +22,8 @@ but Claude Code does not yet substitute `${CLAUDE_SKILL_DIR}` in
 frontmatter hook commands — manual wiring via `settings.json` is
 still required. See [`references/nudge.md`](../skills/stacked-pr/references/nudge.md).
 
-Also adds deprecation banners to the three original sibling skills
-(`checkpoint`, `commit-push-pr`, `pr-size-nudge`). They remain
-installable for one release cycle.
+Also adds deprecation banners to the two remaining original sibling
+skills (`commit-push-pr`, `pr-size-nudge`). They remain installable
+for one release cycle. The third original (`checkpoint`) is removed
+in the same release — see the `stacked-pr-remove-checkpoint`
+changeset.

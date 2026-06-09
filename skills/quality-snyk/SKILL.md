@@ -107,7 +107,6 @@ If the JQ filter returns *nothing*, the App isn't installed under any account th
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Empty output | User did the login OAuth but skipped the Integrations → GitHub Connect step | Re-do step 3 of phase 1 |
-| Empty output, repo is in an org | App was installed on personal account, repo is in an org | Install on the org via the Snyk Integrations screen (may need org-admin approval) |
 | Empty output, `gh auth status` shows wrong account | gh is authed as a different GitHub user than the browser session | `gh auth switch`, re-run |
 
 If output appears but `account` ≠ `OWNER`: surface *which* account it landed on and link the user back to the Snyk Integrations page to install on the correct account.

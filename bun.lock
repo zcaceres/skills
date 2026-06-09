@@ -105,6 +105,10 @@
         "zod": "^3.23.8",
       },
     },
+    "skills/quality-gitleaks": {
+      "name": "@zcaceres/skill-quality-gitleaks",
+      "version": "0.0.0",
+    },
     "skills/quality-openssf": {
       "name": "@zcaceres/skill-quality-openssf",
       "version": "0.0.0",
@@ -267,6 +271,8 @@
     "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
+
+    "@zcaceres/skill-quality-gitleaks": ["@zcaceres/skill-quality-gitleaks@workspace:skills/quality-gitleaks"],
 
     "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
 

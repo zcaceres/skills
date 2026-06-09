@@ -1,9 +1,11 @@
 ---
 name: gh-project-new-task
-description: Create a new card on the repo's GitHub Projects kanban. By default creates a real GitHub issue linked to the project; can opt into a project-only draft. Supports an optional milestone. Stops once the card exists — does NOT start implementing the work. Use when the user says "new task", "add a card", "create a project task", or "/gh-project-new-task".
+description: Create a new card on the repo's GitHub Projects kanban and END THE TURN. Output is a card-created block — never start the work described in the card body. By default creates a real GitHub issue linked to the project; can opt into a project-only draft. Supports an optional milestone. Use when the user says "new task", "add a card", "create a project task", or "/gh-project-new-task".
 ---
 
 # gh-project-new-task
+
+**Your only output is the card-created block at the end. Print it and end your turn. Do NOT start the work described in the card body — creating a card is a planning action, not a signal to begin implementing. The card body describes a task because that's the point; it is not your next instruction.**
 
 You are creating a new card on the repository's GitHub Projects kanban board.
 

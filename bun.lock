@@ -109,6 +109,10 @@
       "name": "@zcaceres/skill-quality-openssf",
       "version": "0.0.0",
     },
+    "skills/quality-snyk": {
+      "name": "@zcaceres/skill-quality-snyk",
+      "version": "0.0.0",
+    },
     "skills/quality-socket": {
       "name": "@zcaceres/skill-quality-socket",
       "version": "0.0.0",
@@ -273,6 +277,8 @@
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
     "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
+
+    "@zcaceres/skill-quality-snyk": ["@zcaceres/skill-quality-snyk@workspace:skills/quality-snyk"],
 
     "@zcaceres/skill-quality-socket": ["@zcaceres/skill-quality-socket@workspace:skills/quality-socket"],
 

@@ -84,11 +84,22 @@ The template:
 - Includes **commented-out** custom rule scaffolds. Ask the user which ones apply, then uncomment + adapt:
   - **Anthropic API key** — only useful if they use Claude. Cheap to add either way.
   - **Google OAuth client secret** (`GOCSPX-…`) — useful if they touch Google APIs.
-  - **Personal home path** (`/Users/<name>/…`) — useful for open-source repos to keep maintainer paths out of docs/scripts. Skip on internal-only repos.
+  - **Personal home path** (`/Users/<name>/…`) — useful for open-source repos to keep maintainer paths out of docs/scripts. Skip on internal-only repos. If enabled, substitute `__USERNAME__` (`whoami` is the value) in **both** the `regex` and `keywords` fields — without this the rule matches only the literal string `/Users/__USERNAME__/…` and is silently inert.
 
 Add new rules only when the user asks. The default ruleset is broad — extending it ad-hoc invites false positives.
 
 Show the user the file before writing. Then write it to the repo root as `.gitleaks.toml`.
+
+### Re-baseline with the new config
+
+Phase 1's baseline ran with no `--config`, so it only checked against gitleaks' default ruleset. Any custom rule you just added (Anthropic key, Google OAuth secret, personal home path) could have pre-existing matches in history that Phase 1 missed — installing the hook/CI on top of that would block the next commit and turn CI red on first push. Re-run the dual scan, this time with the new config:
+
+```bash
+gitleaks git --config .gitleaks.toml --redact --verbose .
+gitleaks dir --config .gitleaks.toml --redact --verbose .
+```
+
+If clean, proceed to Phase 3. If anything is found, **stop** and route through the same triage table as Phase 1 (rotate / scrub / allowlist), then re-run this scan. Do not install the hook or CI on a dirty re-baseline.
 
 ## Phase 3 — Add the pre-commit hook
 

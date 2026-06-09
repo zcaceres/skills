@@ -249,7 +249,56 @@ Deleted draft items lose their history.
 
 Don't pretend the board view exists if you didn't see the user confirm they made one.
 
-### 10. Output
+### 10. Offer to allowlist the `gh-project-*` command surface
+
+Without a permission allowlist, every sibling skill (`/gh-project-next`, `/gh-project-new-task`, etc.) prompts the user to approve each `gh` call. After the first few approvals it's just noise — the same commands fire on every invocation. Offer to write a Claude Code permission allowlist so the sibling skills run uninterrupted.
+
+**Ask the user two things:**
+
+1. **Add the allowlist now?** (Default: yes.) If no, skip to step 11.
+2. **Which file?**
+   - **`.claude/settings.json`** — committed; shared with anyone using Claude Code on this repo. Best when this is the team's tracker.
+   - **`.claude/settings.local.json`** — gitignored; just this machine. Best for personal projects.
+
+**Canonical allowlist** (substitute nothing — these are literal patterns):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth status:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh project view:*)",
+      "Bash(gh project item-list:*)",
+      "Bash(gh project field-list:*)",
+      "Bash(gh project item-add:*)",
+      "Bash(gh project item-edit:*)",
+      "Bash(.github/scripts/gh-project-board.sh:*)"
+    ]
+  }
+}
+```
+
+The list covers read-only queries (`view`, `list`), card creation (`issue create`, `item-add`), status moves (`item-edit`), and the board helper script. Destructive operations (`gh issue delete`, `gh project delete`, `gh project item-delete`) are deliberately omitted — those still prompt.
+
+**Merging matters.** If the target file already exists, read it first and merge the new entries into the existing `permissions.allow` array. Don't overwrite other permissions the user already approved. De-dupe — don't add a pattern that's already present.
+
+```bash
+TARGET=".claude/settings.json"   # or .claude/settings.local.json based on user pick
+mkdir -p .claude
+[[ -f "$TARGET" ]] || echo '{}' > "$TARGET"
+
+# Show the user the diff you intend to apply before writing.
+```
+
+**Show the diff and wait for explicit confirmation** before writing — same pattern as step 8. If the user declines, skip; setup still succeeds.
+
+### 11. Output
 
 End with a short summary:
 
@@ -261,6 +310,7 @@ Status columns: Todo, In Progress, Done
 Config written to .github/gh-project.json
 Helper installed: .github/scripts/gh-project-board.sh
 Agent docs updated: CLAUDE.md, AGENTS.md  (or "skipped — user declined")
+Permissions allowlisted in .claude/settings.json  (or "skipped — user declined")
 
 Next: open <url> and add a Board view grouped by Status.
 Sibling skills:

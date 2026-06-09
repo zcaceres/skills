@@ -19,10 +19,26 @@ This skill **stops at the context dump**. It does not create branches, edit file
 
 ## Prerequisites
 
+**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
+- If it does NOT exist, **log a prominent warning** to the user:
+  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
+- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Do NOT proceed. Stop immediately.
+
 ```bash
+if [ ! -f .github/gh-project.json ]; then
+  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
+  echo "Please run /gh-project-setup first to configure your project board."
+  exit 1
+fi
+
 HELPER=.github/scripts/gh-project-board.sh
-test -f .github/gh-project.json || { echo "Missing .github/gh-project.json — run /gh-project-setup"; exit 1; }
-test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
+if [ ! -x "$HELPER" ]; then
+  echo "WARNING: Missing or non-executable helper script at $HELPER."
+  echo "Please run /gh-project-setup to regenerate the board helper script."
+  exit 1
+fi
+
 REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 ```

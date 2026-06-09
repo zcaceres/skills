@@ -15,15 +15,30 @@ You are removing a card from the GitHub Projects kanban board. **Confirmation is
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup.
+**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
+- If it does NOT exist, **log a prominent warning** to the user:
+  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
+- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Do NOT proceed. Stop immediately.
 
 ```bash
+if [ ! -f .github/gh-project.json ]; then
+  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
+  echo "Please run /gh-project-setup first to configure your project board."
+  exit 1
+fi
+
+HELPER=.github/scripts/gh-project-board.sh
+if [ ! -x "$HELPER" ]; then
+  echo "WARNING: Missing or non-executable helper script at $HELPER."
+  echo "Please run /gh-project-setup to regenerate the board helper script."
+  exit 1
+fi
+
 PROJECT_NUMBER=$(jq -r .projectNumber .github/gh-project.json)
 PROJECT_OWNER=$(jq -r .projectOwner .github/gh-project.json)
 REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
-HELPER=.github/scripts/gh-project-board.sh
-test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
 ```
 
 ## Step 1 — Resolve the target

@@ -5,11 +5,14 @@ Second step in the code-review trio (`review-code` → `review-code-repro` →
 one, **proves the bug is real** or marks it a false positive — before any fix
 is planned.
 
-Reproduction methods escalate from cheapest to most expensive: static re-read,
-targeted grep / type-check, failing test, probe-input run, browser/runtime
-repro, hand-traced path. Each finding ends up in one of five verdict buckets
-(`Confirmed`, `Confirmed (traced only)`, `False positive`, `Out of scope`,
-`Cannot determine`) and the tally feeds the fix step.
+Reproduction means **running code** — a failing test, probe-input run,
+browser/runtime repro, or tool-check output. Static re-read can rule a finding
+**out** (False positive) but is never sufficient to rule one **in**.
+Hand-tracing is reserved for cases where execution is genuinely impractical
+(production data, paid external service, hardware-only path). Each finding
+ends up in one of five verdict buckets (`Confirmed`, `Confirmed (traced only)`,
+`False positive`, `Out of scope`, `Cannot determine`) and the tally feeds the
+fix step.
 
 Activates when the user says "reproduce the bugs", "validate findings",
 "double-check the review", or "/review-code-repro".

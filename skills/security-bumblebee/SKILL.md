@@ -166,7 +166,7 @@ This runs every Monday at 09:00 local. `Weekday` 0 is Sunday; adjust to taste.
 
 ```bash
 # crontab -e and add (substitute __BUMBLEBEE_DIR__ and __BUMBLEBEE_BIN__):
-0 9 * * 1 OUT="__BUMBLEBEE_DIR__/scan-$(date +\%Y\%m\%d-\%H\%M\%S).ndjson"; "__BUMBLEBEE_BIN__" scan --profile baseline > "$OUT" 2>"${OUT%.ndjson}.stderr" && jq -e 'select(.record_type=="scan_summary" and .status=="ok")' "$OUT" >/dev/null && ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"
+0 9 * * 1 OUT="__BUMBLEBEE_DIR__/scan-$(date +\%Y\%m\%d-\%H\%M\%S).ndjson"; "__BUMBLEBEE_BIN__" scan --profile baseline > "$OUT" 2>"${OUT\%.ndjson}.stderr" && jq -e 'select(.record_type=="scan_summary" and .status=="ok")' "$OUT" >/dev/null && ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"
 ```
 
 Don't write this without showing the user first — cron entries are easy to forget and accumulate. Print the proposed line and have them confirm before piping it into `crontab -`.

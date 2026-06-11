@@ -109,10 +109,6 @@
       "name": "@zcaceres/skill-quality-openssf",
       "version": "0.0.0",
     },
-    "skills/security-socket": {
-      "name": "@zcaceres/skill-security-socket",
-      "version": "0.0.0",
-    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -148,6 +144,14 @@
     "skills/safety-rm-rf-guard": {
       "name": "@zcaceres/skill-safety-rm-rf-guard",
       "version": "1.0.0",
+    },
+    "skills/security-snyk": {
+      "name": "@zcaceres/skill-security-snyk",
+      "version": "0.0.0",
+    },
+    "skills/security-socket": {
+      "name": "@zcaceres/skill-security-socket",
+      "version": "0.0.0",
     },
     "skills/stacked-pr": {
       "name": "@zcaceres/skill-stacked-pr",
@@ -274,8 +278,6 @@
 
     "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
 
-    "@zcaceres/skill-security-socket": ["@zcaceres/skill-security-socket@workspace:skills/security-socket"],
-
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
@@ -293,6 +295,10 @@
     "@zcaceres/skill-safety-op-creds": ["@zcaceres/skill-safety-op-creds@workspace:skills/safety-op-creds"],
 
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
+
+    "@zcaceres/skill-security-snyk": ["@zcaceres/skill-security-snyk@workspace:skills/security-snyk"],
+
+    "@zcaceres/skill-security-socket": ["@zcaceres/skill-security-socket@workspace:skills/security-socket"],
 
     "@zcaceres/skill-stacked-pr": ["@zcaceres/skill-stacked-pr@workspace:skills/stacked-pr"],
 

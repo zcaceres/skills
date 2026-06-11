@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-security-snyk",
+  "version": "0.0.0",
+  "description": "Set up Snyk on a repo. The integration is a GitHub App plus a Snyk-side 'import this repo as a project' step, not a checked-in config, so most of the skill is walking the user through the three browser steps (Snyk login → GitHub App install → Add project) and then verifying via the GitHub API that the App actually landed on the right account. Pre-flips 'Automatic fix PRs' off so the install doesn't dump a backlog of fix PRs into the repo. Optionally scaffolds a pinned CI workflow that runs `snyk code test` (SAST), which isn't covered by the App's free tier dependency-CVE scanning. User-triggered only — activate when the user invokes '/security-snyk'.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

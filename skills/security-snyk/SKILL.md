@@ -37,7 +37,7 @@ Capture:
 - `DEFAULT_BRANCH` (only needed if the user opts into the CI workflow)
 - `VISIBILITY` (`PUBLIC` / `PRIVATE` / `INTERNAL`)
 
-**Visibility note.** Snyk's free tier works on public and private repos. No refusal here. (Unlike [[quality-openssf]], which refuses on private repos because the OpenSSF Scorecard action hard-fails there.)
+**Visibility note.** Snyk's free tier works on public and private repos. No refusal here. (Unlike [[security-openssf]], which refuses on private repos because the OpenSSF Scorecard action hard-fails there.)
 
 ## Phase 1 — Walk the user through the install
 
@@ -276,5 +276,5 @@ When advising on findings, point the user at the specific finding's URL in the S
 
 - [[quality-socket]] — supply-chain risk sibling, similar GitHub-App-then-CLI shape. Socket leans on supply-chain signals (typosquats, install scripts, telemetry); Snyk leans on known CVEs. Many teams run both — they overlap a little but mostly catch different things.
 - [[quality-gitleaks]] — secret-scanning sibling.
-- [[quality-openssf]] — repo-hygiene scoring sibling.
+- [[security-openssf]] — repo-hygiene scoring sibling.
 - [[safety-op-creds]] — if the user wants to stash `SNYK_TOKEN` in 1Password instead of as a GitHub Actions secret for local CLI use.

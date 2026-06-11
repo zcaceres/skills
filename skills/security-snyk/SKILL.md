@@ -84,7 +84,7 @@ Once the user says they finished, verify the App side via the GitHub API. Two th
 # Step 1: list the App installations the authenticated gh user can see.
 # The Snyk App's slug is "snyk-io". (Some older docs reference "snyk" —
 # match either to be safe.)
-gh api /user/installations \
+gh api --paginate /user/installations \
   --jq '.installations[] | select(.app_slug | startswith("snyk"))
         | {id: .id, slug: .app_slug, account: .account.login,
            target_type: .target_type,
@@ -107,7 +107,6 @@ If the JQ filter returns *nothing*, the App isn't installed under any account th
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Empty output | User did the login OAuth but skipped the Integrations → GitHub Connect step | Re-do step 3 of phase 1 |
-| Empty output, repo is in an org | App was installed on personal account, repo is in an org | Install on the org via the Snyk Integrations screen (may need org-admin approval) |
 | Empty output, `gh auth status` shows wrong account | gh is authed as a different GitHub user than the browser session | `gh auth switch`, re-run |
 
 If output appears but `account` ≠ `OWNER`: surface *which* account it landed on and link the user back to the Snyk Integrations page to install on the correct account.
@@ -116,7 +115,7 @@ If output appears but `account` ≠ `OWNER`: surface *which* account it landed o
 # Step 2: if the install exists and `repository_selection == "selected"`,
 # confirm the current repo is in the selected list.
 INSTALLATION_ID=<id from step 1>
-gh api "/user/installations/$INSTALLATION_ID/repositories" \
+gh api --paginate "/user/installations/$INSTALLATION_ID/repositories" \
   --jq ".repositories[] | select(.full_name == \"$REPO\") | .full_name"
 ```
 
@@ -186,7 +185,10 @@ Show the diff before writing.
 
 ```
 1. Open https://app.snyk.io/account → "Auth token" section → copy.
-2. gh secret set SNYK_TOKEN --body '<paste the token>' --repo __REPO__
+2. Pipe it into `gh secret set` so the token never lands in shell history:
+
+     gh secret set SNYK_TOKEN --repo __REPO__
+     # paste the token when prompted, then press Ctrl-D
 ```
 
 If `gh secret set` errors (`Resource not accessible by integration` on org repos), the user has to set the secret via the GitHub web UI: Settings → Secrets and variables → Actions → New repository secret.

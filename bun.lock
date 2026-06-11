@@ -109,6 +109,10 @@
       "name": "@zcaceres/skill-quality-openssf",
       "version": "0.0.0",
     },
+    "skills/security-socket": {
+      "name": "@zcaceres/skill-security-socket",
+      "version": "0.0.0",
+    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -276,6 +280,8 @@
     "@zcaceres/skill-quality-gitleaks": ["@zcaceres/skill-quality-gitleaks@workspace:skills/quality-gitleaks"],
 
     "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
+
+    "@zcaceres/skill-security-socket": ["@zcaceres/skill-security-socket@workspace:skills/security-socket"],
 
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 

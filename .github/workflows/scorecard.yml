@@ -1,4 +1,4 @@
-# OpenSSF Scorecard — installed via /quality-openssf.
+# OpenSSF Scorecard — installed via /security-openssf.
 #
 # Phase 1 (this file as written): publish_results: false.
 #   Results land in this repo's Security → Code scanning tab only.
@@ -40,7 +40,7 @@ jobs:
         with:
           results_file: results.sarif
           results_format: sarif
-          # PHASE 1: keep false. Flip to true (and re-run /quality-openssf)
+          # PHASE 1: keep false. Flip to true (and re-run /security-openssf)
           # only after triaging the SARIF findings.
           publish_results: false
 

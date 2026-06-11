@@ -1,9 +1,9 @@
 ---
-name: quality-openssf
-description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/quality-openssf".
+name: security-openssf
+description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/security-openssf".
 ---
 
-# quality-openssf
+# security-openssf
 
 You are adding the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action to the current repo and walking the user through a **two-phase rollout** so a poor first score never lands on the public dashboard:
 
@@ -16,7 +16,7 @@ This skill stops between phases. Do not flip to phase 2 in the same session unle
 
 - "add OpenSSF [Scorecard] to this repo"
 - "set up Scorecard" / "scorecard action"
-- "OpenSSF boilerplate" / "/quality-openssf"
+- "OpenSSF boilerplate" / "/security-openssf"
 - User pastes a scorecard.dev URL and wants the same setup
 
 ## Hard prerequisites — check before doing anything
@@ -51,7 +51,7 @@ The default `GITHUB_TOKEN` can't run the GraphQL queries Scorecard needs against
 
 If the repo is private/internal, say:
 
-> This repo is private. Scorecard hard-fails on private repos under the default GitHub token (`Resource not accessible by integration`), and the public scorecard.dev dashboard refuses private repos either way — installing the workflow now would just generate weekly failure emails. Re-run /quality-openssf after you flip the repo to public.
+> This repo is private. Scorecard hard-fails on private repos under the default GitHub token (`Resource not accessible by integration`), and the public scorecard.dev dashboard refuses private repos either way — installing the workflow now would just generate weekly failure emails. Re-run /security-openssf after you flip the repo to public.
 
 That's it — no install, no escape hatches, end the session.
 
@@ -109,7 +109,7 @@ What to do next:
   3. Wait for the first run. Open Actions → Scorecard analysis → log to see the score.
   4. Open Security → Code scanning to see per-check findings as SARIF.
   5. Triage the findings (this skill can help in a second session).
-  6. When the score is acceptable, re-invoke /quality-openssf and ask to go public.
+  6. When the score is acceptable, re-invoke /security-openssf and ask to go public.
 ```
 
 Do not loop into phase 2 the same session. The whole point is to let the workflow actually run and the user actually look at the output.

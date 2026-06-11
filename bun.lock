@@ -105,10 +105,6 @@
       "name": "@zcaceres/skill-quality-gitleaks",
       "version": "0.0.0",
     },
-    "skills/quality-openssf": {
-      "name": "@zcaceres/skill-quality-openssf",
-      "version": "0.0.0",
-    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -144,6 +140,10 @@
     "skills/safety-rm-rf-guard": {
       "name": "@zcaceres/skill-safety-rm-rf-guard",
       "version": "1.0.0",
+    },
+    "skills/security-openssf": {
+      "name": "@zcaceres/skill-security-openssf",
+      "version": "0.0.0",
     },
     "skills/security-snyk": {
       "name": "@zcaceres/skill-security-snyk",
@@ -283,8 +283,6 @@
 
     "@zcaceres/skill-quality-gitleaks": ["@zcaceres/skill-quality-gitleaks@workspace:skills/quality-gitleaks"],
 
-    "@zcaceres/skill-quality-openssf": ["@zcaceres/skill-quality-openssf@workspace:skills/quality-openssf"],
-
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
@@ -302,6 +300,8 @@
     "@zcaceres/skill-safety-op-creds": ["@zcaceres/skill-safety-op-creds@workspace:skills/safety-op-creds"],
 
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
+
+    "@zcaceres/skill-security-openssf": ["@zcaceres/skill-security-openssf@workspace:skills/security-openssf"],
 
     "@zcaceres/skill-security-snyk": ["@zcaceres/skill-security-snyk@workspace:skills/security-snyk"],
 

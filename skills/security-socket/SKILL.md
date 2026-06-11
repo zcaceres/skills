@@ -31,7 +31,7 @@ Capture:
 - `DEFAULT_BRANCH` (only needed if the user opts into the CI workflow)
 - `VISIBILITY` (`PUBLIC` / `PRIVATE` / `INTERNAL`)
 
-**Visibility note.** Socket's free tier works on both public and private repos (unlike OpenSSF Scorecard — see [[quality-openssf]] for that gate). No refusal here.
+**Visibility note.** Socket's free tier works on both public and private repos (unlike OpenSSF Scorecard — see [[security-openssf]] for that gate). No refusal here.
 
 ## Phase 1 — Walk the user through the install
 
@@ -238,4 +238,4 @@ When advising on findings, point the user at the specific finding's URL on socke
 
 - [[quality-snyk]] — vulnerability-scanning sibling, similar GitHub-App-then-CLI shape. Socket and Snyk overlap somewhat (both flag risky deps) but lean different ways: Socket on supply-chain signals (typosquats, install scripts, telemetry), Snyk on known CVEs. Many teams run both.
 - [[quality-gitleaks]] — secret-scanning sibling.
-- [[quality-openssf]] — repo-hygiene scoring sibling.
+- [[security-openssf]] — repo-hygiene scoring sibling.

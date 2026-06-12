@@ -15,7 +15,12 @@ from the article × lineage collision — never rolled separately.
 The skill runs as **Trip → pause → Realize**. Phase 1 rolls + presents
 a brief; the user approves, rerolls, or overrides. Phase 2 builds the
 design with a mandatory self-critique pass that audits against the
-hard-blacklist and forbidden-micro-anatomy lists.
+hard-blacklist and forbidden-micro-anatomy lists, then ends by
+extracting a standardized design system from the finished artifact —
+`acid-trip-<id>-design-system.md` (fixed sections: Palette, Typography,
+Spacing & Grid, Motion, Components & Motifs) plus a machine-readable
+`acid-trip-<id>-tokens.json`. The trip's randomness drives the values,
+never the document's structure.
 
 See [SKILL.md](./SKILL.md) for the full ritual, the blacklist, and the
 provenance-stamp format. The roller lives at

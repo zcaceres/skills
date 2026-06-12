@@ -141,6 +141,10 @@
       "name": "@zcaceres/skill-safety-rm-rf-guard",
       "version": "1.0.0",
     },
+    "skills/security-bumblebee": {
+      "name": "@zcaceres/skill-security-bumblebee",
+      "version": "0.0.0",
+    },
     "skills/security-openssf": {
       "name": "@zcaceres/skill-security-openssf",
       "version": "0.0.0",
@@ -300,6 +304,8 @@
     "@zcaceres/skill-safety-op-creds": ["@zcaceres/skill-safety-op-creds@workspace:skills/safety-op-creds"],
 
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
+
+    "@zcaceres/skill-security-bumblebee": ["@zcaceres/skill-security-bumblebee@workspace:skills/security-bumblebee"],
 
     "@zcaceres/skill-security-openssf": ["@zcaceres/skill-security-openssf@workspace:skills/security-openssf"],
 

@@ -105,10 +105,6 @@
         "zod": "^3.23.8",
       },
     },
-    "skills/quality-gitleaks": {
-      "name": "@zcaceres/skill-quality-gitleaks",
-      "version": "0.0.0",
-    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -147,6 +143,10 @@
     },
     "skills/security-bumblebee": {
       "name": "@zcaceres/skill-security-bumblebee",
+      "version": "0.0.0",
+    },
+    "skills/security-gitleaks": {
+      "name": "@zcaceres/skill-security-gitleaks",
       "version": "0.0.0",
     },
     "skills/security-openssf": {
@@ -291,8 +291,6 @@
 
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
-    "@zcaceres/skill-quality-gitleaks": ["@zcaceres/skill-quality-gitleaks@workspace:skills/quality-gitleaks"],
-
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
@@ -312,6 +310,8 @@
     "@zcaceres/skill-safety-rm-rf-guard": ["@zcaceres/skill-safety-rm-rf-guard@workspace:skills/safety-rm-rf-guard"],
 
     "@zcaceres/skill-security-bumblebee": ["@zcaceres/skill-security-bumblebee@workspace:skills/security-bumblebee"],
+
+    "@zcaceres/skill-security-gitleaks": ["@zcaceres/skill-security-gitleaks@workspace:skills/security-gitleaks"],
 
     "@zcaceres/skill-security-openssf": ["@zcaceres/skill-security-openssf@workspace:skills/security-openssf"],
 

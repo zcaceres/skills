@@ -4,7 +4,7 @@
 # Activated by running once per clone:
 #   git config core.hooksPath .githooks
 #
-# Installed by /quality-gitleaks.
+# Installed by /security-gitleaks.
 
 set -euo pipefail
 

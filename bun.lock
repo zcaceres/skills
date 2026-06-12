@@ -93,14 +93,6 @@
       "name": "@zcaceres/skill-review-code",
       "version": "0.0.0",
     },
-    "skills/review-code-fix": {
-      "name": "@zcaceres/skill-review-code-fix",
-      "version": "0.0.0",
-    },
-    "skills/review-code-repro": {
-      "name": "@zcaceres/skill-review-code-repro",
-      "version": "0.0.0",
-    },
     "skills/safety-dotenv-guard": {
       "name": "@zcaceres/skill-safety-dotenv-guard",
       "version": "1.0.0",
@@ -252,10 +244,6 @@
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
 
     "@zcaceres/skill-review-code": ["@zcaceres/skill-review-code@workspace:skills/review-code"],
-
-    "@zcaceres/skill-review-code-fix": ["@zcaceres/skill-review-code-fix@workspace:skills/review-code-fix"],
-
-    "@zcaceres/skill-review-code-repro": ["@zcaceres/skill-review-code-repro@workspace:skills/review-code-repro"],
 
     "@zcaceres/skill-safety-dotenv-guard": ["@zcaceres/skill-safety-dotenv-guard@workspace:skills/safety-dotenv-guard"],
 

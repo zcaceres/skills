@@ -1,28 +1,22 @@
----
-name: review-code-repro
-description: Reproduce and validate each finding from a code review to filter out false positives. Use after /review-code or when the user says "reproduce the bugs", "validate findings", or "/review-code-repro".
----
+# `/review-code repro` — Reproduce and Validate Findings
 
-# review-code-repro
-
-You are validating a list of findings produced by a prior code review (typically `/review-code`). For each finding, your job is to **prove the bug is real** — or admit you cannot — before any fix gets planned.
+You are validating a list of findings produced by a prior code review (typically `/review-code review`). For each finding, your job is to **prove the bug is real** — or admit you cannot — before any fix gets planned.
 
 A reviewer can be wrong. Misreads, false assumptions about upstream callers, and "this looks risky but isn't actually reachable" are the most common failure modes. Don't trust the finding; reproduce it.
 
-## When to Use This Skill
+## When to use
 
-Activate when the user says:
 - "reproduce the bugs" / "reproduce the findings"
 - "validate the review" / "validate findings"
 - "are these bugs real" / "double-check the review"
-- "/review-code-repro"
+- "/review-code repro"
 
 If there is no prior review output visible (in this conversation, a file, a paste, or PR comments), ask the user where the findings are before proceeding.
 
 ## Inputs
 
 You need two things:
-1. The **list of findings** (from `/review-code`, a pasted review, or PR review comments — `gh pr view <PR> --json reviews` works).
+1. The **list of findings** (from `/review-code review`, a pasted review, or PR review comments — `gh pr view <PR> --json reviews` works).
 2. The **diff under review** — the same `git diff <merge-base> HEAD` plus `git diff HEAD` that the original review ran against.
 
 If either is missing, surface that gap and stop — don't invent.
@@ -88,12 +82,12 @@ Mirror the numbering of the input review so the user can match findings 1:1. For
 File: <path:line>
 ```
 
-End with a one-line tally: `Confirmed: X · False positive: Y · Out of scope: Z · Cannot determine: W`. This tally is the input to `/review-code-fix`.
+End with a one-line tally: `Confirmed: X · False positive: Y · Out of scope: Z · Cannot determine: W`. This tally is the input to `/review-code fix`.
 
 ## Guidelines
 
 - Default to executing. Before opening the cited file to "verify the claim", ask: can I write a failing test or run a probe? If yes, do that first — it's both stronger evidence and usually faster than tracing.
-- Don't fix anything. Reproduction only. Fixing is the next step (`/review-code-fix`) and requires user approval.
+- Don't fix anything. Reproduction only. Fixing is the next step (`/review-code fix`) and requires user approval.
 - Don't widen scope. If reproduction surfaces an adjacent bug not in the original review, mention it in a final "Bonus findings" section but don't re-run the review.
 - Don't pad the verdict. If you cannot reproduce in reasonable time, **Cannot determine** is the honest answer — better than promoting a re-read to **Confirmed**.
 - Run tests in isolation where you can (`bun test path/to/file.test.ts`, not the whole suite) — faster feedback, clearer signal.

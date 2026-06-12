@@ -49,6 +49,13 @@ bumblebee selftest
 
 `selftest` runs against embedded fake-package fixtures and makes no network calls. Expect `selftest OK (2 findings in ...)`. If it fails, the install is broken — stop and surface the error.
 
+Once selftest passes, record the resolved binary path. Phase 4 substitutes it into the scheduler entries so they work regardless of install layout (`go install` with custom `GOBIN`, prebuilt tarball in `/usr/local/bin`, etc.):
+
+```bash
+BUMBLEBEE_BIN="$(command -v bumblebee)"
+echo "$BUMBLEBEE_BIN"
+```
+
 ## Phase 2 — Pick the scan output directory
 
 The scanner emits NDJSON. We want it somewhere the user can grep later and the agent can read on demand. Pick per OS:
@@ -75,8 +82,15 @@ If the user has a strong opinion about output location (e.g. they want it in `~/
 ```bash
 TS="$(date +%Y%m%d-%H%M%S)"
 OUT="$BUMBLEBEE_DIR/scan-$TS.ndjson"
-bumblebee scan --profile baseline > "$OUT" 2>"$BUMBLEBEE_DIR/scan-$TS.stderr"
-ln -sf "scan-$TS.ndjson" "$BUMBLEBEE_DIR/current.ndjson"
+# Promote current.ndjson only if the scan exits cleanly AND scan_summary.status == "ok".
+# Failed or partial scans must not clobber the last-good pointer. (jq dep is required by
+# Phase 0; the gate fails closed if it's missing.)
+if bumblebee scan --profile baseline > "$OUT" 2>"$BUMBLEBEE_DIR/scan-$TS.stderr" \
+  && jq -e 'select(.record_type=="scan_summary" and .status=="ok")' "$OUT" >/dev/null; then
+  ln -sf "scan-$TS.ndjson" "$BUMBLEBEE_DIR/current.ndjson"
+else
+  echo "bumblebee: scan failed or status != ok; current.ndjson left unchanged" >&2
+fi
 wc -l "$OUT"
 ```
 
@@ -124,7 +138,7 @@ Write `~/Library/LaunchAgents/dev.bumblebee.scan.plist`:
   <key>ProgramArguments</key>
   <array>
     <string>/bin/sh</string><string>-c</string>
-    <string>OUT="__BUMBLEBEE_DIR__/scan-$(date +%Y%m%d-%H%M%S).ndjson"; "$HOME/go/bin/bumblebee" scan --profile baseline &gt; "$OUT" 2&gt;"${OUT%.ndjson}.stderr"; ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"</string>
+    <string>OUT="__BUMBLEBEE_DIR__/scan-$(date +%Y%m%d-%H%M%S).ndjson"; "__BUMBLEBEE_BIN__" scan --profile baseline &gt; "$OUT" 2&gt;"${OUT%.ndjson}.stderr" &amp;&amp; jq -e 'select(.record_type=="scan_summary" and .status=="ok")' "$OUT" &gt;/dev/null &amp;&amp; ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"</string>
   </array>
   <key>StartCalendarInterval</key>
   <dict>
@@ -139,7 +153,7 @@ Write `~/Library/LaunchAgents/dev.bumblebee.scan.plist`:
 </plist>
 ```
 
-Substitute `__BUMBLEBEE_DIR__`. Then:
+Substitute `__BUMBLEBEE_DIR__` and `__BUMBLEBEE_BIN__` (the path captured at the end of Phase 1). Then:
 
 ```bash
 launchctl load ~/Library/LaunchAgents/dev.bumblebee.scan.plist
@@ -151,11 +165,13 @@ This runs every Monday at 09:00 local. `Weekday` 0 is Sunday; adjust to taste.
 ### Linux — cron
 
 ```bash
-# crontab -e and add:
-0 9 * * 1 OUT="__BUMBLEBEE_DIR__/scan-$(date +\%Y\%m\%d-\%H\%M\%S).ndjson"; "$HOME/go/bin/bumblebee" scan --profile baseline > "$OUT" 2>"${OUT%.ndjson}.stderr"; ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"
+# crontab -e and add (substitute __BUMBLEBEE_DIR__ and __BUMBLEBEE_BIN__):
+0 9 * * 1 OUT="__BUMBLEBEE_DIR__/scan-$(date +\%Y\%m\%d-\%H\%M\%S).ndjson"; "__BUMBLEBEE_BIN__" scan --profile baseline > "$OUT" 2>"${OUT\%.ndjson}.stderr" && jq -e 'select(.record_type=="scan_summary" and .status=="ok")' "$OUT" >/dev/null && ln -sf "$(basename "$OUT")" "__BUMBLEBEE_DIR__/current.ndjson"
 ```
 
 Don't write this without showing the user first — cron entries are easy to forget and accumulate. Print the proposed line and have them confirm before piping it into `crontab -`.
+
+The `&&` chain matters: it ensures the `current.ndjson` symlink is only repointed if the scan exits cleanly *and* the `scan_summary` row reports `status=="ok"`. A scheduled job that crashes mid-walk, or emits `status=="partial"`, leaves the prior good pointer intact instead of clobbering it with a truncated file. Note: if the binary location changes later (`brew upgrade`, rebuild to a different `GOBIN`), the scheduler will exit 127 and the symlink stays put — re-run `/security-bumblebee` to refresh the entries.
 
 ### Pruning
 

@@ -1,9 +1,4 @@
----
-name: gh-project-review
-description: Audit the repo's GitHub Projects kanban against the codebase, identifying cards that look Done (code shipped) or look stuck (no movement). Presents each finding with code evidence and asks for one-by-one approval before updating the board. Use when the user says "review the board", "audit the kanban", "what's stale on the project", or "/gh-project-review".
----
-
-# gh-project-review
+# `/gh-project review` — Audit the Board
 
 You are auditing the repository's GitHub Projects kanban against the actual state of the codebase. The output is a structured conversation: for each card whose status looks wrong, you present **evidence from the code** and the user **approves or rejects each update individually**.
 
@@ -13,27 +8,27 @@ Treat this like a code review with verdicts. False positives are expensive — m
 
 - "review the board" / "audit the kanban" / "what's stale on the project"
 - "check the project tasks"
-- "/gh-project-review"
+- "/gh-project review"
 
 ## Prerequisites
 
 **CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
 - If it does NOT exist, **log a prominent warning** to the user:
   > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
 - Do NOT proceed. Stop immediately.
 
 ```bash
 if [ ! -f .github/gh-project.json ]; then
   echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project-setup first to configure your project board."
+  echo "Please run /gh-project setup first to configure your project board."
   exit 1
 fi
 
 HELPER=.github/scripts/gh-project-board.sh
 if [ ! -x "$HELPER" ]; then
   echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project-setup to regenerate the board helper script."
+  echo "Please run /gh-project setup to regenerate the board helper script."
   exit 1
 fi
 

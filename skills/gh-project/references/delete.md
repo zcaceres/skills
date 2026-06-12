@@ -1,15 +1,10 @@
----
-name: gh-project-delete
-description: Remove a card from the repo's GitHub Projects kanban, identified by item id, issue number, or title. ALWAYS shows the card and asks for explicit confirmation before deleting. Surfaces whether deletion will also destroy underlying data (drafts) or only unlink an issue. Use when the user says "delete card 23", "remove this task from the board", or "/gh-project-delete".
----
-
-# gh-project-delete
+# `/gh-project delete` — Remove a Card
 
 You are removing a card from the GitHub Projects kanban board. **Confirmation is mandatory.** Deleting a draft destroys it; "deleting" an issue-backed card only unlinks the issue from the project (the issue itself persists unless the user separately closes/deletes it).
 
 ## When to use
 
-- "/gh-project-delete [id|number|title]"
+- "/gh-project delete [id|number|title]"
 - "delete card N" / "remove this task from the board"
 - "drop the X card"
 
@@ -18,20 +13,20 @@ You are removing a card from the GitHub Projects kanban board. **Confirmation is
 **CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
 - If it does NOT exist, **log a prominent warning** to the user:
   > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
 - Do NOT proceed. Stop immediately.
 
 ```bash
 if [ ! -f .github/gh-project.json ]; then
   echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project-setup first to configure your project board."
+  echo "Please run /gh-project setup first to configure your project board."
   exit 1
 fi
 
 HELPER=.github/scripts/gh-project-board.sh
 if [ ! -x "$HELPER" ]; then
   echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project-setup to regenerate the board helper script."
+  echo "Please run /gh-project setup to regenerate the board helper script."
   exit 1
 fi
 
@@ -51,7 +46,7 @@ $HELPER find "$SELECTOR"   # auto-detects PVTI_… / issue# / title-substring
 
 If the resolution returns more than one row, **list all candidates and ask the user to pick**. Do not delete the first match.
 
-If the user invoked the skill bare (no identifier), **stop and ask**. Inferring deletion targets from conversation context is too risky.
+If the user invoked the subcommand bare (no identifier), **stop and ask**. Inferring deletion targets from conversation context is too risky.
 
 ## Step 2 — Show full card details
 
@@ -165,8 +160,8 @@ If anything failed mid-sequence (unlink succeeded but issue close failed, etc.),
 
 ## Guidelines
 
-- **Confirm first, every time.** Even if the user typed `/gh-project-delete 23` and seems decisive — the show-and-confirm step is the value-add of this skill.
-- **Don't infer the target from conversation context.** Require an explicit identifier. Unlike `/gh-project-update` (where the worst case is overwriting recoverable text), a wrong delete here can destroy data.
+- **Confirm first, every time.** Even if the user typed `/gh-project delete 23` and seems decisive — the show-and-confirm step is the value-add of this subcommand.
+- **Don't infer the target from conversation context.** Require an explicit identifier. Unlike `/gh-project update` (where the worst case is overwriting recoverable text), a wrong delete here can destroy data.
 - **One card per invocation.** No bulk deletes. If the user wants to clear out five cards, do them sequentially with five confirmations.
 - **Respect the project tracker norms.** This repo's CLAUDE.md says "When an item is finished, move it to Done — do not delete it." If the user invokes delete on a Done-looking card, push back: would they rather move it to Done?
-- **Never `--no-verify`-equivalent shortcuts.** No silent flags to skip confirmation. The whole point of this skill is the confirmation gate.
+- **Never `--no-verify`-equivalent shortcuts.** No silent flags to skip confirmation. The whole point of this subcommand is the confirmation gate.

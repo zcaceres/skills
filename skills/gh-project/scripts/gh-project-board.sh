@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # gh-project-board.sh
 #
-# Shared helper for the gh-project-* Claude Code skills. Lives at
+# Shared helper for the gh-project Claude Code skill. Lives at
 # .github/scripts/gh-project-board.sh in the user's repo (installed by
-# /gh-project-setup). Sibling skills call this script so board access is
-# deterministic and avoids the truncation/context-bloat failure modes of
-# raw `gh project item-list`.
+# /gh-project setup). The skill's subcommands call this script so board
+# access is deterministic and avoids the truncation/context-bloat failure
+# modes of raw `gh project item-list`.
 #
-# Reads .github/gh-project.json (written by /gh-project-setup).
+# Reads .github/gh-project.json (written by /gh-project setup).
 #
 # Subcommands:
 #   list [--query <q>] [--include-body]   Compact JSONL of all items.
@@ -28,7 +28,7 @@ ITEM_LIMIT=500
 die() { printf 'gh-project-board: %s\n' "$*" >&2; exit 1; }
 
 require_config() {
-  [[ -f "$CONFIG_FILE" ]] || die "missing $CONFIG_FILE — run /gh-project-setup"
+  [[ -f "$CONFIG_FILE" ]] || die "missing $CONFIG_FILE — run /gh-project setup"
 }
 
 cfg() { jq -r "$1" "$CONFIG_FILE"; }

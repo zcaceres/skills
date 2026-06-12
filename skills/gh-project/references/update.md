@@ -1,15 +1,10 @@
----
-name: gh-project-update
-description: Update an existing card on the repo's GitHub Projects kanban — title, body, or status — folding in context from the current conversation. Accepts an explicit card identifier (item id, issue number, or title) or infers the target card from conversation context. Use when the user says "update card 23", "add to that task", "/gh-project-update", or "/gh-project-update <id|title>".
----
-
-# gh-project-update
+# `/gh-project update` — Update a Card
 
 You are updating a single card on the GitHub Projects kanban board with new findings, decisions, or context — usually drawn from the current conversation.
 
 ## When to use
 
-- "/gh-project-update [id|number|title]"
+- "/gh-project update [id|number|title]"
 - "update card N" / "update the X task with what we just learned"
 - "add what we figured out to the project board"
 - The user has been working with you and wants to record progress without breaking flow
@@ -19,20 +14,20 @@ You are updating a single card on the GitHub Projects kanban board with new find
 **CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
 - If it does NOT exist, **log a prominent warning** to the user:
   > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
 - Do NOT proceed. Stop immediately.
 
 ```bash
 if [ ! -f .github/gh-project.json ]; then
   echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project-setup first to configure your project board."
+  echo "Please run /gh-project setup first to configure your project board."
   exit 1
 fi
 
 HELPER=.github/scripts/gh-project-board.sh
 if [ ! -x "$HELPER" ]; then
   echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project-setup to regenerate the board helper script."
+  echo "Please run /gh-project setup to regenerate the board helper script."
   exit 1
 fi
 
@@ -40,7 +35,7 @@ REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
 REPO=$(jq -r .repo .github/gh-project.json)
 ```
 
-(This skill only talks to `gh issue` directly — the board helper handles all `gh project` calls — so only `REPO_OWNER` is needed here.)
+(This subcommand only talks to `gh issue` directly — the board helper handles all `gh project` calls — so only `REPO_OWNER` is needed here.)
 
 ## Step 1 — Identify the target card
 
@@ -60,7 +55,7 @@ $HELPER find "csv"     # treats as title substring (case-insensitive)
 The helper outputs zero or more JSONL rows. If multiple match, **list them all and ask the user to pick** — do not silently update the first match.
 
 ### C. Infer from conversation
-If the user invoked the skill bare ("update that card with what we just figured out"), you must guess. Strategy:
+If the user invoked the subcommand bare ("update that card with what we just figured out"), you must guess. Strategy:
 
 1. Pull the board: `$HELPER list > /tmp/board.jsonl`.
 2. Identify keywords from the recent conversation — files touched, function names, feature nouns the user used.
@@ -173,9 +168,9 @@ If you ran multiple `item-edit` calls (e.g. body + status), report each result a
 
 ## Edge cases
 
-- **Card not found.** Print the candidates you considered and ask the user to clarify. Don't create a new card from a `update` invocation — that's `/gh-project-new-task`.
+- **Card not found.** Print the candidates you considered and ask the user to clarify. Don't create a new card from a `update` invocation — that's `/gh-project new-task`.
 - **Ambiguous match.** Two cards titled similarly is common. List, don't guess.
-- **User asks to change milestone or labels on a draft.** Drafts don't support those — explain and offer to convert to an issue (this requires deleting the draft and creating an issue, which is `/gh-project-delete` + `/gh-project-new-task`; surface that path rather than doing it implicitly).
+- **User asks to change milestone or labels on a draft.** Drafts don't support those — explain and offer to convert to an issue (this requires deleting the draft and creating an issue, which is `/gh-project delete` + `/gh-project new-task`; surface that path rather than doing it implicitly).
 - **Body would be huge.** Project item bodies are markdown. Be careful with code blocks that contain backticks — fence with `~~~` if needed. Trim noisy context (tool output, stack traces) to the load-bearing parts.
 - **Conversation context contains private/sensitive info.** Before writing it into a public repo's project board, flag it: "This includes <env vars / tokens / customer names> — strip before posting?"
 

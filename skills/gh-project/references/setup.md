@@ -1,17 +1,12 @@
----
-name: gh-project-setup
-description: Bootstrap a GitHub Projects kanban board for the current repo. Creates the project, links it to the repo, ensures a Status field with kanban columns, and writes a config file the sibling gh-project-* skills read. Use when the user says "set up a project board", "create a kanban", "init gh project", or "/gh-project-setup".
----
+# `/gh-project setup` — Bootstrap the Board
 
-# gh-project-setup
-
-You are bootstrapping a GitHub Projects (v2) kanban board for the current repository and persisting the configuration so the sibling `gh-project-*` skills can find it.
+You are bootstrapping a GitHub Projects (v2) kanban board for the current repository and persisting the configuration so the other `/gh-project` subcommands can find it.
 
 ## When to use
 
 - "set up a project board" / "create a kanban for this repo"
 - "init gh project" / "scaffold github project"
-- "/gh-project-setup"
+- "/gh-project setup"
 
 If the repo already has a `.github/gh-project.json` (see [Config file](#config-file) below), do NOT silently recreate the project — read it, surface the existing project, and ask whether the user wants to re-link, reconfigure, or abort.
 
@@ -38,7 +33,7 @@ If `project` is missing, instruct the user (do not run this for them — it requ
 | **Field ID** | `PVTF_…` or `PVTSSF_…` | `gh project field-list <n> --owner … --format json` | `gh project item-edit --field-id` |
 | **Single-select option ID** | 8-char hex, e.g. `f75ad846` | same field-list call, inside the Status field's `options` | `gh project item-edit --single-select-option-id` |
 
-Sibling skills read these from the config file below — capture them all at setup time.
+Other subcommands read these from the config file below — capture them all at setup time.
 
 ## Workflow
 
@@ -100,7 +95,7 @@ If the user wants additional columns (e.g. `Backlog`, `Review`, `Blocked`), GH C
 
 ### 6. Write the config file
 
-Write to `.github/gh-project.json` (create `.github/` if missing). This is what every other `gh-project-*` skill reads — write it carefully.
+Write to `.github/gh-project.json` (create `.github/` if missing). This is what every other `/gh-project` subcommand reads — write it carefully.
 
 ```json
 {
@@ -132,11 +127,11 @@ Notes:
 
 ### 7. Install the shared board helper script
 
-Sibling `gh-project-*` skills delegate board access to a small bash helper so they don't each re-invent (and get wrong) the `gh project item-list` + `jq` recipe. The big wins:
+The other `/gh-project` subcommands delegate board access to a small bash helper so they don't each re-invent (and get wrong) the `gh project item-list` + `jq` recipe. The big wins:
 
 - **Truncation safety** — asserts `fetched == totalCount`; exits non-zero if the limit was hit. Silent truncation is the #1 reason an agent "misses" a card.
 - **Compact JSONL output** — projects to `{id, title, status, type, number, url, bodyPreview}`. Each row is ~80 bytes instead of ~300, so the agent can scan 200+ items without context bloat.
-- **Single source of truth for IDs** — reads `.github/gh-project.json`; no hard-coded IDs in any sibling skill.
+- **Single source of truth for IDs** — reads `.github/gh-project.json`; no hard-coded IDs in any subcommand.
 
 Install the script alongside the config:
 
@@ -145,16 +140,16 @@ mkdir -p .github/scripts
 
 # The canonical script ships with this skill. When this skill is installed
 # globally, find it under ~/.claude/skills; for repo-local installs it's
-# under node_modules/@zcaceres/skill-gh-project-setup/scripts.
+# under node_modules/@zcaceres/skill-gh-project/scripts.
 SOURCE=$(command -v claude-skill-find 2>/dev/null \
-  && claude-skill-find gh-project-setup scripts/gh-project-board.sh)
+  && claude-skill-find gh-project scripts/gh-project-board.sh)
 
 # Fallback: search the usual install locations.
 if [[ -z "$SOURCE" || ! -f "$SOURCE" ]]; then
   for candidate in \
-    "$HOME/.claude/skills/gh-project-setup/scripts/gh-project-board.sh" \
-    "./node_modules/@zcaceres/skill-gh-project-setup/scripts/gh-project-board.sh" \
-    "./skills/gh-project-setup/scripts/gh-project-board.sh"; do
+    "$HOME/.claude/skills/gh-project/scripts/gh-project-board.sh" \
+    "./node_modules/@zcaceres/skill-gh-project/scripts/gh-project-board.sh" \
+    "./skills/gh-project/scripts/gh-project-board.sh"; do
     [[ -f "$candidate" ]] && SOURCE="$candidate" && break
   done
 fi
@@ -165,7 +160,7 @@ cp "$SOURCE" .github/scripts/gh-project-board.sh
 chmod +x .github/scripts/gh-project-board.sh
 ```
 
-If the file copy fails (e.g. the skill is loaded from an unusual location), the agent should fall back to writing the script body inline from its own context. The script's source lives in `gh-project-setup/scripts/gh-project-board.sh` in this repo.
+If the file copy fails (e.g. the skill is loaded from an unusual location), the agent should fall back to writing the script body inline from its own context. The script's source lives in `gh-project/scripts/gh-project-board.sh` in this repo.
 
 After install, smoke-test it:
 
@@ -187,7 +182,7 @@ Commit `.github/scripts/gh-project-board.sh` alongside `.github/gh-project.json`
 
 ### 8. Update agent docs to point at the config
 
-Agents won't discover `.github/gh-project.json` on their own. Surface it in whatever agent-facing docs this repo already uses, so future invocations of `/gh-project-*` skills (and other agents like Codex, Cursor) know where to look.
+Agents won't discover `.github/gh-project.json` on their own. Surface it in whatever agent-facing docs this repo already uses, so future invocations of the `/gh-project` subcommands (and other agents like Codex, Cursor) know where to look.
 
 Detect which files exist and consider all of them:
 
@@ -226,12 +221,12 @@ truncation, so an agent that "doesn't see" a card will fail loudly instead
 of silently missing it.
 
 Card workflow:
-- Create:    `/gh-project-new-task` (creates a linked GitHub issue by default)
-- Pick:      `/gh-project-next` (shows top Todo cards, moves pick to In Progress, dumps context)
-- Edit:      `/gh-project-update [id|number|title]`
-- Decompose: `/gh-project-decompose [id|number|title]` (split a big card into linked subtasks)
-- Audit:     `/gh-project-review` (board vs codebase)
-- Delete:    `/gh-project-delete [id|number|title]`
+- Create:    `/gh-project new-task` (creates a linked GitHub issue by default)
+- Pick:      `/gh-project next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:      `/gh-project update [id|number|title]`
+- Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
+- Audit:     `/gh-project review` (board vs codebase)
+- Delete:    `/gh-project delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.
@@ -249,9 +244,9 @@ Deleted draft items lose their history.
 
 Don't pretend the board view exists if you didn't see the user confirm they made one.
 
-### 10. Offer to allowlist the `gh-project-*` command surface
+### 10. Offer to allowlist the `gh-project` command surface
 
-Without a permission allowlist, every sibling skill (`/gh-project-next`, `/gh-project-new-task`, etc.) prompts the user to approve each `gh` call. After the first few approvals it's just noise — the same commands fire on every invocation. Offer to write a Claude Code permission allowlist so the sibling skills run uninterrupted.
+Without a permission allowlist, every subcommand (`/gh-project next`, `/gh-project new-task`, etc.) prompts the user to approve each `gh` call. After the first few approvals it's just noise — the same commands fire on every invocation. Offer to write a Claude Code permission allowlist so the subcommands run uninterrupted.
 
 **Ask the user two things:**
 
@@ -313,13 +308,13 @@ Agent docs updated: CLAUDE.md, AGENTS.md  (or "skipped — user declined")
 Permissions allowlisted in .claude/settings.json  (or "skipped — user declined")
 
 Next: open <url> and add a Board view grouped by Status.
-Sibling skills:
-  /gh-project-new-task   — create a card
-  /gh-project-next       — pick the next Todo card and start
-  /gh-project-review     — audit board vs codebase
-  /gh-project-update     — edit a card
-  /gh-project-decompose  — split a big card into linked subtasks
-  /gh-project-delete     — remove a card
+Subcommands:
+  /gh-project new-task   — create a card
+  /gh-project next       — pick the next Todo card and start
+  /gh-project review     — audit board vs codebase
+  /gh-project update     — edit a card
+  /gh-project decompose  — split a big card into linked subtasks
+  /gh-project delete     — remove a card
 ```
 
 ## Edge cases
@@ -327,7 +322,7 @@ Sibling skills:
 - **Project already exists for this repo.** If `.github/gh-project.json` is present, read it and ask before creating a second project. Two projects for one repo is rarely what the user wants.
 - **`gh project create` fails with "scope" or 403.** The token is missing `project` scope — fall back to the auth instructions above.
 - **Org-owned repo.** `gh repo view --json owner` returns the org login; that's what `--owner` should be. Confirm with the user — they may want a personal project instead.
-- **Token has no Issues permission on the repo.** Linking and item-add for issues will fail later. Surface this immediately rather than letting a downstream skill blow up.
+- **Token has no Issues permission on the repo.** Linking and item-add for issues will fail later. Surface this immediately rather than letting a downstream subcommand blow up.
 
 ## Guidelines
 

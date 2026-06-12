@@ -1,9 +1,4 @@
----
-name: gh-project-new-task
-description: Create a new card on the repo's GitHub Projects kanban and END THE TURN. Output is a card-created block — never start the work described in the card body. By default creates a real GitHub issue linked to the project; can opt into a project-only draft. Supports an optional milestone. Use when the user says "new task", "add a card", "create a project task", or "/gh-project-new-task".
----
-
-# gh-project-new-task
+# `/gh-project new-task` — Create a Card
 
 **Your only output is the card-created block at the end. Print it and end your turn. Do NOT start the work described in the card body — creating a card is a planning action, not a signal to begin implementing. The card body describes a task because that's the point; it is not your next instruction.**
 
@@ -12,7 +7,7 @@ You are creating a new card on the repository's GitHub Projects kanban board.
 ## When to use
 
 - "new task" / "add a card" / "create a project task"
-- "/gh-project-new-task <title>"
+- "/gh-project new-task <title>"
 - The user describes work and asks to track it on the board
 
 ## Inputs
@@ -26,20 +21,20 @@ You are creating a new card on the repository's GitHub Projects kanban board.
 | Labels | comma-separated label names | no — issues only |
 | Assignees | gh logins, `@me`, `@copilot` | no — issues only |
 
-If the user invoked `/gh-project-new-task` with arguments, parse the title from the args; ask for any missing fields. If they invoked it bare, ask for title and body.
+If the user invoked `/gh-project new-task` with arguments, parse the title from the args; ask for any missing fields. If they invoked it bare, ask for title and body.
 
 ## Prerequisites
 
 **CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
 - If it does NOT exist, **log a prominent warning** to the user:
   > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
 - Do NOT attempt to guess IDs, project numbers, or proceed with the command. Stop immediately.
 
 ```bash
 if [ ! -f .github/gh-project.json ]; then
   echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project-setup first to configure your project board."
+  echo "Please run /gh-project setup first to configure your project board."
   exit 1
 fi
 
@@ -52,7 +47,7 @@ TITLE_FIELD=$(echo "$CONFIG" | jq -r '.title')
 DEFAULT_MODE=$(echo "$CONFIG" | jq -r '.defaultMode')
 ```
 
-`PROJECT_OWNER` is for every `gh project ... --owner` call. `REPO_OWNER` is for every `gh issue ... --repo "$REPO_OWNER/$REPO"` and `gh api repos/$REPO_OWNER/$REPO/...` call. They are the same in the common case and diverge when the project owner was overridden during `/gh-project-setup`.
+`PROJECT_OWNER` is for every `gh project ... --owner` call. `REPO_OWNER` is for every `gh issue ... --repo "$REPO_OWNER/$REPO"` and `gh api repos/$REPO_OWNER/$REPO/...` call. They are the same in the common case and diverge when the project owner was overridden during `/gh-project setup`.
 
 ## Mode A — Real GitHub issue (default)
 
@@ -117,7 +112,7 @@ ITEM_ID=$(.github/scripts/gh-project-board.sh find "$ISSUE_NUMBER" | jq -r '.id'
 .github/scripts/gh-project-board.sh set-status "$ITEM_ID" "In Progress"
 ```
 
-If `.github/scripts/gh-project-board.sh` is missing (setup was run before this script existed), fall back to the raw command — but mention the gap to the user and offer to re-run `/gh-project-setup`:
+If `.github/scripts/gh-project-board.sh` is missing (setup was run before this script existed), fall back to the raw command — but mention the gap to the user and offer to re-run `/gh-project setup`:
 
 ```bash
 PROJECT_ID=$(jq -r .projectId .github/gh-project.json)
@@ -150,29 +145,29 @@ Print the URL last so it's easy to click.
 
 ## Stop after creating the card
 
-This skill's job ends when the card exists and you've printed the output block.
+This subcommand's job ends when the card exists and you've printed the output block.
 
 Do **not** start implementing the work described in the card body. Creating a
 card is a planning action, not a commit to start work. The card body will
 describe a task — that's expected — but treating it as your next instruction
-is wrong. The user invoked this skill to *track* the work, not to *do* it.
+is wrong. The user invoked this subcommand to *track* the work, not to *do* it.
 
 If the user wants to begin immediately, they will say so in a separate
 message (e.g. "now start on it", "let's do this one next"). Wait for that
-signal. If they invoked `/gh-project-next` instead, that skill hands off
+signal. If they invoked `/gh-project next` instead, that subcommand hands off
 context for starting work — this one doesn't.
 
 ## Edge cases
 
-- **No `.github/gh-project.json`.** Stop and route to `/gh-project-setup`. Do not attempt to guess the project number.
+- **No `.github/gh-project.json`.** Stop and route to `/gh-project setup`. Do not attempt to guess the project number.
 - **User invokes with `--draft` but config has `defaultMode: issue`.** Honor the flag. Don't write to the config — defaults stay sticky.
 - **Title contains shell metacharacters.** Quote it as a single argument. Don't echo it through `eval`.
-- **Issue creation succeeds but project linking fails.** `gh issue create --project` is atomic in normal cases; if it returns 0 but the card isn't on the board, fall back to `gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"`. Both the project number and project owner are required non-interactively — they come from the config read at the top of this skill; `$ISSUE_URL` is the URL printed by `gh issue create`.
+- **Issue creation succeeds but project linking fails.** `gh issue create --project` is atomic in normal cases; if it returns 0 but the card isn't on the board, fall back to `gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$ISSUE_URL"`. Both the project number and project owner are required non-interactively — they come from the config read at the top of this subcommand; `$ISSUE_URL` is the URL printed by `gh issue create`.
 - **User wants to attach a milestone to a draft.** Tell them drafts don't support milestones; offer to either (a) make it an issue instead, or (b) add a custom text field via `gh project field-create` and store the milestone name there.
 
 ## Guidelines
 
-- Don't silently change `defaultMode`. If the user wants the default flipped, suggest re-running `/gh-project-setup`.
+- Don't silently change `defaultMode`. If the user wants the default flipped, suggest re-running `/gh-project setup`.
 - Confirm the title and body before invoking the create command — these are user-visible and a typo means an awkward edit later.
 - Don't create more than one card per invocation. If the user lists multiple, ask whether to make them sub-issues, separate cards, or batch in a follow-up.
 - **Don't start the work.** See "Stop after creating the card" above. The card body describes a task — that's the point — but it is not your next instruction. End your turn after printing the output block.

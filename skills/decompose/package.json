@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-decompose",
   "version": "1.0.0",
-  "description": "Break a stuck problem into tractable pieces by diagnosing the kind of stuck and applying 1-3 lenses. Invoked via /decompose.",
+  "description": "Break a problem into smaller pieces (subsystems that are easier to think about) and show how they relate. Invoked via /decompose.",
   "license": "MIT",
   "type": "module",
   "scripts": {

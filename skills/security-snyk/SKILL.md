@@ -277,6 +277,6 @@ When advising on findings, point the user at the specific finding's URL in the S
 ## Related
 
 - [[quality-socket]] — supply-chain risk sibling, similar GitHub-App-then-CLI shape. Socket leans on supply-chain signals (typosquats, install scripts, telemetry); Snyk leans on known CVEs. Many teams run both — they overlap a little but mostly catch different things.
-- [[quality-gitleaks]] — secret-scanning sibling.
+- [[security-gitleaks]] — secret-scanning sibling.
 - [[security-openssf]] — repo-hygiene scoring sibling.
 - [[safety-op-creds]] — if the user wants to stash `SNYK_TOKEN` in 1Password instead of as a GitHub Actions secret for local CLI use.

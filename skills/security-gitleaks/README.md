@@ -1,4 +1,4 @@
-# quality-gitleaks
+# security-gitleaks
 
 Set up [gitleaks](https://github.com/gitleaks/gitleaks) secret-scanning on a
 repo with the right order of operations:
@@ -18,7 +18,7 @@ repo with the right order of operations:
    pin lives in the workflow file itself.
 
 Activates on "add gitleaks", "set up secret scanning", "gitleaks boilerplate",
-or `/quality-gitleaks`.
+or `/security-gitleaks`.
 
 ## Layout
 
@@ -31,7 +31,7 @@ or `/quality-gitleaks`.
 ## Install
 
 ```
-npx skills add zcaceres/skills -s quality-gitleaks
+npx skills add zcaceres/skills -s security-gitleaks
 ```
 
 Add `-g` for global install, or `-a <agent>` to target a specific agent.

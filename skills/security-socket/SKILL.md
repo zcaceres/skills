@@ -235,6 +235,6 @@ When advising on findings, point the user at the specific finding's URL on socke
 
 ## Related
 
-- [[quality-snyk]] — vulnerability-scanning sibling, similar GitHub-App-then-CLI shape. Socket and Snyk overlap somewhat (both flag risky deps) but lean different ways: Socket on supply-chain signals (typosquats, install scripts, telemetry), Snyk on known CVEs. Many teams run both.
+- [[security-snyk]] — vulnerability-scanning sibling, similar GitHub-App-then-CLI shape. Socket and Snyk overlap somewhat (both flag risky deps) but lean different ways: Socket on supply-chain signals (typosquats, install scripts, telemetry), Snyk on known CVEs. Many teams run both.
 - [[security-gitleaks]] — secret-scanning sibling.
 - [[security-openssf]] — repo-hygiene scoring sibling.

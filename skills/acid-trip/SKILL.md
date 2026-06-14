@@ -43,8 +43,8 @@ This skill always runs as **Trip → pause → Realize**. Do not collapse them.
 
 3. **Derive the remaining axes** from the article and the rolled lineage. This is not a free invention — it is a *blend*:
 
-   - **palette** — start from the article's natural palette (era, place, mentioned colors, photograph hues). Then blend with the lineage's signature palette as an **antagonist accent** that fights the natural one. Example: a 1923 Balkan coup article gives you limestone / oxblood / mountain fog; a rolled Memphis Group lineage forces in cyan / magenta / lemon yellow as accents that disrupt the gravity. The disruption is the point.
-   - **typography** — pick a display + body pair appropriate to the article's era and tone, then push one face toward the lineage. Period-correct body type (Caslon, Garamond, etc.) + a lineage-corrupted display face (Cooper Black for Memphis, Druk for Constructivism, an ASCII pixel face for ANSI BBS, etc.).
+   - **palette** — start from the article's natural palette (era, place, mentioned colors, photograph hues). Then blend with the lineage's signature palette as an **antagonist accent** that fights the natural one. The disruption is the point. Resist the gravitational pull toward limestone / oxblood / mountain-fog as a default "historical European" reading — *look at the article's actual images and named colors*; if it gives you Sahel ochre, Arctic frost-blue, Cantonese vermillion, or factory-canteen formica green, use those.
+   - **typography** — use the rolled `type_pairing.display` and `type_pairing.body` as the floor. The pair is already matched to the lineage's typographic temperament via tags, so don't override it with the LLM's instinct for "period-correct" fallbacks. Let the article *modulate* the pair instead — weight, casing, tracking, italics, mixing in a third face for ornaments or non-Latin script. Substitute only when a face is not web-available, and note the substitution in the provenance stamp. If the article's era genuinely clashes with the rolled pair (a 17th-century article + a pixel pair), that *is* the article × lineage tension — build it; do not soften.
    - **layout** — pick a visual treatment modifier that either reinforces or destabilizes the document_type. Options to choose from (not a fixed list — invent if needed): *broken grid, isometric projection, Swiss centered, heavy-left/right asymmetric, diagonal flow, full-bleed singular, terminal/CRT overlay, scrolljacked panels, stamped repetition, rotated 90°*. Justify the choice in the brief.
    - **mood** — two emotions in conflict that capture the article-vs-lineage tension. A subject of gravity (war, death, religion, ruin) paired with a frivolous lineage produces moods like "sober × decorative" or "grave × giddy." A trivial subject paired with a monumental lineage produces "petty × reverent." Name them and explain the collision.
 
@@ -53,44 +53,49 @@ This skill always runs as **Trip → pause → Realize**. Do not collapse them.
 4. **Present the brief** as a styled text box. Order: subject, then rolled axes, then derived axes. Example shape:
 
    ```
-   ╭─ ACID TRIP #4F2A1B ─────────────────────────────────────────────
-   │  subject     : 1923 Albanian coup d'état
-   │                Prime Minister Ahmed Bey Zogu overthrown by Yugoslav-
-   │                backed forces; mountain villages, oxblood uniforms,
-   │                limestone barracks. Tone: bitter, defiant.
+   ╭─ ACID TRIP #68B8F5 ─────────────────────────────────────────────
+   │  subject     : Murmansk Oblast
+   │                Arctic Russian region above the 69th parallel;
+   │                concrete port city, polar night, Khrushchyovkas,
+   │                naval shipyards. Tone: hard, luminous, far-north.
    │
    │  ─────────── rolled ─────────────────────────────────────────────
-   │  document    : phonebook page — two-column alphabetized, leader dots
-   │  lineage     : Memphis Group (Milan, 1981) — terrazzo, squiggles
+   │  document    : lotería card grid — 4×4 panels, each illustrated
+   │  lineage     : 4AD record sleeves (Vaughan Oliver/v23, 1985–95)
+   │  type pair   : Trade Gothic Bold Condensed × Trade Gothic
+   │                (matched to 4AD's editorial restraint via tags)
    │
    │  ─────────── derived from subject × lineage ─────────────────────
-   │  palette     : Balkan limestone + oxblood + mountain fog
-   │                + Memphis cyan / magenta accent (antagonist)
-   │  typography  : Caslon (period body) × Cooper Black Italic (Memphis-
-   │                corrupting display)
-   │  layout      : full-bleed singular — the listing IS the entire page
-   │  mood        : sober × decorative — subject's gravity vs. lens silliness
+   │  palette     : Murmansk frost-blue + concrete grey + sodium-lamp
+   │                amber + a single 4AD ink-bleed magenta (antagonist)
+   │  layout      : strict 4×4, no marketing structure around it —
+   │                each cell is a named place/object from the region
+   │  mood        : monumental × intimate — Soviet bulk inside the
+   │                hand-illustrated card frame
    ╰─────────────────────────────────────────────────────────────────
    
    Type "build it" to realize, or reroll:
-     reroll document | reroll lineage | reroll subject | reroll all
+     reroll document | reroll lineage | reroll type_pairing | reroll subject | reroll all
    ```
 
 5. **STOP.** Do not proceed to Phase 2 in the same turn. The user approves, rerolls, or manually overrides.
 
 ### Re-rolling
 
-Three things can be rerolled — the two local rolls and the Wikipedia subject:
+Four things can be rerolled — three local rolls and the Wikipedia subject:
 
 ```bash
-# Re-roll document_type or lineage (preserves the others):
+# Re-roll document_type, lineage, or type_pairing (preserves the others):
 python3 ${CLAUDE_SKILL_DIR}/scripts/roll.py \
-  --reroll "<document_type|lineage>" \
+  --reroll "<document_type|lineage|type_pairing>" \
   --prior /tmp/acid-trip-latest.json \
   > /tmp/acid-trip-latest.json
 
+# Note: rerolling lineage automatically rerolls type_pairing too,
+# since the pairing is matched to the lineage's typographic tags.
+
 # Re-roll subject: just WebFetch the subject_url again (Special:Random gives a new article).
-# Then re-derive palette/typography/layout/mood from the new article.
+# Then re-derive palette/layout/mood from the new article (the rolled type_pairing stays).
 
 # Re-roll all: run roll.py with no flags + refetch Wikipedia.
 ```
@@ -190,24 +195,25 @@ Triggered when the user signals approval (build it / go / ship it / yes).
 7. **Stamp the provenance** at the top of the file (HTML/JSX comment, or text node for Paper):
 
    ```html
-   <!-- ACID TRIP #4F2A1B
-     seed:        68ec6e56919bf794
-     subject:     1923 Albanian coup d'état
-     subject_url: https://en.wikipedia.org/wiki/1923_Albanian_coup_d%27état
-     document:    phonebook page
-     lineage:     Memphis Group (Milan, 1981)
+   <!-- ACID TRIP #68B8F5
+     seed:        9c2f1a7e3b1668b8f5
+     subject:     Murmansk Oblast
+     subject_url: https://en.wikipedia.org/wiki/Murmansk_Oblast
+     document:    lotería card grid
+     lineage:     4AD record sleeves (Vaughan Oliver/v23, 1985–95)
+     type pair:   Trade Gothic Bold Condensed × Trade Gothic
+                  (rolled — matched to 4AD's editorial/restrained tags)
      ───── derived from subject × lineage ─────
-     palette:     Balkan limestone + oxblood + mountain fog + Memphis cyan/magenta
-     typography:  Caslon × Cooper Black Italic
-                  (substituted: EB Garamond + Cooper Black)
-     layout:      full-bleed singular
-     mood:        sober × decorative
+     palette:     Murmansk frost-blue + concrete grey + sodium-lamp amber
+                  + 4AD ink-bleed magenta (antagonist)
+     layout:      strict 4×4 lotería grid — each cell a real place/object
+     mood:        monumental × intimate
      ───────────────────────────────────────────
-     assets:      acid-trip-4F2A1B-assets/{rebellion.png, terrazzo-overlay.png}
+     assets:      acid-trip-68B8F5-assets/{shipyard.png, polar-night.png}
      surviving:   [none] OR list of clichés that survived the critique pass
                   e.g. "grid arrangement (encoded by document_type) — could not
-                  be eliminated without abandoning the rolled phonebook anatomy"
-     reproduce:   python3 ${CLAUDE_SKILL_DIR}/scripts/roll.py --seed 68ec6e56919bf794
+                  be eliminated without abandoning the rolled lotería anatomy"
+     reproduce:   python3 ${CLAUDE_SKILL_DIR}/scripts/roll.py --seed 9c2f1a7e3b1668b8f5
                   (note: subject_url is refetched fresh — to reproduce the SUBJECT,
                    visit the captured subject_url directly)
    -->
@@ -215,7 +221,66 @@ Triggered when the user signals approval (build it / go / ship it / yes).
 
    If no imagery was generated, write `assets: none — pure CSS/typography design`.
 
-8. **Open the file** (for HTML/React) with `open` if the user is on macOS. For Paper, call `get_screenshot` after `finish_working_on_nodes`.
+8. **Extract the design system. Mandatory, every trip.** Once the build is critiqued and stamped, document what was actually built as a standardized design system. This is an *extraction*, not an invention — read the finished artifact (the HTML/TSX file, or `get_computed_styles` on the Paper nodes) and record the values that actually shipped, including font substitutions and user overrides.
+
+   **The structure is standard; only the values are trippy.** The trip's randomness (subject, document_type, lineage) determines the *content* of the design system — never its *shape*. No themed section names, no in-character prose, no manifesto paragraphs, no extra sections. A giallo-poster trip and an IKEA-catalog trip produce documents with the identical skeleton.
+
+   Write two sibling files next to the artifact. First, `acid-trip-<trip_id>-design-system.md` — exact sections, exact order, nothing added or removed:
+
+   ```markdown
+   # Design System — ACID TRIP #68B8F5
+
+   <One plain-prose paragraph, ≤80 words: the subject × lineage collision,
+   the document_type, and the mood pair. Neutral documentary voice — the
+   lineage's voice stays out of it.>
+
+   ## Palette
+   | Token | Hex | Role |
+   |---|---|---|
+   | `--frost-blue` | `#A9C4D4` | dominant ground (60%+) |
+   | `--concrete` | `#8B8C88` | structure, rules, frames |
+   | `--ink-magenta` | `#C2185B` | antagonist accent — deliberate placements only |
+
+   ## Typography
+   | Role | Face | Size / Weight / Spacing | Notes |
+   |---|---|---|---|
+   | Display | Trade Gothic Bold Condensed | clamp(2.5rem, 7vw, 6rem) / 700 | substituted: Oswald |
+   | Body | Trade Gothic | 1.0625rem / 400 / 1.55 lh | substituted: PT Sans |
+
+   ## Spacing & Grid
+   <Base unit, scale steps, column structure, breakpoints, and the layout
+   doctrine — plain bullets.>
+
+   ## Motion
+   <Durations, easings, what animates and what never animates.>
+
+   ## Components & Motifs
+   <The reusable pieces the artifact actually contains — rules, frames,
+   ornaments, list treatments, generated-asset usage. One bullet each,
+   naming the CSS/technique used.>
+   ```
+
+   Every value must be traceable to the artifact: hex codes from the actual CSS variables, faces from the actual `@import`, durations from the actual keyframes. If a section is genuinely empty (a static poster has no motion), write `None.` — do not invent content to fill the section.
+
+   Second, `acid-trip-<trip_id>-tokens.json` — the same values, machine-readable. Keys are the kebab-case token names from the markdown tables; omit empty groups rather than writing nulls:
+
+   ```json
+   {
+     "trip_id": "68B8F5",
+     "color": { "frost-blue": "#A9C4D4", "concrete": "#8B8C88", "ink-magenta": "#C2185B" },
+     "font": {
+       "display": { "family": "Oswald", "weight": 700 },
+       "body": { "family": "PT Sans", "weight": 400 }
+     },
+     "type-scale": { "display": "clamp(2.5rem, 7vw, 6rem)", "body": "1.0625rem" },
+     "space": { "base": "8px", "scale": [8, 16, 24, 40, 64] },
+     "motion": { "duration": { "reveal": "600ms" }, "easing": { "default": "cubic-bezier(0.16, 1, 0.3, 1)" } }
+   }
+   ```
+
+   **Paper mode:** additionally lay the design system out as a spec sheet on a new artboard beside the design — palette swatches with hex labels, type specimens at actual size, a spacing scale, motif samples — following the same five-section order. Still write the `.md` and `.json` files.
+
+9. **Open the file** (for HTML/React) with `open` if the user is on macOS. For Paper, call `get_screenshot` after `finish_working_on_nodes`.
 
 ## Hard blacklist
 
@@ -258,6 +323,7 @@ If unsure: ask whether a real historical instance of the rolled document_type wo
 - **Never invent placeholder content when the article contains real content.** Use real names, dates, places, and quotes from the article. Generic placeholders ("Sample text," "Company Name") indicate you didn't read the article carefully enough.
 - **Never apologize for the design in the page itself.** No "this design uses…" copy in the output. The page just is what it is.
 - **Never skip the self-critique pass.** Single-pass execution is lazy and clichés ride in via muscle memory under fancy lineage skins. Audit your own build against both forbidden lists, name violations specifically, and restructure them before stamping. If a cliché survives one rebuild attempt, declare it honestly in the provenance stamp rather than pretending it isn't there.
+- **Never let the trip restructure the design system.** The randomness drives the *values*; the document's skeleton is fixed — the five sections, in order, nothing else. If the design system grows themed headings, in-character prose, or extra sections, delete them and re-extract.
 
 ## Examples
 
@@ -271,7 +337,7 @@ If unsure: ask whether a real historical instance of the rolled document_type wo
 → WebFetch `Special:Random` again, re-derive everything from the new article + same rolled document_type & lineage, present, pause.
 
 **User:** `build it`
-→ Realize phase: plan assets, generate 2–4 PNGs via nano-banana into `./acid-trip-<id>-assets/`, build `acid-trip-<id>.html` referencing those assets, stamp provenance with subject_url + reproduce command, open with `open`.
+→ Realize phase: plan assets, generate 2–4 PNGs via nano-banana into `./acid-trip-<id>-assets/`, build `acid-trip-<id>.html` referencing those assets, stamp provenance with subject_url + reproduce command, extract the design system into `acid-trip-<id>-design-system.md` + `acid-trip-<id>-tokens.json`, open with `open`.
 
 **User:** `/acid-trip --paper`
 → Same flow, but Phase 2 builds directly into the active Paper canvas via MCP tools.

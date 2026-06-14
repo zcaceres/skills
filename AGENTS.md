@@ -25,12 +25,13 @@ The helper asserts completeness against `totalCount` and exits non-zero on
 truncation, so an agent that "doesn't see" a card will fail loudly instead
 of silently missing it.
 
-Card workflow:
-- Create:  `/gh-project-new-task` (creates a linked GitHub issue by default)
-- Pick:    `/gh-project-next` (shows top Todo cards, moves pick to In Progress, dumps context)
-- Edit:    `/gh-project-update [id|number|title]`
-- Audit:   `/gh-project-review` (board vs codebase)
-- Delete:  `/gh-project-delete [id|number|title]`
+Card workflow (all via the `/gh-project` skill):
+- Create:    `/gh-project new-task` (creates a linked GitHub issue by default)
+- Pick:      `/gh-project next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:      `/gh-project update [id|number|title]`
+- Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
+- Audit:     `/gh-project review` (board vs codebase)
+- Delete:    `/gh-project delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

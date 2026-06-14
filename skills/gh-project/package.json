@@ -1,7 +1,7 @@
 {
-  "name": "@zcaceres/skill-gh-project-update",
+  "name": "@zcaceres/skill-gh-project",
   "version": "0.0.0",
-  "description": "Update a card on the repo's GitHub Projects kanban — title, body, or status — folding in context from the current conversation.",
+  "description": "Manage a repo's GitHub Projects kanban board as one skill. Subcommands bootstrap the board (setup), pick the next Todo card (next), create cards (new-task), edit cards (update), audit the board against the codebase (review), split big cards into subtasks (decompose), and remove cards (delete).",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -20,9 +20,10 @@
   "keywords": [
     "claude-code",
     "skill",
+    "slash-command",
     "github",
     "github-projects",
     "kanban",
-    "update"
+    "gh-cli"
   ]
 }

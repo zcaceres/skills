@@ -1,41 +1,36 @@
----
-name: gh-project-next
-description: Pick the next card to work on from the repo's GitHub Projects kanban. Ranks Todo cards by what's "logically next" using whatever organizational signals the project actually uses (milestones, phase/priority labels, age) and surfaces the top 3-5 with a one-line "why" annotation. Lets the user pick one, confirms moving it to In Progress, and dumps the full card context. Stops at the context handoff — does not create branches or edit code. Pass `--board-order` to fall back to the raw column order. Use when the user says "what's next", "pick next ticket", "what should I work on", or "/gh-project-next".
----
-
-# gh-project-next
+# `/gh-project next` — Pick the Next Card
 
 You are picking the next card for the user to work on from the repository's GitHub Projects kanban board, moving it to `In Progress`, and handing off the full context so the user (or you) can begin work.
 
-By default this skill ranks Todo cards using a **contextual** notion of "logically next" — it inspects whatever organizational signals the project actually uses (milestones, phase/priority labels, age) and picks an ordering that fits. The raw column order is treated as a tiebreaker, not the primary signal. Pass `--board-order` to skip ranking and use the column's manual order verbatim (today's behavior).
+By default this subcommand ranks Todo cards using a **contextual** notion of "logically next" — it inspects whatever organizational signals the project actually uses (milestones, phase/priority labels, age) and picks an ordering that fits. The raw column order is treated as a tiebreaker, not the primary signal. Pass `--board-order` to skip ranking and use the column's manual order verbatim (today's behavior).
 
-This skill **stops at the context dump**. It does not create branches, edit files, or start coding — that's deliberate. The user picks the next slicing/branching decision themselves, or invokes `/stacked-pr checkpoint` later.
+This subcommand **stops at the context dump**. It does not create branches, edit files, or start coding — that's deliberate. The user picks the next slicing/branching decision themselves, or invokes `/stacked-pr checkpoint` later.
 
 ## When to use
 
 - "what's next" / "what should I work on"
 - "pick next ticket" / "get next task" / "next card"
-- "/gh-project-next"
+- "/gh-project next"
 
 ## Prerequisites
 
 **CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
 - If it does NOT exist, **log a prominent warning** to the user:
   > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project-setup` first to bootstrap the configuration.
+- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
 - Do NOT proceed. Stop immediately.
 
 ```bash
 if [ ! -f .github/gh-project.json ]; then
   echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project-setup first to configure your project board."
+  echo "Please run /gh-project setup first to configure your project board."
   exit 1
 fi
 
 HELPER=.github/scripts/gh-project-board.sh
 if [ ! -x "$HELPER" ]; then
   echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project-setup to regenerate the board helper script."
+  echo "Please run /gh-project setup to regenerate the board helper script."
   exit 1
 fi
 
@@ -54,7 +49,7 @@ TODO_COUNT=$(wc -l < /tmp/todos.jsonl)
 
 If `TODO_COUNT` is 0:
 
-> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/gh-project-review` to audit?"
+> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/gh-project review` to audit?"
 
 Stop. Don't try to fall back to `In Progress` or `Done` — those imply different things.
 
@@ -215,7 +210,7 @@ If the card has linked PRs (suggesting work is already underway), instead say:
 - **`--auto` flag.** Skip Step 4's pick and Step 5's confirmation; take the rank-#1 card from the chosen scheme (or the first card in board order if `--board-order` was also passed), move it, dump. Useful for `/loop` style automation. Before the context dump, emit a single auditable log line so a later reviewer (or the next `/loop` tick) can see why this card was chosen:
 
   ```
-  [gh-project-next --auto] picked #51 "Fix flaky retry test" — scheme: milestone due date → priority → age — why: only p0 in v0.4 (due in 6d) (2 candidates demoted: #38 wontfix, #44 blocked)
+  [gh-project next --auto] picked #51 "Fix flaky retry test" — scheme: milestone due date → priority → age — why: only p0 in v0.4 (due in 6d) (2 candidates demoted: #38 wontfix, #44 blocked)
   ```
 
   The line names: the issue/draft, the ranking scheme that was applied, the one-line "why" for this card, and a short note for any cards that were demoted or skipped. If `--board-order` was passed, the scheme is just `board order` and there's no "why" — the log still records the pick and any skipped cards (e.g. `wontfix`).
@@ -227,6 +222,6 @@ If the card has linked PRs (suggesting work is already underway), instead say:
 - **Board order is the tiebreaker, not the primary signal.** Within an equivalence class (same milestone, same priority), keep the user's manual column order. Pass `--board-order` to make it primary again.
 - **Show your work.** Each candidate gets a one-line "why" so the user can sanity-check or override the algorithm with a substring pick.
 - **One card per invocation.** Even if the user says "give me three", picking one at a time is the contract. Re-invoke for the next.
-- **Stop at the context dump.** No branch creation, no edits, no planning conversation. The skill's job ends when the agent knows what the card is.
+- **Stop at the context dump.** No branch creation, no edits, no planning conversation. The subcommand's job ends when the agent knows what the card is.
 - **Don't reorder the board.** Ranking the display ≠ rearranging the board. The kanban itself stays untouched; the user can move cards manually on github.com if they want.
 - **Respect the user's `--auto` for headless runs, but log the pick** so they can audit later.

@@ -1,9 +1,4 @@
----
-name: gh-project-decompose
-description: Break a large card on the repo's GitHub Projects kanban into smaller subtask cards through a collaborative proposal-and-refine loop. Accepts an explicit card identifier (item id, issue number, or title) or infers the target from conversation context. Use when the user says "decompose this card", "break this into subtasks", "split this task", "make these into sub-issues", or "/gh-project-decompose".
----
-
-# gh-project-decompose
+# `/gh-project decompose` — Split a Card into Subtasks
 
 You are helping the user split a large, hard-to-grasp card on the GitHub Projects kanban into a handful of smaller subtask cards. The output is a **collaborative proposal**: you draft a decomposition, the user reshapes it (drop, merge, edit, regenerate), and only after explicit approval do you create the new cards and wire them to the parent.
 
@@ -13,18 +8,18 @@ Treat this like architecting a small PR stack. The point isn't just N tickets �
 
 - "decompose this card" / "break this into subtasks" / "split this task"
 - "make these into sub-issues" / "let's slice up #42"
-- "/gh-project-decompose [id|number|title]"
+- "/gh-project decompose [id|number|title]"
 - The user is staring at a big card and wants help carving it down before starting work
 
 ## When NOT to use
 
 - The card is already small/atomic (one focused change). Push back — say so and suggest just picking it.
-- The user wants to *create* unrelated new tasks. Route to `/gh-project-new-task`.
-- The user wants to *audit* the whole board for staleness. Route to `/gh-project-review`.
+- The user wants to *create* unrelated new tasks. Route to `/gh-project new-task`.
+- The user wants to *audit* the whole board for staleness. Route to `/gh-project review`.
 
 ## Prerequisites
 
-Read `.github/gh-project.json`. If missing, route to `/gh-project-setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup before continuing.
+Read `.github/gh-project.json`. If missing, route to `/gh-project setup`. Expect `.github/scripts/gh-project-board.sh`; if missing, route to setup before continuing.
 
 ```bash
 CONFIG=$(cat .github/gh-project.json)
@@ -34,12 +29,12 @@ REPO_OWNER=$(echo "$CONFIG" | jq -r '.repoOwner')
 REPO=$(echo "$CONFIG" | jq -r '.repo')
 TITLE_FIELD=$(echo "$CONFIG" | jq -r '.title')
 HELPER=.github/scripts/gh-project-board.sh
-test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project-setup"; exit 1; }
+test -x "$HELPER" || { echo "Missing $HELPER — re-run /gh-project setup"; exit 1; }
 ```
 
 ## Step 1 — Resolve the parent card
 
-Same identifier rules as `/gh-project-update`. Three input shapes, in priority order:
+Same identifier rules as `/gh-project update`. Three input shapes, in priority order:
 
 ### A. Explicit project item id (`PVTI_…`), issue number, or title substring
 
@@ -289,7 +284,7 @@ Apply via the helper:
 $HELPER set-status "$PARENT_ITEM_ID" "In Progress"
 ```
 
-If the parent is an issue and the user picked `done`, also ask whether to close the underlying issue (same prompt pattern as `/gh-project-review`).
+If the parent is an issue and the user picked `done`, also ask whether to close the underlying issue (same prompt pattern as `/gh-project review`).
 
 ## Step 9 — Output
 
@@ -307,19 +302,19 @@ Wired to parent:
 
 Parent status: In Progress  (or "unchanged: Todo")
 
-Next: `/gh-project-next` to start on the first subtask.
+Next: `/gh-project next` to start on the first subtask.
 ```
 
 ## Edge cases
 
-- **Parent is already in Done.** Ask before proceeding — decomposing a done card usually means the user wants follow-up work as new cards, in which case `/gh-project-new-task` per item may be cleaner. If they confirm, proceed but don't move the parent back.
+- **Parent is already in Done.** Ask before proceeding — decomposing a done card usually means the user wants follow-up work as new cards, in which case `/gh-project new-task` per item may be cleaner. If they confirm, proceed but don't move the parent back.
 - **Parent body is empty.** You have nothing to slice from. Ask the user to add a few sentences first, OR have them describe the work in chat and incorporate it into the parent body before drafting subtasks.
-- **User wants only one subtask.** That's not a decomposition — that's editing the parent's title/body. Route to `/gh-project-update`.
+- **User wants only one subtask.** That's not a decomposition — that's editing the parent's title/body. Route to `/gh-project update`.
 - **User wants ten+ subtasks.** Push back once: "That's a lot — usually 3-7 is enough. Are some of these actually checklist items inside one card?" If they insist, proceed.
 - **Sub-issues API returns 422 "already a sub-issue".** A child was wired previously (rare on freshly-created issues). Log and skip — checklist still gets appended.
 - **Child creation fails partway through.** Report which children were created, which weren't, and stop. Don't append a checklist that points at issues you didn't make. The user can re-invoke with the remaining slice list.
 - **Parent has labels the user doesn't want on children.** Surface the inherited labels in step 6's confirmation: "Children will inherit labels: bug, p1. Override?" Accept `labels: <new list>` or `labels: none`.
-- **Repo has a `Sub-issue` label or similar convention.** Don't auto-apply — that's a project-specific norm, not something this skill knows about. If the user mentions it, accept and add.
+- **Repo has a `Sub-issue` label or similar convention.** Don't auto-apply — that's a project-specific norm, not something this subcommand knows about. If the user mentions it, accept and add.
 
 ## Guidelines
 
@@ -329,4 +324,4 @@ Next: `/gh-project-next` to start on the first subtask.
 - **Don't widen scope.** If the parent says "add CSV export" and you find yourself proposing "also rework the export pipeline", that's a sibling card, not a child — surface as a Bonus suggestion at the end, don't include it in the decomposition.
 - **Sequenced, not chronological.** The order matters because of dependencies, not because of when the user will do them. Don't write `Part 1`, `Part 2` in titles — write the verbs.
 - **One parent per invocation.** Decomposing two parents in one run muddles the conversation. If the user wants both, do them sequentially.
-- **Strip noise.** A parent card with 100 lines of debug logs in the body is a candidate for `/gh-project-update` first, then decompose against the cleaned body.
+- **Strip noise.** A parent card with 100 lines of debug logs in the body is a candidate for `/gh-project update` first, then decompose against the cleaned body.

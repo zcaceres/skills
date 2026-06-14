@@ -43,8 +43,6 @@ npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
-npx skills add zcaceres/skills -s review-code-repro
-npx skills add zcaceres/skills -s review-code-fix
 npx skills add zcaceres/skills -s safety-dotenv-guard
 npx skills add zcaceres/skills -s safety-git-reset-guard
 npx skills add zcaceres/skills -s safety-op-creds
@@ -99,9 +97,7 @@ whether the skill was installed at user scope or project scope.
 | `pr-size-nudge` | **Hook.** Nudges toward `/stacked-pr checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
-| `review-code` | Review the current branch diff and report bugs as structured inline-style findings. |
-| `review-code-repro` | Second step of the code-review trio: reproduce and validate each finding to filter false positives before any fix is planned. |
-| `review-code-fix` | Third step of the code-review trio: plan fixes for validated findings, stop for user approval, then apply and verify. |
+| `review-code` | **Slash command.** One skill for the full code-review pipeline: `/review-code` reviews the branch diff and reports findings (default), `repro` reproduces each finding to filter false positives, `fix` plans fixes, gates on approval, then applies and verifies. Supersedes `review-code-repro` and `review-code-fix`. |
 | `safety-dotenv-guard` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |

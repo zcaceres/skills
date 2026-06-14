@@ -88,5 +88,5 @@ The key to this pattern is the **File-Injection Directive** (`@{path/to/file}`):
 
 1. **Zero-Cost Standby**: If you do not use a skill in a session, it consumes **exactly 0 tokens**.
 2. **Deterministic Execution**: Prevents the model from hallucinating or auto-triggering complex workflows when you just want a standard chat conversation.
-3. **Seamless UX**: From the user's perspective, nothing changes! You can still type `/review-code`, `/stacked-pr`, or `/gh-project-next` and get the exact same behavior as before.
+3. **Seamless UX**: From the user's perspective, nothing changes! You can still type `/review-code`, `/stacked-pr`, or `/gh-project next` and get the exact same behavior as before.
 4. **Complete Independence**: File injection is a pure CLI-level template feature—it works perfectly even when the central `skills.enabled` setting is turned off.

@@ -50,32 +50,8 @@
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
     },
-    "skills/gh-project-decompose": {
-      "name": "@zcaceres/skill-gh-project-decompose",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-delete": {
-      "name": "@zcaceres/skill-gh-project-delete",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-new-task": {
-      "name": "@zcaceres/skill-gh-project-new-task",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-next": {
-      "name": "@zcaceres/skill-gh-project-next",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-review": {
-      "name": "@zcaceres/skill-gh-project-review",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-setup": {
-      "name": "@zcaceres/skill-gh-project-setup",
-      "version": "0.0.0",
-    },
-    "skills/gh-project-update": {
-      "name": "@zcaceres/skill-gh-project-update",
+    "skills/gh-project": {
+      "name": "@zcaceres/skill-gh-project",
       "version": "0.0.0",
     },
     "skills/investigate-repo": {
@@ -115,14 +91,6 @@
     },
     "skills/review-code": {
       "name": "@zcaceres/skill-review-code",
-      "version": "0.0.0",
-    },
-    "skills/review-code-fix": {
-      "name": "@zcaceres/skill-review-code-fix",
-      "version": "0.0.0",
-    },
-    "skills/review-code-repro": {
-      "name": "@zcaceres/skill-review-code-repro",
       "version": "0.0.0",
     },
     "skills/safety-dotenv-guard": {
@@ -261,19 +229,7 @@
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
 
-    "@zcaceres/skill-gh-project-decompose": ["@zcaceres/skill-gh-project-decompose@workspace:skills/gh-project-decompose"],
-
-    "@zcaceres/skill-gh-project-delete": ["@zcaceres/skill-gh-project-delete@workspace:skills/gh-project-delete"],
-
-    "@zcaceres/skill-gh-project-new-task": ["@zcaceres/skill-gh-project-new-task@workspace:skills/gh-project-new-task"],
-
-    "@zcaceres/skill-gh-project-next": ["@zcaceres/skill-gh-project-next@workspace:skills/gh-project-next"],
-
-    "@zcaceres/skill-gh-project-review": ["@zcaceres/skill-gh-project-review@workspace:skills/gh-project-review"],
-
-    "@zcaceres/skill-gh-project-setup": ["@zcaceres/skill-gh-project-setup@workspace:skills/gh-project-setup"],
-
-    "@zcaceres/skill-gh-project-update": ["@zcaceres/skill-gh-project-update@workspace:skills/gh-project-update"],
+    "@zcaceres/skill-gh-project": ["@zcaceres/skill-gh-project@workspace:skills/gh-project"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
@@ -292,10 +248,6 @@
     "@zcaceres/skill-reflect-on-conversation": ["@zcaceres/skill-reflect-on-conversation@workspace:skills/reflect-on-conversation"],
 
     "@zcaceres/skill-review-code": ["@zcaceres/skill-review-code@workspace:skills/review-code"],
-
-    "@zcaceres/skill-review-code-fix": ["@zcaceres/skill-review-code-fix@workspace:skills/review-code-fix"],
-
-    "@zcaceres/skill-review-code-repro": ["@zcaceres/skill-review-code-repro@workspace:skills/review-code-repro"],
 
     "@zcaceres/skill-safety-dotenv-guard": ["@zcaceres/skill-safety-dotenv-guard@workspace:skills/safety-dotenv-guard"],
 

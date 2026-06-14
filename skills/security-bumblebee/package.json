@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-security-bumblebee",
+  "version": "0.0.0",
+  "description": "Set up Perplexity's bumblebee endpoint scanner on a single developer machine for local supply-chain exposure checks. Installs the Go binary, picks an OS-appropriate NDJSON output directory, runs a baseline scan, walks through the findings, and optionally schedules recurring scans via launchd (macOS) or cron (Linux). Aimed at individuals and small teams — no MDM, no SIEM. User-triggered only — activate when the user invokes '/security-bumblebee'.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "README.md"]
+}

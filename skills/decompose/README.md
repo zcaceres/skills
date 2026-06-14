@@ -1,24 +1,16 @@
 # decompose
 
-Claude Code slash command for breaking a stuck problem into smaller, tractable
-pieces. Diagnoses the kind of stuck (opacity, paralysis, bug fog, scope,
-concept fuzz, design uncertainty) and applies 1–3 lenses to the situation.
-Pure-thinking tool — does not edit files.
+Claude Code slash command for breaking a problem into smaller pieces —
+subsystems that are easier to think about one at a time — plus how the
+pieces relate. Works on the current conversation by default, or on a focus
+passed after the command. Pure-thinking tool — does not edit files.
 
 **Usage:** `/decompose [focus]`
 
-See [SKILL.md](./SKILL.md) for the lens library, parsing rules, and output
-format.
+See [SKILL.md](./SKILL.md) for input handling and the output format.
 
 ## Install
 
 ```sh
 npx skills add zcaceres/skills -s decompose
 ```
-## Origin
-
-Ported from
-[`zcaceres/claude-decompose`](https://github.com/zcaceres/claude-decompose)
-into this monorepo. Body preserved verbatim; frontmatter adds
-`disable-model-invocation: true` so the skill only fires when the user
-explicitly types `/decompose`.

@@ -28,20 +28,32 @@ This skill always runs as **Trip → pause → Realize**. Do not collapse them.
 
 ### Phase 1 — The Trip
 
-1. **Roll the dice.** Run:
+1. **Print the banner.** Open every trip by outputting this exactly, before anything else:
+
+   ```
+   ☼ °º¤ø,¸¸,ø¤º°˜˜°º¤ø,¸¸,ø¤º°˜˜°º¤ø,¸¸,ø¤º° ☼
+       ___   ______________     __________  ________
+      /   | / ____/  _/ __ \   /_  __/ __ \/  _/ __ \
+     / /| |/ /    / // / / /    / / / /_/ // // /_/ /
+    / ___ / /____/ // /_/ /    / / / _, _// // ____/
+   /_/  |_\____/___/_____/    /_/ /_/ |_/___/_/
+   ☼ °º¤ø,¸¸,ø¤º°˜˜°º¤ø,¸¸,ø¤º°˜˜°º¤ø,¸¸,ø¤º° ☼
+   ```
+
+2. **Roll the dice.** Run:
    ```bash
    python3 ${CLAUDE_SKILL_DIR}/scripts/roll.py > /tmp/acid-trip-latest.json
    cat /tmp/acid-trip-latest.json
    ```
    The script outputs `trip_id`, `seed`, `document_type`, `lineage`, and `subject_url` (always Wikipedia Special:Random).
 
-2. **WebFetch the subject URL.** Use a prompt like:
+3. **WebFetch the subject URL.** Use a prompt like:
 
    > *"Summarize the subject in 2 sentences. List: title, era/date, place, 3 specific proper nouns, dominant colors mentioned or visible in the article's imagery, the article's emotional register, and 1 surprising fact. Also return the final article URL after redirect."*
 
    Capture the final URL (after `Special:Random` redirects) — you'll need it for the provenance stamp.
 
-3. **Derive the remaining axes** from the article and the rolled lineage. This is not a free invention — it is a *blend*:
+4. **Derive the remaining axes** from the article and the rolled lineage. This is not a free invention — it is a *blend*:
 
    - **palette** — start from the article's natural palette (era, place, mentioned colors, photograph hues). Then blend with the lineage's signature palette as an **antagonist accent** that fights the natural one. The disruption is the point. Resist the gravitational pull toward limestone / oxblood / mountain-fog as a default "historical European" reading — *look at the article's actual images and named colors*; if it gives you Sahel ochre, Arctic frost-blue, Cantonese vermillion, or factory-canteen formica green, use those.
    - **typography** — use the rolled `type_pairing.display` and `type_pairing.body` as the floor. The pair is already matched to the lineage's typographic temperament via tags, so don't override it with the LLM's instinct for "period-correct" fallbacks. Let the article *modulate* the pair instead — weight, casing, tracking, italics, mixing in a third face for ornaments or non-Latin script. Substitute only when a face is not web-available, and note the substitution in the provenance stamp. If the article's era genuinely clashes with the rolled pair (a 17th-century article + a pixel pair), that *is* the article × lineage tension — build it; do not soften.
@@ -50,7 +62,7 @@ This skill always runs as **Trip → pause → Realize**. Do not collapse them.
 
    The derived axes are NOT a free invention. Each must trace clearly to either the article or the lineage. If you can't name *why* a palette or font was picked, you're regressing to LLM-generic — try again with a more specific extraction from the article.
 
-4. **Present the brief** as a styled text box. Order: subject, then rolled axes, then derived axes. Example shape:
+5. **Present the brief** as a styled text box. Order: subject, then rolled axes, then derived axes. Example shape:
 
    ```
    ╭─ ACID TRIP #68B8F5 ─────────────────────────────────────────────
@@ -78,7 +90,7 @@ This skill always runs as **Trip → pause → Realize**. Do not collapse them.
      reroll document | reroll lineage | reroll type_pairing | reroll subject | reroll all
    ```
 
-5. **STOP.** Do not proceed to Phase 2 in the same turn. The user approves, rerolls, or manually overrides.
+6. **STOP.** Do not proceed to Phase 2 in the same turn. The user approves, rerolls, or manually overrides.
 
 ### Re-rolling
 
@@ -328,7 +340,7 @@ If unsure: ask whether a real historical instance of the rolled document_type wo
 ## Examples
 
 **User:** `/acid-trip`
-→ Run `roll.py`, WebFetch the Wikipedia article, derive the four other axes from the article + rolled lineage, present brief, pause.
+→ Print the banner, run `roll.py`, WebFetch the Wikipedia article, derive the four other axes from the article + rolled lineage, present brief, pause.
 
 **User (after seeing brief):** `reroll lineage`
 → `roll.py --reroll lineage --prior /tmp/acid-trip-latest.json`, re-derive the four derived axes from the same subject + new lineage, present updated brief, pause.

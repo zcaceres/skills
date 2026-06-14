@@ -1,9 +1,9 @@
 ---
-name: quality-gitleaks
-description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. User-triggered only — activate when the user invokes `/quality-gitleaks`.
+name: security-gitleaks
+description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. User-triggered only — activate when the user invokes `/security-gitleaks`.
 ---
 
-# quality-gitleaks
+# security-gitleaks
 
 You are adding [gitleaks](https://github.com/gitleaks/gitleaks) secret-scanning to the current repo. The order matters:
 
@@ -14,7 +14,7 @@ Do not commit on the user's behalf. Write the files, show diffs, let them stage 
 
 ## When to use
 
-User-triggered only. Activate when the user invokes `/quality-gitleaks`. Do not self-activate on related natural-language phrasing ("add gitleaks", "set up secret scanning", a mention of a leaked credential, etc.) — surface the slash command to the user instead and let them decide.
+User-triggered only. Activate when the user invokes `/security-gitleaks`. Do not self-activate on related natural-language phrasing ("add gitleaks", "set up secret scanning", a mention of a leaked credential, etc.) — surface the slash command to the user instead and let them decide.
 
 ## Hard prerequisites — check before doing anything
 
@@ -67,7 +67,7 @@ Do **not** write the hook or CI. Do not silently add findings to an allowlist. S
 
 End the session here when blocked. Tell the user explicitly:
 
-> Found N pre-existing finding(s). I haven't written the hook or CI — installing them now would block your next commit / break CI on first push. Resolve the findings (rotate, scrub, or allowlist), then re-invoke /quality-gitleaks.
+> Found N pre-existing finding(s). I haven't written the hook or CI — installing them now would block your next commit / break CI on first push. Resolve the findings (rotate, scrub, or allowlist), then re-invoke /security-gitleaks.
 
 History rewrites (`git filter-repo`, BFG) are destructive on shared history — every collaborator has to re-fetch and discard their local branches. Do not run them on the user's behalf. Explain the cost; let them decide.
 

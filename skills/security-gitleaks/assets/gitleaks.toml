@@ -8,7 +8,7 @@ useDefault = true
 
 # ─── Custom rules ───────────────────────────────────────────────────────────
 # The skill writes the rules the user explicitly opted into. Anything below
-# this line was selected during /quality-gitleaks; uncomment to add more.
+# this line was selected during /security-gitleaks; uncomment to add more.
 
 # [[rules]]
 # id = "anthropic-api-key"

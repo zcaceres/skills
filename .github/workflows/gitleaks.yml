@@ -1,4 +1,4 @@
-# gitleaks secret-scanning — installed via /quality-gitleaks.
+# gitleaks secret-scanning — installed via /security-gitleaks.
 #
 # Scans on every push and PR:
 #   - full git history (catches secrets added in any historical commit)

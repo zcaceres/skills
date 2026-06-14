@@ -58,6 +58,10 @@
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
     },
+    "skills/nano-banana-generator": {
+      "name": "@zcaceres/skill-nano-banana-generator",
+      "version": "0.0.0",
+    },
     "skills/optimize-permissions": {
       "name": "@zcaceres/skill-optimize-permissions",
       "version": "0.0.0",
@@ -232,6 +236,8 @@
     "@zcaceres/skill-gh-project": ["@zcaceres/skill-gh-project@workspace:skills/gh-project"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-nano-banana-generator": ["@zcaceres/skill-nano-banana-generator@workspace:skills/nano-banana-generator"],
 
     "@zcaceres/skill-optimize-permissions": ["@zcaceres/skill-optimize-permissions@workspace:skills/optimize-permissions"],
 

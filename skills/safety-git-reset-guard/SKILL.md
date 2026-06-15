@@ -11,10 +11,13 @@ hooks:
 # safety-git-reset-guard
 
 A PreToolUse hook that intercepts every `Bash` tool call, scans the command
-string for destructive git invocations, and blocks the call (exit code 2)
-with a message pointing at safer alternatives. Quoted strings are stripped
-first so `echo 'git reset --hard'` and `git commit -m "fix reset --hard bug"`
-are unaffected.
+string for destructive git invocations, and blocks the call with a message
+pointing at safer alternatives. It blocks by printing a
+`permissionDecision: "deny"` JSON object on stdout and exiting 0 — the
+PreToolUse contract that both Claude Code and Codex honor (see
+[How it works](#how-it-works) and [Codex CLI](#codex-cli)). Quoted strings are
+stripped first so `echo 'git reset --hard'` and
+`git commit -m "fix reset --hard bug"` are unaffected.
 
 This is a **defense layer, not a guarantee.** A motivated adversary or a
 sufficiently creative invocation can bypass any regex check. Run it alongside
@@ -90,6 +93,41 @@ hooks run on every Bash call and either can block.
 
 On Windows, point at `scripts\\run.cmd` instead.
 
+### Codex CLI
+
+The same binary works on Codex CLI. Codex's hook engine delivers the same
+stdin JSON payload (`tool_input.command`) and honors the same `PreToolUse`
+`permissionDecision: "deny"` stdout contract this guard emits — so no rebuild
+or variant binary is needed. Codex does **not** read the `hooks:` frontmatter,
+so the install is manual.
+
+Add to `~/.codex/config.toml` (note the **top-level** `[[PreToolUse]]` table —
+not `[[hooks.PreToolUse]]`):
+
+```toml
+[[PreToolUse]]
+matcher = "Bash"
+
+[[PreToolUse.hooks]]
+type = "command"
+command = "/abs/path/to/safety-git-reset-guard/scripts/run.sh"
+timeout = 30
+```
+
+After editing, run `/hooks` inside Codex to review and **trust** the new hook
+— Codex registers user-defined hooks as untrusted until you approve them.
+
+**Known limitation.** Codex's `PreToolUse` doesn't intercept every shell
+invocation yet — the newer `unified_exec` streaming path has incomplete
+coverage. The guard catches the common `Bash`-tool calls but is best-effort
+on Codex, not airtight. Pair it with sandboxing and backups as you would on
+Claude Code.
+
+You can stack this alongside
+[`safety-rm-rf-guard`](../safety-rm-rf-guard/SKILL.md#codex-cli) on Codex too —
+add a second `[[PreToolUse.hooks]]` entry under the same `[[PreToolUse]]`
+matcher pointing at its `run.sh`.
+
 ## How it works
 
 1. Claude Code invokes the hook before every `Bash` tool call.
@@ -102,5 +140,8 @@ On Windows, point at `scripts\\run.cmd` instead.
    a known wrapper (`sudo`, `command`, `env`, `xargs`).
 6. For `bash -c '...'` style subshells, rules re-run against the *original*
    (unstripped) command so dangerous payloads inside quotes still trip.
-7. On match: exit 2 with a `BLOCKED:` message identifying the rule and
-   listing safer alternatives. Otherwise exit 0 to allow.
+7. On match: the binary prints a `PreToolUse` JSON object on stdout —
+   `{"hookSpecificOutput": {"hookEventName": "PreToolUse",
+   "permissionDecision": "deny", "permissionDecisionReason": "BLOCKED: …"}}`
+   — and exits 0, which both Claude Code and Codex read as "block this call
+   and show the reason." Otherwise it prints nothing and exits 0 to allow.

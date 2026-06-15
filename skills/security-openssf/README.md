@@ -4,7 +4,8 @@ Scaffold the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub
 Action in a repo with a deliberate two-phase rollout:
 
 1. **Phase 1** — install with `publish_results: false`. Findings land in the
-   repo's Security tab as SARIF; the aggregate score is in the Actions log.
+   repo's Security tab as SARIF (the SARIF run prints no aggregate score to the
+   Actions log; use `scripts/scorecard-report.sh` for a readable per-check view).
    Nothing reaches `scorecard.dev`. The user triages privately.
 2. **Phase 2** — once the score is acceptable, flip `publish_results: true`
    and add the badge to the README.
@@ -26,6 +27,9 @@ Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
 - `SKILL.md` — workflow + triage cheat-sheet for the highest-impact checks
 - `assets/scorecard.yml` — workflow template copied into the target repo
   with the SHA pin and default branch substituted
+- `scripts/scorecard-report.sh` — render a readable per-check report from a
+  SARIF artifact (`--fetch <owner>/<repo>` to pull the latest run, or pass a
+  local `.sarif` file)
 
 ## Install
 

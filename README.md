@@ -1,5 +1,7 @@
 # Zach's Awesome AI Skills
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/zcaceres/skills/badge)](https://scorecard.dev/viewer/?uri=github.com/zcaceres/skills)
+
 Open-source AI agent skills focused on engineering and personal productivity.
 
 Skills conform to [skills.sh / Agent Skills standard](https://github.com/vercel-labs/skills)

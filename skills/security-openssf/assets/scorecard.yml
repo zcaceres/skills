@@ -2,7 +2,9 @@
 #
 # Phase 1 (this file as written): publish_results: false.
 #   Results land in this repo's Security → Code scanning tab only.
-#   Aggregate score visible in the Actions log.
+#   This run uses results_format: sarif, so the Actions log has NO aggregate
+#   score line. For a readable per-check report, run:
+#     skills/security-openssf/scripts/scorecard-report.sh --fetch <owner>/<repo>
 #
 # Phase 2 (flip publish_results to true): score is posted to
 #   https://scorecard.dev/viewer/?uri=github.com/<owner>/<repo>

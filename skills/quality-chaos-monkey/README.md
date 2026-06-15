@@ -22,8 +22,3 @@ npx skills add zcaceres/skills -s quality-chaos-monkey
 ```
 
 This is a pure-markdown skill — no binaries, no install-time side effects.
-
-## Origin
-
-Ported from the user's local `~/.claude/skills/chaos-monkey/` into this
-monorepo. Body preserved verbatim.

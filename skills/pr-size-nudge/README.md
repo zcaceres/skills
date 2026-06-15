@@ -3,7 +3,7 @@
 PostToolUse hook for Claude Code that injects a soft system-reminder
 when the uncommitted diff in the current repo crosses size/file
 thresholds without a commit. Tells the agent to consider
-[`/stacked-pr checkpoint`](../stacked-pr/) to land the slice as a stacked PR.
+[`/pr checkpoint`](../pr/) to land the slice as a stacked PR.
 
 Non-blocking by design — never exits non-zero, never returns block
 payloads. Reads `git diff --numstat HEAD` + `git status --porcelain`
@@ -48,13 +48,13 @@ after every Edit/Write/MultiEdit/NotebookEdit call, not just while this
 skill is loaded. Requires `jq`. See [SKILL.md](./SKILL.md#install) for
 why two steps are needed and for manual wiring as an alternative.
 
-Best paired with [`stacked-pr`](../stacked-pr/) — the nudge points the
-agent at `/stacked-pr checkpoint`.
+Best paired with [`pr`](../pr/) — the nudge points the
+agent at `/pr checkpoint`.
 
 ## Origin
 
 Ported from
-[`zcaceres/claude-stacked-prs/src/pr-size-nudge.ts`](https://github.com/zcaceres/claude-stacked-prs/blob/main/src/pr-size-nudge.ts)
+[`zcaceres/claude-prs/src/pr-size-nudge.ts`](https://github.com/zcaceres/claude-prs/blob/main/src/pr-size-nudge.ts)
 into this monorepo as a standalone hook skill. Source preserved
 verbatim; tests preserved verbatim (with import path adjusted from
 `./pr-size-nudge` to `../scripts/index`).

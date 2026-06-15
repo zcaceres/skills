@@ -41,6 +41,7 @@ npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
+npx skills add zcaceres/skills -s pr
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
@@ -50,7 +51,6 @@ npx skills add zcaceres/skills -s safety-dotenv-guard
 npx skills add zcaceres/skills -s safety-git-reset-guard
 npx skills add zcaceres/skills -s safety-op-creds
 npx skills add zcaceres/skills -s safety-rm-rf-guard
-npx skills add zcaceres/skills -s stacked-pr
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
 npx skills add zcaceres/skills -s trip-planner
@@ -61,7 +61,7 @@ Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude
 
 **Hook skills.** `pr-size-nudge`, `safety-dotenv-guard`,
 `safety-git-reset-guard`, `safety-op-creds`, `safety-rm-rf-guard`, and
-`stacked-pr` each ship a `scripts/install.sh` that idempotently wires
+`pr` each ship a `scripts/install.sh` that idempotently wires
 the hook into `~/.claude/settings.json` (with a timestamped backup).
 Two-step install:
 
@@ -98,7 +98,8 @@ whether the skill was installed at user scope or project scope.
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
-| `pr-size-nudge` | **Hook.** Nudges toward `/stacked-pr checkpoint` when the uncommitted diff grows past size/file thresholds. |
+| `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the PostToolUse diff-size nudge. |
+| `pr-size-nudge` | **Hook.** Nudges toward `/pr` when the uncommitted diff grows past size/file thresholds. |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
@@ -107,7 +108,6 @@ whether the skill was installed at user scope or project scope.
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `safety-rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
-| `stacked-pr` | **Hook + slash command.** One skill for the full stacked-PR workflow: `/stacked-pr checkpoint` ships the next slice, `update` updates the current PR, `submit` pushes the whole stack, `log` visualizes it, `sync` rebases onto trunk, `merge` lands bottom-up. Also bundles the PostToolUse nudge. Supersedes `checkpoint`, `commit-push-pr`, and `pr-size-nudge`. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |

@@ -83,7 +83,7 @@ gh pr view <PR_NUMBER> --json state,baseRefName,url -q '.'
 
 ## Prevention
 
-Don't use `--delete-branch` on stacked PRs. The `/stacked-pr merge`
+Don't use `--delete-branch` on stacked PRs. The `/pr merge`
 subcommand refuses it for this reason. Branch cleanup is safe *after*
 the whole stack has landed and you've confirmed no child PRs depend on
 any of the merged branches.

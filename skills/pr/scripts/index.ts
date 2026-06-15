@@ -1,16 +1,15 @@
 #!/usr/bin/env bun
 /**
- * PostToolUse hook bundled with /stacked-pr. Injects a soft
- * system-reminder when the uncommitted diff in the current repo crosses
- * size/file thresholds without a commit, nudging the agent to run
- * /stacked-pr checkpoint to land the slice as a stacked PR.
+ * PostToolUse hook bundled with /pr. Injects a soft system-reminder
+ * when the uncommitted diff in the current repo crosses size/file
+ * thresholds without a commit, nudging the agent to run /pr to land the
+ * work as a focused PR (a stacked checkpoint in stacked mode).
  *
  * Output is JSON on stdout (additionalContext) — never blocks the agent.
  * Every error path returns silently; the hook must never break the loop.
  *
- * Ported from the standalone pr-size-nudge skill. State file and binary
- * names are namespaced to stacked-pr-nudge to avoid colliding with an
- * older standalone pr-size-nudge install during the deprecation window.
+ * State file and binary names are namespaced to pr-nudge. The older
+ * STACKED_PR_NUDGE_* env vars are still honored as aliases.
  */
 
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
@@ -41,7 +40,7 @@ type State = z.infer<typeof StateSchema>;
 
 const HOME = homedir();
 const STATE_DIR = join(HOME, ".claude", "state");
-const STATE_FILE = join(STATE_DIR, "stacked-pr-nudge.json");
+const STATE_FILE = join(STATE_DIR, "pr-nudge.json");
 
 const DEFAULT_EXCLUDE_GLOBS = [
   "bun.lock",
@@ -58,8 +57,8 @@ const DEFAULT_EXCLUDE_GLOBS = [
   "*.min.css",
 ];
 
-const THRESHOLD_LINES = Number(process.env.STACKED_PR_NUDGE_LINES ?? process.env.PR_NUDGE_LINES ?? 300);
-const THRESHOLD_FILES = Number(process.env.STACKED_PR_NUDGE_FILES ?? process.env.PR_NUDGE_FILES ?? 8);
+const THRESHOLD_LINES = Number(process.env.PR_NUDGE_LINES ?? process.env.STACKED_PR_NUDGE_LINES ?? 300);
+const THRESHOLD_FILES = Number(process.env.PR_NUDGE_FILES ?? process.env.STACKED_PR_NUDGE_FILES ?? 8);
 
 const REFIRE_AFTER_MS = 30 * 60 * 1000;
 const REFIRE_LINES_DELTA = 150;
@@ -68,12 +67,12 @@ const SWEEP_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 const SUBPROCESS_TIMEOUT_MS = 300;
 const UNTRACKED_LINE_CAP = 2000;
 
-const SKIP_ROOTS = (process.env.STACKED_PR_NUDGE_SKIP_ROOTS ?? process.env.PR_NUDGE_SKIP_ROOTS ?? "")
+const SKIP_ROOTS = (process.env.PR_NUDGE_SKIP_ROOTS ?? process.env.STACKED_PR_NUDGE_SKIP_ROOTS ?? "")
   .split(":")
   .filter((p) => p.length > 0);
 
 const EXCLUDE_GLOBS = (
-  process.env.STACKED_PR_NUDGE_EXCLUDE ?? process.env.PR_NUDGE_EXCLUDE ?? DEFAULT_EXCLUDE_GLOBS.join(":")
+  process.env.PR_NUDGE_EXCLUDE ?? process.env.STACKED_PR_NUDGE_EXCLUDE ?? DEFAULT_EXCLUDE_GLOBS.join(":")
 )
   .split(":")
   .filter((p) => p.length > 0);
@@ -224,7 +223,7 @@ export function shouldFire(entry: StateEntry | undefined, current: DiffStats): b
 export function buildNudgeMessage(lines: number, files: number): string {
   return (
     `Uncommitted diff is ${lines} lines across ${files} files without a commit. ` +
-    `If this work forms a shippable slice, run /stacked-pr checkpoint to land it as a stacked PR before continuing.`
+    `If this work forms a shippable slice, run /pr to land it as a focused PR before continuing.`
   );
 }
 

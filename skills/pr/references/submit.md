@@ -1,11 +1,11 @@
-# `/stacked-pr submit` — Push the Whole Stack
+# `/pr submit` — Push the Whole Stack
 
 Push every branch in the current stack (force-with-lease) and
 create/update one GitHub PR per branch, each targeting the branch
 below it. Idempotent — safe to re-run after rebases.
 
 Pure wrapper around `git stack submit`. There is no clean `gh`-only
-equivalent for "push the whole stack at once" — `/stacked-pr update`
+equivalent for "push the whole stack at once" — `/pr update`
 is the single-branch path when `git stack` isn't installed.
 
 ## Workflow
@@ -21,8 +21,8 @@ If this prints nothing, the current branch isn't a recorded stack
 member. Tell the user:
 
 > "`<branch>` isn't part of a tracked stack — there's nothing for
-> `/stacked-pr submit` to push as a group. Use `/stacked-pr update` for
-> a single-branch push, or `/stacked-pr checkpoint` to start a new
+> `/pr submit` to push as a group. Use `/pr update` for
+> a single-branch push, or `/pr checkpoint` to start a new
 > stack from this branch."
 
 Stop here.
@@ -38,7 +38,7 @@ If this fails, the user doesn't have `git stack`. Tell them:
 > "`git stack` isn't installed, and there's no safe `gh`-only
 > equivalent for submitting a whole stack at once. Either install it
 > from <https://github.com/zcaceres/git-stack/releases>, or push each
-> branch individually with `/stacked-pr update` while checked out on
+> branch individually with `/pr update` while checked out on
 > it."
 
 Stop here. Don't try to fake the multi-branch push with a `gh` loop —
@@ -90,4 +90,4 @@ or by parsing `git stack log` output.
   stop and surface the error. Don't retry blindly — partial state is
   recoverable, blind retries can amplify mistakes.
 - Don't rewrite or amend commits inside this subcommand. Use
-  `/stacked-pr update` or `/stacked-pr sync` for those workflows.
+  `/pr update` or `/pr sync` for those workflows.

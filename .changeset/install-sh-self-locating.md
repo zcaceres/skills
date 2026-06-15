@@ -4,10 +4,10 @@
 "@zcaceres/skill-safety-dotenv-guard": minor
 "@zcaceres/skill-safety-op-creds": minor
 "@zcaceres/skill-pr-size-nudge": minor
-"@zcaceres/skill-stacked-pr": minor
+"@zcaceres/skill-pr": minor
 ---
 
-Make `scripts/install.sh` self-locating, and ship one for `stacked-pr`.
+Make `scripts/install.sh` self-locating, and ship one for `pr`.
 
 **Self-locating path.** Previously each install.sh wrote
 `$CLAUDE_HOME/skills/<skill>/scripts/run.sh` as the hook command —
@@ -25,7 +25,7 @@ that errors with a clear message if the runner isn't found beside
 the install.sh (catches the case where someone copied install.sh
 out of its directory).
 
-**`stacked-pr` ships install.sh.** The bundled PostToolUse nudge
+**`pr` ships install.sh.** The bundled PostToolUse nudge
 hook now has the same one-liner install story as the other five
 hook skills, instead of requiring users to hand-edit
 `settings.json`. It also detects an older standalone `pr-size-nudge`
@@ -35,5 +35,5 @@ entry and warns about the double-nudge before writing.
 mode (where the settings file lives), which is correct independent
 of where the skill itself lives.
 
-Docs updated in each skill's `SKILL.md`, the `stacked-pr` `README.md`
+Docs updated in each skill's `SKILL.md`, the `pr` `README.md`
 and `references/nudge.md`, and the root `README.md`.

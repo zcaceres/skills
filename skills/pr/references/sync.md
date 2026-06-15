@@ -1,4 +1,4 @@
-# `/stacked-pr sync` — Rebase the Stack onto Updated Trunk
+# `/pr sync` — Rebase the Stack onto Updated Trunk
 
 Fetch the trunk (`main` / `master`) and rebase every branch in the
 current stack onto the updated tip. Use after the trunk has moved (a
@@ -24,7 +24,7 @@ git status --porcelain
 If anything is uncommitted, stop. Tell the user:
 
 > "Uncommitted changes will be lost during rebase. Commit or stash
-> them first, then re-run `/stacked-pr sync`."
+> them first, then re-run `/pr sync`."
 
 Stop. Don't auto-stash — the user may have changes that belong on
 different branches in the stack, and an auto-stash + pop dance can
@@ -98,7 +98,7 @@ for i in "${!STACK[@]}"; do
   fi
   git checkout "$BRANCH" || break
   git rebase "$PARENT" || {
-    echo "Conflict rebasing $BRANCH onto $PARENT — resolve and re-run /stacked-pr sync"
+    echo "Conflict rebasing $BRANCH onto $PARENT — resolve and re-run /pr sync"
     break
   }
 done
@@ -108,7 +108,7 @@ If a rebase conflicts, stop and tell the user exactly where:
 
 > "Conflict rebasing `<branch>` onto `<parent>`. Resolve, then run
 > `git rebase --continue`. After all conflicts are clean, re-run
-> `/stacked-pr sync` to push the rebased branches."
+> `/pr sync` to push the rebased branches."
 
 ### 4. Push (unless `--no-push`)
 

@@ -62,6 +62,13 @@
       "name": "@zcaceres/skill-optimize-skill-activation",
       "version": "0.0.0",
     },
+    "skills/pr": {
+      "name": "@zcaceres/skill-pr",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "^3.23.8",
+      },
+    },
     "skills/pr-size-nudge": {
       "name": "@zcaceres/skill-pr-size-nudge",
       "version": "1.0.0",
@@ -136,13 +143,6 @@
     "skills/security-socket": {
       "name": "@zcaceres/skill-security-socket",
       "version": "0.0.0",
-    },
-    "skills/stacked-pr": {
-      "name": "@zcaceres/skill-stacked-pr",
-      "version": "0.0.0",
-      "dependencies": {
-        "zod": "^3.23.8",
-      },
     },
     "skills/stacked-pr-gemini": {
       "name": "@zcaceres/skill-stacked-pr-gemini",
@@ -247,6 +247,8 @@
 
     "@zcaceres/skill-optimize-skill-activation": ["@zcaceres/skill-optimize-skill-activation@workspace:skills/optimize-skill-activation"],
 
+    "@zcaceres/skill-pr": ["@zcaceres/skill-pr@workspace:skills/pr"],
+
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
     "@zcaceres/skill-quality-chaos-monkey": ["@zcaceres/skill-quality-chaos-monkey@workspace:skills/quality-chaos-monkey"],
@@ -282,8 +284,6 @@
     "@zcaceres/skill-security-snyk": ["@zcaceres/skill-security-snyk@workspace:skills/security-snyk"],
 
     "@zcaceres/skill-security-socket": ["@zcaceres/skill-security-socket@workspace:skills/security-socket"],
-
-    "@zcaceres/skill-stacked-pr": ["@zcaceres/skill-stacked-pr@workspace:skills/stacked-pr"],
 
     "@zcaceres/skill-stacked-pr-gemini": ["@zcaceres/skill-stacked-pr-gemini@workspace:skills/stacked-pr-gemini"],
 

@@ -13,7 +13,7 @@ detection and the rules around staging only your changes.
 
 If you have uncommitted work that represents the *next slice* in a stack
 (not the current branch's PR), use
-[`/stacked-pr checkpoint`](../stacked-pr/) instead.
+[`/pr checkpoint`](../pr/) instead.
 
 ## Install
 
@@ -23,7 +23,7 @@ npx skills add zcaceres/skills -s commit-push-pr
 ## Origin
 
 Ported from
-[`zcaceres/claude-stacked-prs`](https://github.com/zcaceres/claude-stacked-prs)
+[`zcaceres/claude-prs`](https://github.com/zcaceres/claude-prs)
 into this monorepo. Body preserved verbatim; frontmatter adds
 `disable-model-invocation: true` so the skill only fires when the user
 explicitly types `/commit-push-pr`.

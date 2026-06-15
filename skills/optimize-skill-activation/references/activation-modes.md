@@ -170,7 +170,7 @@ dropped an `inject-context.sh`, delete it too on revert.
 
 | Skill archetype                                  | Recommended mode    |
 |--------------------------------------------------|---------------------|
-| `/stacked-pr`, `/decompose`, `/acid-trip`        | Slash-only          |
+| `/pr`, `/decompose`, `/acid-trip`        | Slash-only          |
 | Destructive: deploy, publish, payments           | Slash-only          |
 | `optimize-permissions`, `review-code`            | Model-invocable     |
 | Read-only audits with clear trigger phrases      | Model-invocable     |

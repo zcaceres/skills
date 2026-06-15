@@ -1,0 +1,38 @@
+{
+  "name": "@zcaceres/skill-pr",
+  "version": "0.0.0",
+  "description": "Commit your work and open PRs with /pr. Normal mode (default) commits conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns /pr into a stacked-PR workflow (checkpoint, submit, sync, bottom-up merge). Toggle with /pr setup. Bundles a PostToolUse diff-size nudge hook. Uses git stack when installed, falls back to gh + git.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run scripts/index.ts",
+    "test": "bun test",
+    "build:linux": "bun build scripts/index.ts --compile --target=bun-linux-x64 --outfile scripts/bin/pr-nudge-linux-x64",
+    "build:macos": "bun build scripts/index.ts --compile --target=bun-darwin-arm64 --outfile scripts/bin/pr-nudge-darwin-arm64",
+    "build:windows": "bun build scripts/index.ts --compile --target=bun-windows-x64 --outfile scripts/bin/pr-nudge-windows-x64.exe",
+    "build:all": "bun run build:linux && bun run build:macos && bun run build:windows",
+    "build": "bun run build:all",
+    "fetch-tools": "bun run build:all"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "hook",
+    "pull-request",
+    "stacked-prs",
+    "git",
+    "github"
+  ]
+}

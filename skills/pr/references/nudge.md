@@ -1,11 +1,11 @@
-# `stacked-pr` Hook — PostToolUse Diff-Size Nudge
+# `pr` Hook — PostToolUse Diff-Size Nudge
 
 A PostToolUse hook that runs after every file-modifying tool call
 (`Edit`, `Write`, `MultiEdit`, `NotebookEdit`). It opens the current
 repo, runs `git diff --numstat HEAD` plus a status-porcelain pass for
 untracked files, and — when the uncommitted diff is over the line/file
-thresholds — emits a soft reminder telling the agent to consider
-`/stacked-pr checkpoint` to ship the slice as a stacked PR.
+thresholds — emits a soft reminder telling the agent to consider `/pr`
+to land the slice as a focused PR (a stacked checkpoint in stacked mode).
 
 The hook is **non-blocking by design**. It never exits non-zero, never
 returns block payloads, never errors out — soft failures are
@@ -19,8 +19,8 @@ wiring — see Install below) and has no user-facing command surface.
 
 | Setting | Default | Env var |
 |---|---|---|
-| Line threshold | 300 lines | `STACKED_PR_NUDGE_LINES` (or legacy `PR_NUDGE_LINES`) |
-| File threshold | 8 files | `STACKED_PR_NUDGE_FILES` (or legacy `PR_NUDGE_FILES`) |
+| Line threshold | 300 lines | `PR_NUDGE_LINES` (alias: `STACKED_PR_NUDGE_LINES`) |
+| File threshold | 8 files | `PR_NUDGE_FILES` (alias: `STACKED_PR_NUDGE_FILES`) |
 | Cooldown window | 30 minutes | (none) |
 | Re-fire on +lines delta | 150 | (none) |
 | Re-fire on +files delta | 3 | (none) |
@@ -34,10 +34,10 @@ The hook re-fires when either:
   `(session_id, repo)` pair, OR
 - The diff has grown by ≥150 lines OR ≥3 files since the last fire.
 
-State lives at `~/.claude/state/stacked-pr-nudge.json`. Entries older
+State lives at `~/.claude/state/pr-nudge.json`. Entries older
 than 7 days are swept on the next write. (Distinct from the standalone
 `pr-size-nudge` skill's state file — the two coexist without colliding
-during the deprecation window.)
+if you happen to have both installed.)
 
 ## Default exclusions
 
@@ -48,16 +48,16 @@ bun.lock, package-lock.json, pnpm-lock.yaml, yarn.lock, Cargo.lock,
 go.sum, Gemfile.lock, *.snap, dist/**, build/**, *.min.js, *.min.css
 ```
 
-Override with `STACKED_PR_NUDGE_EXCLUDE` (colon-separated globs) — or
-the legacy `PR_NUDGE_EXCLUDE` env var. Override
-`STACKED_PR_NUDGE_SKIP_ROOTS` (colon-separated paths) to skip specific
-repos entirely.
+Override with `PR_NUDGE_EXCLUDE` (colon-separated globs) — the
+`STACKED_PR_NUDGE_EXCLUDE` alias is also accepted. Override
+`PR_NUDGE_SKIP_ROOTS` (colon-separated paths) to skip specific repos
+entirely.
 
 ## Install
 
 ```sh
-npx skills add zcaceres/skills -s stacked-pr
-~/.claude/skills/stacked-pr/scripts/install.sh
+npx skills add zcaceres/skills -s pr
+~/.claude/skills/pr/scripts/install.sh
 ```
 
 The second step wires this hook into `~/.claude/settings.json` so it
@@ -112,18 +112,18 @@ On Windows, point at `scripts\\run.cmd` instead.
 
 1. Claude Code invokes `scripts/run.sh` after every matched tool call.
 2. `run.sh` picks the right bundled binary for the host OS/arch
-   (`stacked-pr-nudge-{darwin-arm64,linux-x64,windows-x64.exe}`).
+   (`pr-nudge-{darwin-arm64,linux-x64,windows-x64.exe}`).
 3. The binary reads the JSON hook payload from stdin (`cwd`,
    `session_id`).
 4. It resolves the repo root via `git -C <cwd> rev-parse
    --show-toplevel`. If that fails (not in a repo), the hook exits
    silently.
 5. It skips the hook if `cwd` resolves to the user's home directory or
-   to any path in `STACKED_PR_NUDGE_SKIP_ROOTS`.
+   to any path in `PR_NUDGE_SKIP_ROOTS`.
 6. It runs `git diff --numstat HEAD` and counts added+deleted lines
    per file, then `git status --porcelain=v1` to fold in untracked
    files (capped at 2000 lines per file).
-7. Files matching `STACKED_PR_NUDGE_EXCLUDE` globs are dropped from
+7. Files matching `PR_NUDGE_EXCLUDE` globs are dropped from
    both counts.
 8. If `lines < THRESHOLD_LINES` AND `files < THRESHOLD_FILES`, the
    hook exits silently.
@@ -133,8 +133,8 @@ On Windows, point at `scripts\\run.cmd` instead.
     stdout with a one-liner like:
 
     > Uncommitted diff is 412 lines across 11 files without a commit.
-    > If this work forms a shippable slice, run /stacked-pr checkpoint
-    > to land it as a stacked PR before continuing.
+    > If this work forms a shippable slice, run /pr to land it as a
+    > focused PR before continuing.
 
 11. Update state with the new fire timestamp/lines/files, then exit 0.
 
@@ -145,6 +145,6 @@ task touches dozens of files and edits hundreds or thousands of
 lines. This hook nags the agent to commit once it has finished a
 logical unit of work. Left open-ended, the agent proposes a slice
 back: "I think we can ship {some change} as one unit." When approved,
-`/stacked-pr checkpoint` lands it as a focused, stacked PR.
+`/pr` lands it as a focused PR (a stacked checkpoint in stacked mode).
 
 The pattern is an *AI behavioral nudge* — gentle, frequent, non-blocking.

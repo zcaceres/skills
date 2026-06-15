@@ -1,6 +1,6 @@
 ---
 name: pr-size-nudge
-description: Claude Code PostToolUse hook that injects a soft system-reminder when the uncommitted diff grows past size/file thresholds. Nudges toward /stacked-pr checkpoint to land a stacked PR. Cooldowns + dedup state. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on nudging.
+description: Claude Code PostToolUse hook that injects a soft system-reminder when the uncommitted diff grows past size/file thresholds. Nudges toward /pr checkpoint to land a stacked PR. Cooldowns + dedup state. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on nudging.
 hooks:
   PostToolUse:
     - matcher: "Edit|Write|MultiEdit|NotebookEdit"
@@ -10,9 +10,9 @@ hooks:
 
 # pr-size-nudge
 
-> **Deprecated — use the bundled hook in [`stacked-pr`](../stacked-pr/)
+> **Deprecated — use the bundled hook in [`pr`](../pr/)
 > instead.** This skill has been folded into the consolidated
-> `stacked-pr` skill, which ships the same PostToolUse nudge alongside
+> `pr` skill, which ships the same PostToolUse nudge alongside
 > the full stacked-PR slash-command workflow (checkpoint, update,
 > submit, log, sync, merge). The body of this skill is preserved
 > verbatim for the deprecation window and will be removed after one
@@ -24,7 +24,7 @@ A PostToolUse hook that runs after every file-modifying tool call (`Edit`,
 `Write`, `MultiEdit`, `NotebookEdit`). It opens the current repo, runs
 `git diff --numstat HEAD` + a status-porcelain pass for untracked files,
 and — when the uncommitted diff is over the line/file thresholds — emits a
-soft reminder telling the agent to consider `/stacked-pr checkpoint` to
+soft reminder telling the agent to consider `/pr checkpoint` to
 ship the slice as a stacked PR.
 
 The hook is **non-blocking by design**. It never exits non-zero, never
@@ -92,8 +92,8 @@ for the full explanation.
 > (closed as "not planned"). The `install.sh` writes an absolute path
 > into `settings.json`, sidestepping the substitution issue.
 
-The hook is best paired with the [`stacked-pr`](../stacked-pr/SKILL.md) skill —
-the nudge tells the agent to invoke `/stacked-pr checkpoint`.
+The hook is best paired with the [`pr`](../pr/SKILL.md) skill —
+the nudge tells the agent to invoke `/pr checkpoint`.
 
 ### Manual wiring (alternative)
 
@@ -135,7 +135,7 @@ On Windows, point at `scripts\\run.cmd` instead.
     with a one-liner like:
 
     > Uncommitted diff is 412 lines across 11 files without a commit.
-    > If this work forms a shippable slice, run /stacked-pr checkpoint
+    > If this work forms a shippable slice, run /pr checkpoint
     > to land it as a stacked PR before continuing.
 
 11. Update state with the new fire timestamp/lines/files, then exit 0.
@@ -146,7 +146,7 @@ Agent PRs are too big. With "accept all" and "auto mode," a single task
 touches dozens of files and edits hundreds or thousands of lines. This
 hook nags the agent to commit once it has finished a logical unit of work.
 Left open-ended, the agent proposes a slice back: "I think we can ship
-{some change} as one unit." When approved, `/stacked-pr checkpoint`
+{some change} as one unit." When approved, `/pr checkpoint`
 lands it as a focused, stacked PR.
 
 The pattern is an *AI behavioral nudge* — gentle, frequent, non-blocking.

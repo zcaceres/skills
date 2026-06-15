@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-quality-docs-update",
+  "version": "0.0.0",
+  "description": "Audit project documentation against the current state of the codebase and produce a revision plan, then apply approved fixes. Invoked via /quality-docs-update.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "documentation",
+    "readme",
+    "docs"
+  ]
+}

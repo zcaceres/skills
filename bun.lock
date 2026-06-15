@@ -77,6 +77,10 @@
       "name": "@zcaceres/skill-quality-dead-code-analyzer",
       "version": "0.0.0",
     },
+    "skills/quality-docs-update": {
+      "name": "@zcaceres/skill-quality-docs-update",
+      "version": "0.0.0",
+    },
     "skills/quality-perf-review": {
       "name": "@zcaceres/skill-quality-perf-review",
       "version": "0.0.0",
@@ -244,6 +248,8 @@
     "@zcaceres/skill-quality-chaos-monkey": ["@zcaceres/skill-quality-chaos-monkey@workspace:skills/quality-chaos-monkey"],
 
     "@zcaceres/skill-quality-dead-code-analyzer": ["@zcaceres/skill-quality-dead-code-analyzer@workspace:skills/quality-dead-code-analyzer"],
+
+    "@zcaceres/skill-quality-docs-update": ["@zcaceres/skill-quality-docs-update@workspace:skills/quality-docs-update"],
 
     "@zcaceres/skill-quality-perf-review": ["@zcaceres/skill-quality-perf-review@workspace:skills/quality-perf-review"],
 

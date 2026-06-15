@@ -1,18 +1,41 @@
 ---
 name: security-openssf
-description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/security-openssf".
+description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Subcommand `fix` turns a Scorecard report into a remediation plan and applies it. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", "fix the scorecard findings", or "/security-openssf".
+argument-hint: "[install | fix] [args]"
 ---
 
 # security-openssf
 
-You are adding the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action to the current repo and walking the user through a **two-phase rollout** so a poor first score never lands on the public dashboard:
+You are managing the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action for the current repo, via `/security-openssf [subcommand]`.
+
+## Subcommands
+
+| Subcommand | Reference | What it does |
+|---|---|---|
+| `install` | this file (below) | Scaffold the Scorecard workflow with a safe two-phase rollout (phase 1 `publish_results: false`, then phase 2 flip + badge). **Default subcommand.** |
+| `fix` | [references/fix.md](references/fix.md) | Take the findings from a Scorecard run, write a bucketed remediation plan, then apply the file-based fixes and offer the settings-based ones. |
+
+### Dispatcher
+
+Parse the first whitespace-separated token of the arguments:
+
+1. **`fix`** → read `references/fix.md` and follow it with the remaining arguments.
+2. **First token starts with `-`** (`--help`/`-h`) → print the subcommand table and stop.
+3. **`install`, empty, or anything else** → run the install workflow in this file (`/security-openssf` ≡ `/security-openssf install`).
+4. **Triggered by natural language** → map intent: "fix the findings"/"remediate" → `fix`; "add OpenSSF"/"set up Scorecard" → `install`. If ambiguous, ask.
+
+---
+
+## Subcommand: `install`
+
+You are adding the OpenSSF Scorecard GitHub Action to the current repo and walking the user through a **two-phase rollout** so a poor first score never lands on the public dashboard:
 
 1. **Phase 1 — Trial run.** Install the workflow with `publish_results: false`. Results stay private in the repo's Security tab (SARIF). The user triages findings without anyone outside the repo seeing the score.
 2. **Phase 2 — Go public.** Flip `publish_results: true` and add the scorecard badge to the README so the live score is visible at `scorecard.dev`.
 
 This skill stops between phases. Do not flip to phase 2 in the same session unless the user explicitly asks — the gap is the whole point.
 
-## When to use
+### When to use install
 
 - "add OpenSSF [Scorecard] to this repo"
 - "set up Scorecard" / "scorecard action"

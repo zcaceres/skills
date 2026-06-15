@@ -13,6 +13,10 @@ Action in a repo with a deliberate two-phase rollout:
 The skill stops between phases on purpose — a bad first public score is
 hard to unwind because old scores stay in the dashboard history.
 
+**Subcommand `fix`** (`/security-openssf fix`) turns a Scorecard report into
+a bucketed remediation plan — file changes, repo settings, won't-fix/N-A —
+then applies the file-based fixes after an approval gate.
+
 **Private/internal repos: refuses outright.** The default `GITHUB_TOKEN`
 can't run Scorecard's GraphQL queries on a private repository, so the
 action hard-fails before producing any SARIF — installing it on a
@@ -24,7 +28,8 @@ Activates on "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or
 
 ## Layout
 
-- `SKILL.md` — workflow + triage cheat-sheet for the highest-impact checks
+- `SKILL.md` — subcommand dispatcher + `install` workflow + triage cheat-sheet
+- `references/fix.md` — the `fix` subcommand: report → plan → apply
 - `assets/scorecard.yml` — workflow template copied into the target repo
   with the SHA pin and default branch substituted
 - `scripts/scorecard-report.sh` — render a readable per-check report from a

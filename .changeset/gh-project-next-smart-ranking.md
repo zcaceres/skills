@@ -1,5 +1,5 @@
 ---
-"@zcaceres/skill-gh-project-next": minor
+"@zcaceres/skill-gh-project": minor
 ---
 
 gh-project-next now ranks Todo cards by what's "logically next" by default,

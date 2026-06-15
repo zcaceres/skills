@@ -8,8 +8,8 @@
     "new": "bun run scripts/new-skill.ts",
     "build": "bun run scripts/build-skill.ts",
     "release": "bun run scripts/release-skill.ts",
-    "changeset": "bunx changeset",
-    "version": "bunx changeset version",
+    "changeset": "bunx @changesets/cli",
+    "version": "bunx @changesets/cli version",
     "check": "bun run scripts/check-skills.ts",
     "smoke": "bun run scripts/smoke-bundle.ts",
     "test": "bun test"

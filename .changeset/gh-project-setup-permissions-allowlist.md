@@ -1,5 +1,5 @@
 ---
-"@zcaceres/skill-gh-project-setup": minor
+"@zcaceres/skill-gh-project": minor
 ---
 
 gh-project-setup now offers to write a Claude Code permission allowlist for

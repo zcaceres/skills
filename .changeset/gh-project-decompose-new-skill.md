@@ -1,5 +1,5 @@
 ---
-"@zcaceres/skill-gh-project-decompose": minor
+"@zcaceres/skill-gh-project": minor
 ---
 
 New skill `gh-project-decompose` — breaks a large card on the GitHub Projects

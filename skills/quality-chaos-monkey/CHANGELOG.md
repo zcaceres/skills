@@ -1,4 +1,4 @@
-# @zcaceres/skill-chaos-monkey
+# @zcaceres/skill-quality-chaos-monkey
 
 ## 1.0.0
 

@@ -1,5 +1,5 @@
 {
-  "name": "@zcaceres/skill-perf-review",
+  "name": "@zcaceres/skill-quality-perf-review",
   "version": "0.0.0",
   "description": "Analyze a full-stack web application for evidence-based performance bottlenecks",
   "license": "MIT",

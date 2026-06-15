@@ -1,6 +1,6 @@
 ---
-name: chaos-monkey
-description: Trace code paths to find bugs, logic errors, race conditions. Static analysis first, then runtime browser testing for frontend. Triggers on "chaos monkey", "probe for edge cases".
+name: quality-chaos-monkey
+description: Trace code paths to find bugs, logic errors, race conditions. Static analysis first, then runtime browser testing for frontend. Triggers on "quality-chaos-monkey", "chaos monkey", "probe for edge cases".
 ---
 
 # Chaos Monkey — Static Code Path Exerciser

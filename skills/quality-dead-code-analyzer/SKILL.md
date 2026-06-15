@@ -1,9 +1,9 @@
 ---
-name: code-cleanup-analyzer
-description: Analyze a codebase for dead code, duplicates, and circular dependencies using knip, jscpd, and madge, then validate findings to filter false positives. Use when user says "analyze code", "find dead code", "code cleanup", "find duplicates", "unused exports", or "static analysis".
+name: quality-dead-code-analyzer
+description: Analyze a codebase for dead code, duplicates, and circular dependencies using knip, jscpd, and madge, then validate findings to filter false positives. Use when user says "quality-dead-code-analyzer", "analyze code", "find dead code", "code cleanup", "find duplicates", "unused exports", or "static analysis".
 ---
 
-# Code Cleanup Analyzer
+# Dead Code Analyzer
 
 Runs three static analysis tools sequentially, then validates findings to filter out false positives.
 

@@ -1,0 +1,53 @@
+# Contributing to __PROJECT_NAME__
+
+<!--
+Closes OpenSSF Best Practices criteria:
+  contribution (MUST) — how to contribute is documented.
+  contribution_requirements (SHOULD) — contribution requirements are stated.
+Replace every __PLACEHOLDER__ before committing.
+-->
+
+Thanks for your interest in contributing! This document explains how to propose
+changes and what we expect from contributions.
+
+## Reporting bugs and requesting features
+
+- Search [existing issues](__ISSUES_URL__) first to avoid duplicates.
+- Open a new issue with clear reproduction steps (for bugs) or a clear use case
+  (for features).
+- For **security vulnerabilities, do not open a public issue** — follow
+  [SECURITY.md](./SECURITY.md) instead.
+
+## Submitting changes
+
+1. Fork the repository and create a branch from `__DEFAULT_BRANCH__`.
+2. Make your change in focused, logically separate commits.
+3. Add or update tests covering your change — new functionality is expected to
+   come with tests.
+4. Ensure the build and tests pass locally:
+   ```
+   __BUILD_COMMAND__
+   __TEST_COMMAND__
+   ```
+5. Open a pull request against `__DEFAULT_BRANCH__` describing **what** changed
+   and **why**.
+
+## Requirements for accepted contributions
+
+- **Tests**: new features and bug fixes include automated tests.
+- **Style**: code passes the linter/formatter (`__LINT_COMMAND__`); match the
+  surrounding code's conventions.
+- **Warnings**: changes must not introduce new compiler/linter warnings.
+- **Commits**: write clear commit messages; keep PRs focused and reviewable.
+- **License & DCO/CLA**: by contributing you agree your contribution is licensed
+  under the project's [LICENSE](./LICENSE). __DCO_OR_CLA_NOTE_OR_REMOVE__
+
+## Review process
+
+A maintainer will review your PR, may request changes, and will merge it once it
+meets the requirements above. We aim to respond to PRs within __REVIEW_WINDOW__.
+
+## Getting help
+
+Questions about contributing? __HELP_CHANNEL__ (e.g. open a discussion or ask in
+an issue).

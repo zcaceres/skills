@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-security-openssf-bestpractices",
+  "version": "0.0.0",
+  "description": "Help a FLOSS project earn the OpenSSF Best Practices passing badge at bestpractices.dev. Audits the repo against the self-certification criteria, closes the gaps (SECURITY.md, CONTRIBUTING.md, test/build docs), generates a fill-in worksheet of justifications and evidence URLs, walks through registration, and embeds the badge. Self-attestation, never fabricates a Met answer. Use when the user says 'OpenSSF Best Practices badge', 'bestpractices.dev', 'CII badge', or '/security-openssf-bestpractices'.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

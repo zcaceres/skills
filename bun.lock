@@ -121,6 +121,10 @@
       "name": "@zcaceres/skill-security-openssf",
       "version": "0.0.0",
     },
+    "skills/security-openssf-bestpractices": {
+      "name": "@zcaceres/skill-security-openssf-bestpractices",
+      "version": "0.0.0",
+    },
     "skills/security-snyk": {
       "name": "@zcaceres/skill-security-snyk",
       "version": "0.0.0",
@@ -266,6 +270,8 @@
     "@zcaceres/skill-security-gitleaks": ["@zcaceres/skill-security-gitleaks@workspace:skills/security-gitleaks"],
 
     "@zcaceres/skill-security-openssf": ["@zcaceres/skill-security-openssf@workspace:skills/security-openssf"],
+
+    "@zcaceres/skill-security-openssf-bestpractices": ["@zcaceres/skill-security-openssf-bestpractices@workspace:skills/security-openssf-bestpractices"],
 
     "@zcaceres/skill-security-snyk": ["@zcaceres/skill-security-snyk@workspace:skills/security-snyk"],
 

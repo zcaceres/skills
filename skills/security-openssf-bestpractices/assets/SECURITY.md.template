@@ -1,0 +1,48 @@
+# Security Policy
+
+<!--
+Closes OpenSSF Best Practices criteria:
+  vulnerability_report_process (MUST), vulnerability_report_private (MUST),
+  vulnerability_report_response (MUST).
+After committing this file, also enable GitHub private vulnerability reporting:
+  repo Settings → Security → "Private vulnerability reporting" → Enable.
+Replace every __PLACEHOLDER__ before committing.
+-->
+
+## Supported versions
+
+We provide security fixes for the following versions:
+
+| Version | Supported          |
+| ------- | ------------------ |
+| __LATEST_MAJOR__.x | :white_check_mark: |
+| < __LATEST_MAJOR__.0 | :x:              |
+
+## Reporting a vulnerability
+
+**Please do not report security vulnerabilities through public issues.**
+
+Report privately using either:
+
+1. **GitHub private advisory** (preferred) — go to this repository's
+   **Security** tab → **Report a vulnerability**. This opens a private
+   discussion visible only to maintainers.
+2. **Email** — send details to __SECURITY_CONTACT_EMAIL__. If possible, encrypt
+   sensitive details with our PGP key: __PGP_KEY_URL_OR_FINGERPRINT_OR_REMOVE__.
+
+Please include:
+
+- A description of the issue and its impact.
+- Steps to reproduce (proof-of-concept if you have one).
+- Affected version(s) and environment.
+
+## What to expect
+
+- **Acknowledgement** within __ACK_WINDOW__ (e.g. 3 business days).
+- **Assessment & triage** with a severity rating and a target fix window.
+- **Fix & disclosure** — we aim to release a fix and a public advisory within
+  __DISCLOSURE_WINDOW__ (e.g. 90 days) of confirmation, coordinated with you.
+- **Credit** — we will credit reporters in the advisory unless you prefer to
+  remain anonymous.
+
+We will keep you informed of progress throughout the process.

@@ -1,18 +1,41 @@
 ---
 name: security-openssf
-description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", or "/security-openssf".
+description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Subcommand `fix` turns a Scorecard report into a remediation plan and applies it. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", "fix the scorecard findings", or "/security-openssf".
+argument-hint: "[install | fix] [args]"
 ---
 
 # security-openssf
 
-You are adding the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action to the current repo and walking the user through a **two-phase rollout** so a poor first score never lands on the public dashboard:
+You are managing the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action for the current repo, via `/security-openssf [subcommand]`.
+
+## Subcommands
+
+| Subcommand | Reference | What it does |
+|---|---|---|
+| `install` | this file (below) | Scaffold the Scorecard workflow with a safe two-phase rollout (phase 1 `publish_results: false`, then phase 2 flip + badge). **Default subcommand.** |
+| `fix` | [references/fix.md](references/fix.md) | Take the findings from a Scorecard run, write a bucketed remediation plan, then apply the file-based fixes and offer the settings-based ones. |
+
+### Dispatcher
+
+Parse the first whitespace-separated token of the arguments:
+
+1. **`fix`** → read `references/fix.md` and follow it with the remaining arguments.
+2. **First token starts with `-`** (`--help`/`-h`) → print the subcommand table and stop.
+3. **`install`, empty, or anything else** → run the install workflow in this file (`/security-openssf` ≡ `/security-openssf install`).
+4. **Triggered by natural language** → map intent: "fix the findings"/"remediate" → `fix`; "add OpenSSF"/"set up Scorecard" → `install`. If ambiguous, ask.
+
+---
+
+## Subcommand: `install`
+
+You are adding the OpenSSF Scorecard GitHub Action to the current repo and walking the user through a **two-phase rollout** so a poor first score never lands on the public dashboard:
 
 1. **Phase 1 — Trial run.** Install the workflow with `publish_results: false`. Results stay private in the repo's Security tab (SARIF). The user triages findings without anyone outside the repo seeing the score.
 2. **Phase 2 — Go public.** Flip `publish_results: true` and add the scorecard badge to the README so the live score is visible at `scorecard.dev`.
 
 This skill stops between phases. Do not flip to phase 2 in the same session unless the user explicitly asks — the gap is the whole point.
 
-## When to use
+### When to use install
 
 - "add OpenSSF [Scorecard] to this repo"
 - "set up Scorecard" / "scorecard action"
@@ -94,7 +117,7 @@ After the user pushes the workflow, on the next push to the default branch and w
 
 - The job runs in their own Actions minutes (free on public repos).
 - It writes a SARIF file and uploads it to the repo's **Security → Code scanning** tab. That's where the findings live during phase 1.
-- The aggregate score is in the Actions log under "Scorecard analysis results" — surface where to look so the user doesn't go hunting.
+- **There is no aggregate-score line in the Actions log.** This workflow runs with `results_format: sarif`, and SARIF carries per-check scores (embedded in each finding's message) but not the rolled-up `Aggregate score: X/10` number — that line only appears under the `default`/`json` formats. To see a readable per-check breakdown, point the user at `scripts/scorecard-report.sh` (see step 5 / Triage below) rather than telling them to hunt in the log.
 
 ### 4. Stop here.
 
@@ -106,8 +129,10 @@ Wrote .github/workflows/scorecard.yml  (publish_results: false)
 What to do next:
   1. Commit & push the workflow on a branch.
   2. Merge to <default-branch> — Scorecard only runs on the default branch.
-  3. Wait for the first run. Open Actions → Scorecard analysis → log to see the score.
-  4. Open Security → Code scanning to see per-check findings as SARIF.
+  3. Wait for the first run to finish on <default-branch>.
+  4. See a readable per-check report:
+       skills/security-openssf/scripts/scorecard-report.sh --fetch <owner>/<repo>
+     (or open Security → Code scanning for the same findings in the UI.)
   5. Triage the findings (this skill can help in a second session).
   6. When the score is acceptable, re-invoke /security-openssf and ask to go public.
 ```
@@ -115,6 +140,23 @@ What to do next:
 Do not loop into phase 2 the same session. The whole point is to let the workflow actually run and the user actually look at the output.
 
 ## Triage assistance (interstitial, optional)
+
+**Start by showing the user a readable report.** Don't make them parse SARIF or
+hunt the Actions log. Run the bundled renderer, which downloads the latest run's
+SARIF artifact and prints failing checks (score + severity + reason, highest
+severity first) above the passing ones:
+
+```bash
+skills/security-openssf/scripts/scorecard-report.sh --fetch <owner>/<repo>
+# or render a SARIF file you already have:
+skills/security-openssf/scripts/scorecard-report.sh path/to/results.sarif
+```
+
+It needs `jq` (and `gh` for `--fetch`). It deliberately does **not** print an
+aggregate score — SARIF doesn't contain one. If the user specifically wants the
+weighted 0-10 number before publishing, run Scorecard locally with a non-SARIF
+format (`scorecard --repo=github.com/<owner>/<repo> --format=default`, needs a
+`$GITHUB_TOKEN`); the report footer repeats this hint.
 
 If the user comes back mid-rollout asking "what does this finding mean" or "how do I fix Token-Permissions", help them on a per-check basis. The high-impact, low-effort fixes — in roughly the order users want to tackle them:
 
@@ -141,13 +183,13 @@ Only enter this phase when the user explicitly asks (e.g. "go public", "publish 
 
 1. **Repo is public.** Re-check `gh repo view --json visibility`. If it's flipped to private since phase 1, refuse — `publish_results: true` will fail the job.
 2. **At least one phase-1 run completed.** `gh run list --workflow=scorecard.yml --limit 1` should show a successful run. If it never ran, the phase-1 install is broken; fix that before publishing.
-3. **The user is OK with the current score landing on scorecard.dev.** Pull the score from the most recent run and show it to them:
+3. **The user is OK with what will land on scorecard.dev.** Show them the per-check report from the most recent run — *not* an aggregate-score grep of the log, which returns nothing under `results_format: sarif`:
 
    ```bash
-   gh run view --workflow=scorecard.yml --log | grep -E 'Aggregate score|^Score' | head
+   skills/security-openssf/scripts/scorecard-report.sh --fetch <owner>/<repo>
    ```
 
-   If the score is below ~5, ask explicitly: "This will be publicly visible at scorecard.dev/viewer/?uri=github.com/<repo>. Proceed?"
+   Walk through the "NEEDS ATTENTION" checks (especially the high-severity ones) so the user sees exactly what the public score reflects. If several high-severity checks are failing, ask explicitly: "This — including these failing checks — will be publicly visible at scorecard.dev/viewer/?uri=github.com/<repo>. Proceed?" If the user wants the exact weighted 0-10 number first, run Scorecard locally with `--format=default` (the report footer shows the command); otherwise the per-check view is enough to make an informed call.
 
 ### Edit the workflow
 

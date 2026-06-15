@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Keep GitHub Actions pinned-by-SHA up to date (Scorecard Pinned-Dependencies
+  # + Dependency-Update-Tool). Dependabot rewrites the SHA and the # vX.Y.Z
+  # comment together.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+
+  # Root JS/TS toolchain (bun workspace).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "deps"

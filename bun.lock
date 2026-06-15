@@ -22,10 +22,6 @@
       "name": "@zcaceres/skill-cleanup-computer",
       "version": "0.0.0",
     },
-    "skills/commit-push-pr": {
-      "name": "@zcaceres/skill-commit-push-pr",
-      "version": "1.0.0",
-    },
     "skills/copywriting": {
       "name": "@zcaceres/skill-copywriting",
       "version": "1.0.0",
@@ -65,13 +61,6 @@
     "skills/pr": {
       "name": "@zcaceres/skill-pr",
       "version": "0.0.0",
-      "dependencies": {
-        "zod": "^3.23.8",
-      },
-    },
-    "skills/pr-size-nudge": {
-      "name": "@zcaceres/skill-pr-size-nudge",
-      "version": "1.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
@@ -227,8 +216,6 @@
 
     "@zcaceres/skill-cleanup-computer": ["@zcaceres/skill-cleanup-computer@workspace:skills/cleanup-computer"],
 
-    "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
-
     "@zcaceres/skill-copywriting": ["@zcaceres/skill-copywriting@workspace:skills/copywriting"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
@@ -248,8 +235,6 @@
     "@zcaceres/skill-optimize-skill-activation": ["@zcaceres/skill-optimize-skill-activation@workspace:skills/optimize-skill-activation"],
 
     "@zcaceres/skill-pr": ["@zcaceres/skill-pr@workspace:skills/pr"],
-
-    "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
 
     "@zcaceres/skill-quality-chaos-monkey": ["@zcaceres/skill-quality-chaos-monkey@workspace:skills/quality-chaos-monkey"],
 

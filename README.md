@@ -34,7 +34,6 @@ npx skills add zcaceres/skills -s clean-ai-slop
 npx skills add zcaceres/skills -s quality-cli-agent-friendly-audit
 npx skills add zcaceres/skills -s quality-dead-code-analyzer
 npx skills add zcaceres/skills -s quality-perf-review
-npx skills add zcaceres/skills -s commit-push-pr
 npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s find-docs
@@ -42,7 +41,6 @@ npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s pr
-npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
@@ -59,9 +57,9 @@ npx skills add zcaceres/skills -s zoom
 
 Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
 
-**Hook skills.** `pr-size-nudge`, `safety-dotenv-guard`,
-`safety-git-reset-guard`, `safety-op-creds`, `safety-rm-rf-guard`, and
-`pr` each ship a `scripts/install.sh` that idempotently wires
+**Hook skills.** `safety-dotenv-guard`, `safety-git-reset-guard`,
+`safety-op-creds`, `safety-rm-rf-guard`, and `pr` each ship a
+`scripts/install.sh` that idempotently wires
 the hook into `~/.claude/settings.json` (with a timestamped backup).
 Two-step install:
 
@@ -90,7 +88,6 @@ whether the skill was installed at user scope or project scope.
 | `quality-cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
 | `quality-dead-code-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
 | `quality-perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
-| `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
@@ -99,7 +96,6 @@ whether the skill was installed at user scope or project scope.
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the PostToolUse diff-size nudge. |
-| `pr-size-nudge` | **Hook.** Nudges toward `/pr` when the uncommitted diff grows past size/file thresholds. |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |

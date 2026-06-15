@@ -3,7 +3,6 @@
 "@zcaceres/skill-safety-git-reset-guard": minor
 "@zcaceres/skill-safety-dotenv-guard": minor
 "@zcaceres/skill-safety-op-creds": minor
-"@zcaceres/skill-pr-size-nudge": minor
 ---
 
 Add `scripts/install.sh` to each hook skill — idempotently wires the

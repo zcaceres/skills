@@ -90,6 +90,7 @@ whether the skill was installed at user scope or project scope.
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
+| `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |

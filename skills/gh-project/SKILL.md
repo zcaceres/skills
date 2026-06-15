@@ -42,7 +42,7 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    subcommand table above and stop.
 
 3. **`$ARGUMENTS` is empty** → print the subcommand table above and stop.
-   Unlike `/stacked-pr`, there is no default subcommand — the actions are
+   Unlike `/pr`, there is no default subcommand — the actions are
    too different to guess.
 
 4. **First token is anything else** → do NOT guess. If the skill was

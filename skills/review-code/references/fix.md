@@ -64,7 +64,7 @@ Wait for explicit approval. The user might:
 - Approve all → proceed.
 - Approve a subset → apply only those.
 - Reject specific fixes or ask for a different approach → revise the plan; ask again.
-- Ask you to commit/stack the fix → follow project norms (`/stacked-pr checkpoint` for stacked PRs if the user has that workflow).
+- Ask you to commit/stack the fix → follow project norms (`/pr checkpoint` for stacked PRs if the user has that workflow).
 
 Never start editing during the planning phase. Never apply a "small" fix as a freebie before approval.
 

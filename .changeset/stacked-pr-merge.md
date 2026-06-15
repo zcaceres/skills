@@ -1,10 +1,10 @@
 ---
-"@zcaceres/skill-stacked-pr": minor
+"@zcaceres/skill-pr": minor
 ---
 
-Add `merge` subcommand to `/stacked-pr`.
+Add `merge` subcommand to `/pr`.
 
-`/stacked-pr merge [--merge|--rebase|--squash] [--all] [--dry-run]`
+`/pr merge [--merge|--rebase|--squash] [--all] [--dry-run]`
 lands the stack bottom-up with retarget verification between merges.
 Default strategy is `--merge` (preserves SHAs, child branches keep
 working). `--rebase`/`--squash` rewrite SHAs and trigger the

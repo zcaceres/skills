@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wire the stacked-pr PostToolUse hook (matchers: Edit, Write, MultiEdit,
+# Wire the pr PostToolUse hook (matchers: Edit, Write, MultiEdit,
 # NotebookEdit) into a Claude Code settings.json so the diff-size nudge fires
 # after every file-modifying tool call, not just when this skill is loaded
 # into context. Idempotent — re-running is a no-op.
@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-SKILL_NAME="stacked-pr"
+SKILL_NAME="pr"
 HOOK_EVENT="PostToolUse"
 HOOK_MATCHER="Edit|Write|MultiEdit|NotebookEdit"
 

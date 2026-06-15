@@ -1,12 +1,36 @@
-# `/stacked-pr log` — Visualize the Stack
+# `/pr log` — Visualize the PR(s)
 
-Read-only. Print the current stack's structure, each branch's PR (if
-open), each PR's base, and each PR's state (open/merged/closed).
+Read-only. Show the open PR(s) for your current work.
+
+## Mode
+
+- **normal mode** → just the current branch's PR. Run:
+
+  ```bash
+  gh pr status
+  ```
+
+  Or, scoped to the current branch:
+
+  ```bash
+  gh pr view --json number,state,baseRefName,url,title -q '.' 2>/dev/null \
+    || gh pr list --head "$(git branch --show-current)" --state all \
+         --json number,state,baseRefName,url,title -q '.[0]'
+  ```
+
+  Print the PR number, state, base, title, and URL. If there's no PR for
+  the branch yet, say so and suggest `/pr` to open one. Stop here — the
+  rest of this file is the stacked-mode view.
+
+- **stacked mode** → the full stack tree (continue below).
+
+## Stacked-mode workflow
+
+Print the current stack's structure, each branch's PR (if open), each
+PR's base, and each PR's state (open/merged/closed).
 
 Uses `git stack log` when installed, otherwise composes the same view
 from `git config` + `gh pr list`.
-
-## Workflow
 
 ### 1. Detect `git stack`
 
@@ -88,8 +112,8 @@ If a branch is on the local stack but has no remote ref yet, mark it
 ## Important
 
 - This subcommand is read-only. Never rebase, push, or open PRs from
-  `/stacked-pr log`.
+  `/pr log`.
 - If the user wants to act on what they see — retarget a base, rebase
-  a branch — direct them to `/stacked-pr sync` or `/stacked-pr merge`.
+  a branch — direct them to `/pr sync` or `/pr merge`.
 - If `gh` isn't authenticated, surface the auth error verbatim. Don't
   swallow it.

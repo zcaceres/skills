@@ -1,9 +1,14 @@
-# `/stacked-pr update` — Commit, Push, and Update Current PR
+# `/pr update` — Commit, Push, and Update Current PR
 
 Commit only the changes made in this conversation, push them, and open a
 PR if one doesn't exist. Stack-aware: uses `git stack submit` when on a
 stacked branch, otherwise uses `gh` directly. **Preserves the existing
 base branch** on PRs that are already open.
+
+> **This is the normal-mode default.** In normal mode, bare `/pr` (or
+> `/pr "a short description"`) runs this workflow — commit your work,
+> push, and open/update a single PR against the trunk. A description
+> passed with no subcommand seeds the commit message / PR title.
 
 **Base branch:** the dispatcher passes everything after `update` as a
 single base-branch argument (default: `main`, fallback to `master`) —
@@ -11,7 +16,7 @@ only used in the plain `gh` path when creating a **new** PR with no
 existing base.
 
 > If the uncommitted work represents the *next* slice in a stack (not the
-> current branch's PR), use `/stacked-pr checkpoint` instead — it creates
+> current branch's PR), use `/pr checkpoint` instead — it creates
 > a new stacked branch rather than updating the current PR.
 
 ## Workflow

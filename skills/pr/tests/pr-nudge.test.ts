@@ -47,7 +47,7 @@ describe("isExcluded", () => {
   });
 
   test("normal source files not excluded", () => {
-    expect(isExcluded("src/stacked-pr-nudge.ts")).toBe(false);
+    expect(isExcluded("src/pr-nudge.ts")).toBe(false);
     expect(isExcluded("install.ts")).toBe(false);
     expect(isExcluded("README.md")).toBe(false);
   });
@@ -101,10 +101,10 @@ describe("shouldFire", () => {
 });
 
 describe("buildNudgeMessage", () => {
-  test("includes line and file counts and the /stacked-pr checkpoint pointer", () => {
+  test("includes line and file counts and the /pr pointer", () => {
     const msg = buildNudgeMessage(321, 9);
     expect(msg).toContain("321 lines");
     expect(msg).toContain("9 files");
-    expect(msg).toContain("/stacked-pr checkpoint");
+    expect(msg).toContain("/pr");
   });
 });

@@ -1,4 +1,4 @@
-# `/stacked-pr checkpoint` — Ship Current Slice as a Stacked PR
+# `/pr checkpoint` — Ship Current Slice as a Stacked PR
 
 Commit the current uncommitted work as the next branch in a stack, push
 it, and open a PR against the parent branch. Leave the user on the new
@@ -133,7 +133,7 @@ Report:
 - The new PR URL (`gh pr view --json url --jq .url`).
 - The new branch name (`git branch --show-current`).
 - A reminder: "You're on the child branch now. Keep working — the next
-  `/stacked-pr` (or `/stacked-pr checkpoint`) will stack on top."
+  `/pr` (or `/pr checkpoint`) will stack on top."
 
 ## Important
 
@@ -145,8 +145,6 @@ Report:
 
 ## Merging the Stack
 
-When ready to land, use `/stacked-pr merge` (added in a later PR in
-this consolidation stack). Until then, follow the "Stacked PRs" section
-in your `~/.claude/CLAUDE.md` — merge bottom-up, never use
-`--delete-branch`, and verify each child's `baseRefName` is `main`
-before merging the next.
+When ready to land, use [`/pr merge`](merge.md) — it merges the stack
+bottom-up, never uses `--delete-branch`, and verifies each child's
+`baseRefName` is the trunk before merging the next.

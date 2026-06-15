@@ -7,12 +7,13 @@ disable-model-invocation: true
 
 # Commit, Push, and PR
 
-> **Deprecated — use [`/stacked-pr update`](../stacked-pr/) instead.**
-> This skill has been folded into the consolidated `stacked-pr` skill,
-> which bundles the full stacked-PR workflow (checkpoint, update,
-> submit, log, sync, merge) and the PostToolUse nudge hook as one
-> install. The body of this skill is preserved verbatim for the
-> deprecation window and will be removed after one release cycle.
+> **Deprecated — use [`/pr`](../pr/) instead.** This skill has been
+> folded into the consolidated `pr` skill, whose default (normal) mode
+> does exactly this — commit your conversation changes, push, and open a
+> single PR against the trunk. `pr` also offers an opt-in stacked mode
+> (`/pr setup`) and bundles the PostToolUse nudge hook. The body of this
+> skill is preserved verbatim for the deprecation window and will be
+> removed after one release cycle.
 
 Commit only the changes made in this conversation, push them, and open a PR if one doesn't exist. Stack-aware: uses `git stack submit` when on a stacked branch, otherwise uses `gh` directly. Preserves the existing base branch.
 
@@ -20,7 +21,7 @@ Commit only the changes made in this conversation, push them, and open a PR if o
 
 **Base branch:** $ARGUMENTS (default: `main`, fallback to `master`) — only used in the plain `gh` path when creating a **new** PR with no existing base.
 
-> If you have uncommitted work that represents the *next* slice in a stack (not the current branch's PR), use `/stacked-pr checkpoint` instead — it creates a new stacked branch rather than amending the current PR.
+> If you have uncommitted work that represents the *next* slice in a stack (not the current branch's PR), use `/pr checkpoint` instead — it creates a new stacked branch rather than amending the current PR.
 
 ## Workflow
 

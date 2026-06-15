@@ -1,0 +1,28 @@
+{
+  "name": "@zcaceres/skill-quality-project-health",
+  "version": "0.0.0",
+  "description": "Assess the current project's repo and work-tracker status, then rate overall project health from 0-10. Invoke via /quality-project-health.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skill",
+    "slash-command",
+    "quality-project-health",
+    "quality"
+  ]
+}

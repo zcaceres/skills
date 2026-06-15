@@ -131,19 +131,30 @@ async function main(): Promise<void> {
 
     const hit = findDestructiveGit(command);
     if (hit) {
-      console.error(
+      // Block via the PreToolUse JSON contract on stdout (exit 0), not exit 2.
+      // Claude Code and Codex honor this identical shape; Codex treats a
+      // non-zero exit as a hook *failure* and would let the command through.
+      const reason =
         `BLOCKED: detected destructive git command (${hit}).\n\n` +
-          "Safer alternatives:\n" +
-          "  - reset --hard      → git stash, or git reset --soft / --mixed\n" +
-          "  - push --force      → git push --force-with-lease\n" +
-          "  - clean -f          → trash <path> (preserves recovery)\n" +
-          "  - checkout <path>   → git restore --source=HEAD --staged <path> after review\n" +
-          "  - branch -D         → git branch -d (refuses if unmerged)\n" +
-          "  - stash drop/clear  → leave stashes; prune intentionally\n" +
-          "  - worktree remove -f → resolve dirty state first, then remove without -f\n\n" +
-          "If you genuinely need this, ask the user to run it themselves."
+        "Safer alternatives:\n" +
+        "  - reset --hard      → git stash, or git reset --soft / --mixed\n" +
+        "  - push --force      → git push --force-with-lease\n" +
+        "  - clean -f          → trash <path> (preserves recovery)\n" +
+        "  - checkout <path>   → git restore --source=HEAD --staged <path> after review\n" +
+        "  - branch -D         → git branch -d (refuses if unmerged)\n" +
+        "  - stash drop/clear  → leave stashes; prune intentionally\n" +
+        "  - worktree remove -f → resolve dirty state first, then remove without -f\n\n" +
+        "If you genuinely need this, ask the user to run it themselves.";
+      console.log(
+        JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse",
+            permissionDecision: "deny",
+            permissionDecisionReason: reason,
+          },
+        })
       );
-      process.exit(2);
+      process.exit(0);
     }
 
     process.exit(0);

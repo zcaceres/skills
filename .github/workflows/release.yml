@@ -11,7 +11,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write       # create the GitHub Release
+      id-token: write        # OIDC, to sign the build provenance attestation
+      attestations: write    # store the attestation
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6  # v2.2.0
@@ -34,6 +36,11 @@ jobs:
         run: |
           tar -czf ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz \
             -C skills/${{ steps.tag.outputs.name }}/dist ${{ steps.tag.outputs.name }}
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32  # v4.1.0
+        with:
+          subject-path: ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz
 
       - name: GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2.6.2

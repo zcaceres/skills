@@ -1,0 +1,22 @@
+#:schema https://conductor.build/schemas/settings.repo.schema.json
+
+# Shared Conductor config for the @zcaceres/skills Bun monorepo.
+# Layout: a workspace per skill under skills/*, plumbed by Bun workspaces.
+# No long-running server, no fixed port, no shared local resource — every
+# workspace is fully independent, so runs are safe to do concurrently.
+
+[scripts]
+# Link Bun workspaces on workspace creation, then point git at the repo's
+# tracked hooks so the gitleaks pre-commit secret scan is active here too.
+# `git config` always succeeds; the hook only runs (and only needs gitleaks)
+# at commit time, so setup never fails on a missing binary.
+setup = "bun install && git config core.hooksPath .githooks"
+
+# This repo has no dev server — the natural "does my workspace work?" button
+# is the skill validator. Fast, read-only, non-destructive.
+run = "bun run check"
+run_mode = "concurrent"
+
+# On archive, drop only regenerable, gitignored build output to reclaim disk.
+# Nothing tracked is touched; `bun install` / `bun run build` recreate it.
+archive = "rm -rf node_modules skills/*/dist skills/*/scripts/bin"

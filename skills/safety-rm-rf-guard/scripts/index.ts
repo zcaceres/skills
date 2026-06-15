@@ -91,16 +91,27 @@ async function main(): Promise<void> {
     }
 
     if (containsDestructiveCommand(command)) {
-      console.error(
+      // Block via the PreToolUse JSON contract on stdout (exit 0), not exit 2.
+      // Claude Code and Codex honor this identical shape; Codex treats a
+      // non-zero exit as a hook *failure* and would let the command through.
+      const reason =
         "BLOCKED: Do not use destructive file deletion commands " +
-          "(rm, shred, unlink). Use the 'trash' CLI instead:\n" +
-          "  - trash file.txt\n" +
-          "  - trash directory/\n\n" +
-          "If trash is not installed:\n" +
-          "  - macOS: brew install trash\n" +
-          "  - Linux/npm: npm install -g trash-cli"
+        "(rm, shred, unlink). Use the 'trash' CLI instead:\n" +
+        "  - trash file.txt\n" +
+        "  - trash directory/\n\n" +
+        "If trash is not installed:\n" +
+        "  - macOS: brew install trash\n" +
+        "  - Linux/npm: npm install -g trash-cli";
+      console.log(
+        JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse",
+            permissionDecision: "deny",
+            permissionDecisionReason: reason,
+          },
+        })
       );
-      process.exit(2);
+      process.exit(0);
     }
 
     process.exit(0);

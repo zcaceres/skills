@@ -11,8 +11,11 @@ hooks:
 # safety-rm-rf-guard
 
 A PreToolUse hook that intercepts every `Bash` tool call, scans the command
-string for destructive deletion patterns, and blocks the call (exit code 2)
-with a message steering the agent to `trash` instead. Quoted strings are
+string for destructive deletion patterns, and blocks the call with a message
+steering the agent to `trash` instead. It blocks by printing a
+`permissionDecision: "deny"` JSON object on stdout and exiting 0 — the
+PreToolUse contract that both Claude Code and Codex honor (see
+[How it works](#how-it-works) and [Codex CLI](#codex-cli)). Quoted strings are
 stripped first so `echo 'rm foo'` and `git commit -m "rm old"` are unaffected.
 
 This is a **defense layer, not a guarantee.** A motivated adversary or a
@@ -59,7 +62,7 @@ gap for users who want every `rm` blocked regardless of which skill
 happens to be active.
 
 Verify it's wired up by running any Bash command in Claude Code (after a
-restart); the hook prints `BLOCKED: …` on stderr and exit-2s when it
+restart); the hook denies and surfaces a `BLOCKED: …` reason when it
 catches `rm`/`shred`/etc.
 
 ### Manual wiring (alternative)
@@ -85,6 +88,36 @@ unpacked skill's absolute path:
 
 On Windows, point at `scripts\\run.cmd` instead.
 
+### Codex CLI
+
+The same binary works on Codex CLI. Codex's hook engine delivers the same
+stdin JSON payload (`tool_input.command`) and honors the same `PreToolUse`
+`permissionDecision: "deny"` stdout contract this guard emits — so no rebuild
+or variant binary is needed. Codex does **not** read the `hooks:` frontmatter,
+so the install is manual.
+
+Add to `~/.codex/config.toml` (note the **top-level** `[[PreToolUse]]` table —
+not `[[hooks.PreToolUse]]`):
+
+```toml
+[[PreToolUse]]
+matcher = "Bash"
+
+[[PreToolUse.hooks]]
+type = "command"
+command = "/abs/path/to/safety-rm-rf-guard/scripts/run.sh"
+timeout = 30
+```
+
+After editing, run `/hooks` inside Codex to review and **trust** the new hook
+— Codex registers user-defined hooks as untrusted until you approve them.
+
+**Known limitation.** Codex's `PreToolUse` doesn't intercept every shell
+invocation yet — the newer `unified_exec` streaming path has incomplete
+coverage. The guard catches the common `Bash`-tool calls but is best-effort
+on Codex, not airtight. Pair it with sandboxing and backups as you would on
+Claude Code.
+
 ## Prerequisites
 
 The hook itself has no runtime dependencies (pre-built Bun binaries ship in
@@ -108,5 +141,8 @@ npm install -g trash-cli
    `tool_input.command`.
 4. Quoted substrings are stripped to remove false positives.
 5. The remaining string is matched against destructive patterns. If any
-   match, exit 2 with an explanatory message — Claude Code blocks the
-   tool call. Otherwise exit 0.
+   match, the binary prints a `PreToolUse` JSON object on stdout —
+   `{"hookSpecificOutput": {"hookEventName": "PreToolUse",
+   "permissionDecision": "deny", "permissionDecisionReason": "BLOCKED: …"}}`
+   — and exits 0, which both Claude Code and Codex read as "block this call
+   and show the reason." Otherwise it prints nothing and exits 0 (allow).

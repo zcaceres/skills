@@ -1,11 +1,13 @@
 # safety-rm-rf-guard
 
-PreToolUse hook for Claude Code that blocks destructive file deletion and
-redirects to the `trash` CLI. Pre-built binaries for macOS arm64, Linux x64,
-and Windows x64 ship in the published tarball.
+PreToolUse hook for Claude Code (and Codex CLI) that blocks destructive file
+deletion and redirects to the `trash` CLI. It blocks via the `permissionDecision:
+"deny"` stdout contract both agents honor. Pre-built binaries for macOS arm64,
+Linux x64, and Windows x64 ship in the published tarball.
 
 See [SKILL.md](./SKILL.md) for the full reference: blocked patterns, install
-script, manual wiring, and how it works.
+script, manual wiring, the [Codex CLI](./SKILL.md#codex-cli) setup, and how it
+works.
 
 ## Install
 

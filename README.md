@@ -42,6 +42,7 @@ npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s pr-size-nudge
+npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
@@ -98,6 +99,7 @@ whether the skill was installed at user scope or project scope.
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `pr-size-nudge` | **Hook.** Nudges toward `/stacked-pr checkpoint` when the uncommitted diff grows past size/file thresholds. |
+| `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `review-code` | **Slash command.** One skill for the full code-review pipeline: `/review-code` reviews the branch diff and reports findings (default), `repro` reproduces each finding to filter false positives, `fix` plans fixes, gates on approval, then applies and verifies. Supersedes `review-code-repro` and `review-code-fix`. |

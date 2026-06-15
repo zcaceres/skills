@@ -85,6 +85,10 @@
       "name": "@zcaceres/skill-quality-perf-review",
       "version": "0.0.0",
     },
+    "skills/quality-project-health": {
+      "name": "@zcaceres/skill-quality-project-health",
+      "version": "0.0.0",
+    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -252,6 +256,8 @@
     "@zcaceres/skill-quality-docs-update": ["@zcaceres/skill-quality-docs-update@workspace:skills/quality-docs-update"],
 
     "@zcaceres/skill-quality-perf-review": ["@zcaceres/skill-quality-perf-review@workspace:skills/quality-perf-review"],
+
+    "@zcaceres/skill-quality-project-health": ["@zcaceres/skill-quality-project-health@workspace:skills/quality-project-health"],
 
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 

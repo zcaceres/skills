@@ -25,19 +25,19 @@ Install one or more specific skills with `-s <name>`:
 
 ```bash
 npx skills add zcaceres/skills -s acid-trip
-npx skills add zcaceres/skills -s chaos-monkey
+npx skills add zcaceres/skills -s quality-chaos-monkey
 npx skills add zcaceres/skills -s checkpoint
 npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s clean-ai-slop
-npx skills add zcaceres/skills -s cli-agent-friendly-audit
-npx skills add zcaceres/skills -s code-cleanup-analyzer
+npx skills add zcaceres/skills -s quality-cli-agent-friendly-audit
+npx skills add zcaceres/skills -s quality-dead-code-analyzer
+npx skills add zcaceres/skills -s quality-perf-review
 npx skills add zcaceres/skills -s commit-push-pr
 npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s investigate-repo
-npx skills add zcaceres/skills -s perf-review
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s pr-size-nudge
 npx skills add zcaceres/skills -s record-gif
@@ -80,19 +80,19 @@ whether the skill was installed at user scope or project scope.
 | Skill | Description |
 |---|---|
 | `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
-| `chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
+| `quality-chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
 | `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `clean-ai-slop` | Diff the current branch against `main` and strip AI-generated slop — superfluous comments, defensive `try/catch`, `any`-casts, style inconsistent with the file. |
-| `cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
-| `code-cleanup-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
+| `quality-cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
+| `quality-dead-code-analyzer` | Find dead code, duplicates, and circular deps via knip/jscpd/madge (run on demand with npx/bunx). |
+| `quality-perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `commit-push-pr` | Commit, push, and open a PR (stack-aware). |
 | `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
-| `perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `pr-size-nudge` | **Hook.** Nudges toward `/stacked-pr checkpoint` when the uncommitted diff grows past size/file thresholds. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
@@ -151,4 +151,3 @@ spec). If they're fetched from elsewhere — a GitHub release, a build of a
 sibling repo — define a `fetch-tools` npm script in the skill's
 `package.json`; the build pipeline runs it before packaging. Fetched
 binaries land in `scripts/bin/` and are gitignored.
-

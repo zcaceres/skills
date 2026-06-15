@@ -1,4 +1,4 @@
-# perf-review
+# quality-perf-review
 
 Analyze a full-stack web application for evidence-based performance bottlenecks
 
@@ -12,5 +12,5 @@ Analyze a full-stack web application for evidence-based performance bottlenecks
 ## Install
 
 ```
-npx skills add zcaceres/skills -s perf-review
+npx skills add zcaceres/skills -s quality-perf-review
 ```

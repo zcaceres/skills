@@ -1,5 +1,5 @@
 {
-  "name": "@zcaceres/skill-code-cleanup-analyzer",
+  "name": "@zcaceres/skill-quality-dead-code-analyzer",
   "version": "0.0.0",
   "description": "Analyze a codebase for dead code, duplicates, and circular dependencies using knip, jscpd, and madge, then validate findings to filter false positives. Use when user says 'analyze code', 'find dead code', 'code cleanup', 'find duplicates', 'unused exports', or 'static analysis'.",
   "license": "MIT",

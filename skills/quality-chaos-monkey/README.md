@@ -1,4 +1,4 @@
-# chaos-monkey
+# quality-chaos-monkey
 
 Claude Code skill for systematically tracing every code path in a focus
 area, applying 10 chaos categories (boundary inputs, state consistency,
@@ -18,12 +18,7 @@ report format.
 ## Install
 
 ```sh
-npx skills add zcaceres/skills -s chaos-monkey
+npx skills add zcaceres/skills -s quality-chaos-monkey
 ```
 
 This is a pure-markdown skill — no binaries, no install-time side effects.
-
-## Origin
-
-Ported from the user's local `~/.claude/skills/chaos-monkey/` into this
-monorepo. Body preserved verbatim.

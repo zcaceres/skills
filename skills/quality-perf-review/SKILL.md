@@ -1,6 +1,6 @@
 ---
-name: perf-review
-description: Analyze a codebase for performance bottlenecks in full-stack web applications. Use when user says "perf review", "performance review", "find bottlenecks", "optimize performance", "slow code", "performance audit", or "why is my app slow". Interactive workflow that discusses each finding before moving on.
+name: quality-perf-review
+description: Analyze a codebase for performance bottlenecks in full-stack web applications. Use when user says "quality-perf-review", "perf review", "performance review", "find bottlenecks", "optimize performance", "slow code", "performance audit", or "why is my app slow". Interactive workflow that discusses each finding before moving on.
 ---
 
 # Performance Review Skill

@@ -14,20 +14,12 @@
       "name": "@zcaceres/skill-acid-trip",
       "version": "1.0.0",
     },
-    "skills/chaos-monkey": {
-      "name": "@zcaceres/skill-chaos-monkey",
-      "version": "1.0.0",
-    },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
       "version": "1.0.0",
     },
     "skills/cleanup-computer": {
       "name": "@zcaceres/skill-cleanup-computer",
-      "version": "0.0.0",
-    },
-    "skills/code-cleanup-analyzer": {
-      "name": "@zcaceres/skill-code-cleanup-analyzer",
       "version": "0.0.0",
     },
     "skills/commit-push-pr": {
@@ -70,16 +62,24 @@
       "name": "@zcaceres/skill-optimize-skill-activation",
       "version": "0.0.0",
     },
-    "skills/perf-review": {
-      "name": "@zcaceres/skill-perf-review",
-      "version": "0.0.0",
-    },
     "skills/pr-size-nudge": {
       "name": "@zcaceres/skill-pr-size-nudge",
       "version": "1.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
+    },
+    "skills/quality-chaos-monkey": {
+      "name": "@zcaceres/skill-quality-chaos-monkey",
+      "version": "1.0.0",
+    },
+    "skills/quality-dead-code-analyzer": {
+      "name": "@zcaceres/skill-quality-dead-code-analyzer",
+      "version": "0.0.0",
+    },
+    "skills/quality-perf-review": {
+      "name": "@zcaceres/skill-quality-perf-review",
+      "version": "0.0.0",
     },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
@@ -215,13 +215,9 @@
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
 
-    "@zcaceres/skill-chaos-monkey": ["@zcaceres/skill-chaos-monkey@workspace:skills/chaos-monkey"],
-
     "@zcaceres/skill-clean-ai-slop": ["@zcaceres/skill-clean-ai-slop@workspace:skills/clean-ai-slop"],
 
     "@zcaceres/skill-cleanup-computer": ["@zcaceres/skill-cleanup-computer@workspace:skills/cleanup-computer"],
-
-    "@zcaceres/skill-code-cleanup-analyzer": ["@zcaceres/skill-code-cleanup-analyzer@workspace:skills/code-cleanup-analyzer"],
 
     "@zcaceres/skill-commit-push-pr": ["@zcaceres/skill-commit-push-pr@workspace:skills/commit-push-pr"],
 
@@ -243,9 +239,13 @@
 
     "@zcaceres/skill-optimize-skill-activation": ["@zcaceres/skill-optimize-skill-activation@workspace:skills/optimize-skill-activation"],
 
-    "@zcaceres/skill-perf-review": ["@zcaceres/skill-perf-review@workspace:skills/perf-review"],
-
     "@zcaceres/skill-pr-size-nudge": ["@zcaceres/skill-pr-size-nudge@workspace:skills/pr-size-nudge"],
+
+    "@zcaceres/skill-quality-chaos-monkey": ["@zcaceres/skill-quality-chaos-monkey@workspace:skills/quality-chaos-monkey"],
+
+    "@zcaceres/skill-quality-dead-code-analyzer": ["@zcaceres/skill-quality-dead-code-analyzer@workspace:skills/quality-dead-code-analyzer"],
+
+    "@zcaceres/skill-quality-perf-review": ["@zcaceres/skill-quality-perf-review@workspace:skills/quality-perf-review"],
 
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 

@@ -1,9 +1,9 @@
 ---
-name: cli-agent-friendly-audit
-description: Audit a CLI tool against the agent-friendliness checklist from Zbigniew Sobiecki's "Building Agent-Friendly CLIs". Use when the user says "cli-agent-friendly-audit", "audit this cli", "is my cli agent-friendly", or asks to check a CLI for agent ergonomics.
+name: quality-cli-agent-friendly-audit
+description: Audit a CLI tool against the agent-friendliness checklist from Zbigniew Sobiecki's "Building Agent-Friendly CLIs". Use when the user says "quality-cli-agent-friendly-audit", "cli-agent-friendly-audit", "audit this cli", "is my cli agent-friendly", or asks to check a CLI for agent ergonomics.
 ---
 
-# cli-agent-friendly-audit
+# quality-cli-agent-friendly-audit
 
 Walk through a checklist of properties that make a CLI smooth for AI agents to use. Based on Zbigniew Sobiecki's "Building Agent-Friendly CLIs" (https://zbigniew.me/writing/building-agent-friendly-clis/).
 

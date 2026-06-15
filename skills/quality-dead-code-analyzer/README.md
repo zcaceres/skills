@@ -1,4 +1,4 @@
-# code-cleanup-analyzer
+# quality-dead-code-analyzer
 
 Analyze a codebase for dead code, duplicates, and circular dependencies using knip, jscpd, and madge, then validate findings to filter false positives. Use when user says 'analyze code', 'find dead code', 'code cleanup', 'find duplicates', 'unused exports', or 'static analysis'.
 
@@ -12,5 +12,5 @@ Analyze a codebase for dead code, duplicates, and circular dependencies using kn
 ## Install
 
 ```
-npx skills add zcaceres/skills -s code-cleanup-analyzer
+npx skills add zcaceres/skills -s quality-dead-code-analyzer
 ```

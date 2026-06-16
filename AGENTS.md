@@ -35,3 +35,16 @@ Card workflow (all via the `/gh-project` skill):
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.
+
+## Plugin marketplace (generated)
+
+`plugins/` and `.claude-plugin/marketplace.json` package prefix-grouped skills
+(currently `security-*` and `quality-*`) as a Claude Code plugin marketplace, so
+a group installs at once and its skills are namespaced (`/security:openssf`, …).
+These are **generated from `skills/`** by `bun run build:plugins` — never
+hand-edit the copies under `plugins/`. Edit the originals in
+`skills/<group>-<name>/`, re-run the build, and commit; CI fails if the
+generated tree drifts. See `scripts/build-plugins.ts` for the transforms
+(prefix-stripping, `${CLAUDE_PLUGIN_ROOT}` path rewrites, `hooks:` lifting, and
+`<!-- plugin:omit -->` regions). `safety-*` is deferred — its guards run a
+compiled binary a file-copy marketplace can't ship.

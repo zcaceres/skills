@@ -17,4 +17,13 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run check
+      - name: Generated plugins are in sync with skills/
+        run: |
+          bun run build:plugins
+          if [ -n "$(git status --porcelain -- plugins .claude-plugin)" ]; then
+            echo "::error::plugins/ and .claude-plugin/ are stale. Run 'bun run build:plugins' and commit the result."
+            git status --porcelain -- plugins .claude-plugin
+            git diff -- plugins .claude-plugin
+            exit 1
+          fi
       - run: bun test

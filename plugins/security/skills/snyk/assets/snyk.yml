@@ -1,0 +1,44 @@
+# Snyk Code (SAST) scan — installed via /security-snyk.
+#
+# This workflow is OPTIONAL. The Snyk GitHub App already runs "PR Checks"
+# on every PR for DEPENDENCY CVEs with no config required. This file adds
+# `snyk code test` (SAST) on top, which the App's free tier does NOT cover.
+#
+# Trade-off: each run consumes one of your ~100-200 monthly Snyk Code tests
+# on the free tier. If your PR volume is high, gate this on relevant paths
+# only — e.g. add `paths:` under `on.pull_request:` to skip docs-only PRs.
+#
+# Requires the SNYK_TOKEN secret. See /security-snyk Phase 4 for how to
+# create the token and `gh secret set` it.
+
+name: snyk-code
+
+on:
+  push:
+    branches: [__DEFAULT_BRANCH__]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sast:
+    runs-on: ubuntu-latest
+    env:
+      SNYK_CLI_VERSION: "__SNYK_CLI_VERSION__"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Install Snyk CLI
+        run: |
+          set -euo pipefail
+          npm install -g "snyk@${SNYK_CLI_VERSION}"
+          snyk --version
+
+      - name: Snyk Code (SAST)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        # --severity-threshold=high keeps the workflow signal-to-noise high.
+        # Drop to medium/low if the user wants tighter coverage.
+        run: snyk code test --severity-threshold=high

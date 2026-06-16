@@ -7,6 +7,7 @@
   "scripts": {
     "new": "bun run scripts/new-skill.ts",
     "build": "bun run scripts/build-skill.ts",
+    "build:plugins": "bun run scripts/build-plugins.ts",
     "release": "bun run scripts/release-skill.ts",
     "changeset": "bunx @changesets/cli",
     "version": "bunx @changesets/cli version",

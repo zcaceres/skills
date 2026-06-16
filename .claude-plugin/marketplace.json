@@ -1,0 +1,19 @@
+{
+  "name": "zcaceres-skills",
+  "description": "Zach Caceres' open-source AI agent skills, packaged as installable Claude Code plugins.",
+  "owner": {
+    "name": "Zach Caceres"
+  },
+  "plugins": [
+    {
+      "name": "security",
+      "source": "./plugins/security",
+      "description": "Repo + endpoint security setup: OpenSSF Scorecard, gitleaks, Snyk, Socket, and the bumblebee endpoint scanner. User-triggered via /security:<tool>."
+    },
+    {
+      "name": "quality",
+      "source": "./plugins/quality",
+      "description": "Code-quality analysis: chaos-monkey bug hunting, dead-code/duplication detection, perf review, docs audits, CLI agent-friendliness, and project-health scoring."
+    }
+  ]
+}

@@ -76,6 +76,24 @@ skill's `SKILL.md` for `--project` / `--target` flags and manual wiring
 as an alternative. The script self-locates, so the same command works
 whether the skill was installed at user scope or project scope.
 
+## Install as a Claude Code plugin
+
+The prefix-grouped skills are also bundled as [Claude Code plugins](https://code.claude.com/docs/en/plugins)
+in a marketplace, so a whole group installs at once and its skills are
+namespaced under the group name:
+
+```shell
+/plugin marketplace add zcaceres/skills
+/plugin install security@zcaceres-skills   # then /security:openssf, /security:gitleaks, …
+/plugin install quality@zcaceres-skills    # /quality:chaos-monkey, /quality:perf-review, …
+```
+
+Same skills as `npx skills add`, grouped and namespaced. The plugin tree under
+`plugins/` and the catalog at `.claude-plugin/marketplace.json` are **generated**
+from `skills/` — see [Workflow](#workflow). The `safety-*` guards aren't bundled
+yet: their hooks run a compiled binary that a file-copy marketplace can't ship
+(see the deferral note in `scripts/build-plugins.ts`).
+
 ## Skills
 
 | Skill | Description |
@@ -121,7 +139,13 @@ skills/
 │   ├── package.json        # monorepo plumbing: workspace, version, scripts
 │   └── README.md
 ├── _template/              # scaffold copied by `bun run new`
-├── scripts/                # new-skill, build-skill, release-skill, check
+├── scripts/                # new-skill, build-skill, build-plugins, release-skill, check
+├── plugins/<group>/        # GENERATED Claude Code plugins (bun run build:plugins)
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/<name>/SKILL.md
+│   └── hooks/hooks.json    # only if a group's skills declare `hooks:`
+├── .claude-plugin/
+│   └── marketplace.json    # GENERATED catalog of the plugins above
 └── .changeset/             # per-skill versioning
 ```
 
@@ -133,10 +157,22 @@ bun install                                  # link workspaces
 bun run new my-skill "One-line description"  # scaffold from _template
 bun run check                                # validate all skills
 bun run build my-skill                       # build to skills/my-skill/dist/my-skill
+bun run build:plugins                        # regenerate plugins/ + marketplace.json from skills/
 bun run changeset                            # record a version bump
 bun run version                              # apply changesets to package.json
 bun run release my-skill                     # tag + GH release (CI mirrors)
 ```
+
+`plugins/` and `.claude-plugin/marketplace.json` are generated **and committed**
+(a git-hosted marketplace must contain the plugin files). Edit skills under
+`skills/`, never the copies under `plugins/`; re-run `bun run build:plugins` and
+commit — CI fails if they drift. Skills are grouped into plugins by name prefix
+(`security-*` → `security`, etc.); the generator strips the prefix, repoints
+script/hook paths at `${CLAUDE_PLUGIN_ROOT}`, and lifts `hooks:` frontmatter into
+the plugin's `hooks/hooks.json`. To keep skills.sh-only prose (e.g. an
+`install.sh` walkthrough) out of the plugin copy, wrap it in
+`<!-- plugin:omit -->…<!-- /plugin:omit -->` in the source `SKILL.md` — markdown
+ignores the comments; the generator drops the region.
 
 Run once per clone to activate the gitleaks pre-commit hook (blocks commits
 containing secrets — requires `brew install gitleaks`):

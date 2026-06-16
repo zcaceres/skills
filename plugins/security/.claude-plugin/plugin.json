@@ -1,0 +1,11 @@
+{
+  "name": "security",
+  "description": "Repo + endpoint security setup: OpenSSF Scorecard, gitleaks, Snyk, Socket, and the bumblebee endpoint scanner. User-triggered via /security:<tool>.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Zach Caceres"
+  },
+  "homepage": "https://github.com/zcaceres/skills",
+  "repository": "https://github.com/zcaceres/skills",
+  "license": "MIT"
+}

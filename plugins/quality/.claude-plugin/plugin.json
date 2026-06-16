@@ -1,0 +1,11 @@
+{
+  "name": "quality",
+  "description": "Code-quality analysis: chaos-monkey bug hunting, dead-code/duplication detection, perf review, docs audits, CLI agent-friendliness, and project-health scoring.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Zach Caceres"
+  },
+  "homepage": "https://github.com/zcaceres/skills",
+  "repository": "https://github.com/zcaceres/skills",
+  "license": "MIT"
+}

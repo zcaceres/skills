@@ -187,6 +187,10 @@ Triggered when the user signals approval (build it / go / ship it / yes).
    >
    > "Yes — there's an italic explainer paragraph at the top of the header: *'A complete six-card record of a small Anglican diocese...'* — that's the meta-caption cliché."
    >
+   > "Yes — every panel has a tracked-out caps eyebrow above its title (PANEL 01 / PANEL 02 …) and the hero has a 'PRESENTING' kicker over the headline. That's the eyebrow/kicker cliché, repeated."
+   >
+   > "Yes — each card carries a top strip (category tag + date) and a bottom strip ('read more →' + a share row). That's CMS header/footer chrome wrapped around content that doesn't need it."
+   >
    > "Yes — the provenance stamp at the bottom is a centered mono code block taking ~140px of vertical space. It's reading as a design element rather than a credit."
 
    The LLM tendency is to glaze past its own work and declare it clean. Don't. Look at the screenshot like a stranger would. Most first-pass builds violate ≥3 items because the clichés ride in via muscle memory under fancy lineage skins.
@@ -195,6 +199,8 @@ Triggered when the user signals approval (build it / go / ship it / yes).
    - Three-box stat strip → embed values in flowing copy, oversize one and inline the others as type, run them vertically up the edge with no boxes, or fuse them with the headline.
    - Label / value / description triad → drop the label, drop the description, or fuse the value into prose.
    - Italic explainer paragraph → delete it. The page is the page.
+   - Eyebrow / kicker label above a headline → delete it, or fuse it into the headline (oversize the first word, fold the kicker into the title line). Above an image → drop it; let the image stand.
+   - Over-stuffed element header/footer → strip to what the real object physically has. Move a date into the prose, drop the share/save row, delete the category tag. Often the right header and footer are *nothing*.
    - Cards-within-cards bento → rebuild each card around the document_type's *native* anatomy. A real trading card has a portrait, a name, a stats plate, and a prose biography — not a marketing-card header/photo/table/paragraph/footer.
    - Prominent provenance code block → shrink to a single line of fine print in a corner.
 
@@ -321,8 +327,10 @@ The document_type axis prevents SaaS landing-page anatomy at the *page* level. B
 - ❌ **Italic "explainer" paragraphs near the top.** "A complete six-card record of a small Anglican diocese…" — that meta-caption explaining what the page is to the viewer is the AI-design impulse to be helpful. Real lab notebooks don't explain themselves. Real Stenberg posters don't apologize. Real trading card sheets don't preview their contents. **The page is the page.**
 - ❌ **Cards-within-cards bento.** A 3×2 grid where each cell has a top-color-band header, image, label/value table, body paragraph, and footer is a SaaS feature-card anatomy repeated six times — even if the *container* is framed as a "trading card sheet" or "lineup poster." If the rolled document_type encodes repeated units (a card grid, a lineup), the *inside* of each unit must follow that document's native anatomy, NOT marketing-card anatomy.
 - ❌ **Prominent provenance stamps styled as code blocks.** A multi-line `<!-- ACID TRIP ... -->` comment block laid out as a centered design element is the indie-tech "look at me, I'm a code artifact" cliché (val.town, Linear, Vercel landing pages). The stamp must exist for reproducibility, but it should sit small, in a corner, in fine print — not as a graphic element.
+- ❌ **Eyebrow / kicker labels above headlines and images.** The tiny tracked-out caps or mono label floating above the big headline — "FEATURED," "SECTION 01," "— THE COLLECTION —," "INTRODUCING," "WELCOME TO" — is the AI-design tic of announcing a thing before showing it. The same reflex hovers a label over every image (a "FIG. 1 ·" or a category tag stamped on each picture). Real posters, labels, and manuscripts do not pre-announce their own headlines. Let the headline land cold, or fuse the kicker *into* it (oversize the first word, run it as part of the title) rather than stacking a redundant little label on top.
+- ❌ **Over-stuffed element headers and footers.** Every card, panel, and section sprouting a top strip (category · tag · timestamp · icon) and a bottom strip ("read more →" · author · date · a save/share/print row) is the blog/CMS chrome reflex — metadata bars wrapped around content that doesn't need them. The document_type dictates what chrome an element actually carries: a recipe card has a title and an ingredient list, not a byline-and-timestamp header plus a three-action footer. Strip each element's header and footer down to what the real physical object would have — usually far less, often nothing.
 
-The pattern: AI design's structural reflex is "split content into small uniform boxes, label them, and stack them." Acid-trip designs must resist this reflex *inside* the rolled document, not just at the page level. A festival poster has type scattered at angles and varied sizes; it does not have a metrics row. A notebook page has flowing handwritten annotations; it does not have feature cards. A trading card has prose biography and an info plate; it does not have a label-value-description triad sub-grid.
+The pattern: AI design's structural reflex is "split content into small uniform boxes, label them, wrap each in announcement-and-metadata chrome, and stack them." Acid-trip designs must resist this reflex *inside* the rolled document, not just at the page level. A festival poster has type scattered at angles and varied sizes; it does not have a metrics row or a "PRESENTING" eyebrow. A notebook page has flowing handwritten annotations; it does not have feature cards with timestamp footers. A trading card has prose biography and an info plate; it does not have a label-value-description triad sub-grid wrapped in a category header.
 
 If unsure: ask whether a real historical instance of the rolled document_type would have this layout move. If a 1925 Stenberg poster wouldn't have three side-by-side stat boxes, neither does the acid-trip version.
 

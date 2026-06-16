@@ -45,7 +45,17 @@ Then, in order:
 
 2. **Pieces** — a numbered list. Each entry: a bold name, a dash, a one-line description of what the piece covers or is responsible for.
 
-3. **How they connect** — a short bullet list of the relationships that matter: which pieces depend on which, what the critical path is, which pieces are independent and can be thought about (or deferred) separately, and which single piece constrains the others most.
+3. **Map** — a small ASCII diagram of the pieces as nodes and their dependencies as arrows, when it clarifies the shape. Label each node with the piece's number and name so it cross-references the list above; optionally label an arrow with what flows across it (data, control, a constraint). Keep it compact. For example:
+
+   ```
+   1. Ingest ──raw──▶ 2. Parser ──▶ 4. Store
+                          │
+                          └──▶ 3. Schema (constrains 2)
+   ```
+
+   Skip the diagram — or collapse it to a one-line chain like `1 → 2 → 3` — when the structure is a trivial straight line or there are only two or three pieces. A box-and-arrow drawing of a linear pipeline is noise. Never invent edges to make the picture look busier than the problem actually is.
+
+4. **How they connect** — a short bullet list of the relationships the diagram can't carry on its own: what the critical path is, which pieces are independent and can be thought about (or deferred) separately, and which single piece constrains the others most.
 
 ## What NOT to do
 

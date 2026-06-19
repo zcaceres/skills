@@ -19,4 +19,12 @@ run_mode = "concurrent"
 
 # On archive, drop only regenerable, gitignored build output to reclaim disk.
 # Nothing tracked is touched; `bun install` / `bun run build` recreate it.
-archive = "rm -rf node_modules skills/*/dist skills/*/scripts/bin"
+# Uses `find` rather than `skills/*/dist` globs: in a fresh workspace nothing is
+# built, so the globs match nothing and zsh aborts the whole line with
+# "no matches found: skills/*/dist" before rm ever runs. `find` matches zero
+# dirs cleanly and behaves identically in zsh and bash.
+archive = '''
+rm -rf node_modules
+find skills -type d -name dist -prune -exec rm -rf {} +
+find skills -type d -path '*/scripts/bin' -prune -exec rm -rf {} +
+'''

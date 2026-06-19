@@ -28,7 +28,6 @@ Install one or more specific skills with `-s <name>`:
 ```bash
 npx skills add zcaceres/skills -s acid-trip
 npx skills add zcaceres/skills -s quality-chaos-monkey
-npx skills add zcaceres/skills -s checkpoint
 npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s clean-ai-slop
 npx skills add zcaceres/skills -s quality-cli-agent-friendly-audit
@@ -36,19 +35,29 @@ npx skills add zcaceres/skills -s quality-dead-code-analyzer
 npx skills add zcaceres/skills -s quality-perf-review
 npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
+npx skills add zcaceres/skills -s quality-docs-update
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
+npx skills add zcaceres/skills -s gh-project
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
+npx skills add zcaceres/skills -s optimize-skill-activation
 npx skills add zcaceres/skills -s pr
+npx skills add zcaceres/skills -s stacked-pr-gemini
 npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
+npx skills add zcaceres/skills -s nano-banana-generator
 npx skills add zcaceres/skills -s reflect-on-conversation
 npx skills add zcaceres/skills -s review-code
 npx skills add zcaceres/skills -s safety-dotenv-guard
 npx skills add zcaceres/skills -s safety-git-reset-guard
 npx skills add zcaceres/skills -s safety-op-creds
 npx skills add zcaceres/skills -s safety-rm-rf-guard
+npx skills add zcaceres/skills -s security-bumblebee
+npx skills add zcaceres/skills -s security-gitleaks
+npx skills add zcaceres/skills -s security-openssf
+npx skills add zcaceres/skills -s security-snyk
+npx skills add zcaceres/skills -s security-socket
 npx skills add zcaceres/skills -s storage-cleanup
 npx skills add zcaceres/skills -s transcribe-youtube
 npx skills add zcaceres/skills -s trip-planner
@@ -100,7 +109,6 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 |---|---|
 | `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
 | `quality-chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
-| `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `clean-ai-slop` | Diff the current branch against `main` and strip AI-generated slop — superfluous comments, defensive `try/catch`, `any`-casts, style inconsistent with the file. |
 | `quality-cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
@@ -111,17 +119,26 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
+| `gh-project` | **Slash command.** Manage the repo's GitHub Projects kanban board with one skill — `setup`, `next`, `new-task`, `update`, `review`, `decompose`, `delete` subcommands. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
+| `optimize-skill-activation` | Right-size each installed skill's activation mode — slash-only, model-invocable, or eager-loaded — then rewrite its `SKILL.md` frontmatter. |
 | `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the PostToolUse diff-size nudge. |
+| `stacked-pr-gemini` | **Hook + slash command.** Stacked-PR workflow tuned for Gemini CLI (`checkpoint`, `update`, `submit`, `log`, `sync`, `merge`); uses `git stack` when present, falls back to `gh` + `git`. |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
+| `nano-banana-generator` | Generate one-off graphic assets (logos, icons, illustrations, UI elements) via Google's Nano Banana / Gemini image generation. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
 | `review-code` | **Slash command.** One skill for the full code-review pipeline: `/review-code` reviews the branch diff and reports findings (default), `repro` reproduces each finding to filter false positives, `fix` plans fixes, gates on approval, then applies and verifies. Supersedes `review-code-repro` and `review-code-fix`. |
 | `safety-dotenv-guard` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |
 | `safety-rm-rf-guard` | **Hook.** Blocks `rm`, `shred`, `unlink`, `find -delete`, and sudo/xargs/subshell variants. |
+| `security-bumblebee` | **Slash command.** Run Perplexity's bumblebee endpoint scanner for supply-chain exposure checks; `setup` baselines and schedules scans, `review` reads the latest and surfaces drift. |
+| `security-gitleaks` | **Slash command.** Set up gitleaks secret-scanning — scans history first, then scaffolds `.gitleaks.toml`, a pre-commit hook, and a pinned CI workflow. |
+| `security-openssf` | **Slash command.** Scaffold OpenSSF Scorecard CI on a public repo with a safe two-phase rollout; `fix` turns a report into a remediation plan. Public repos only. |
+| `security-snyk` | **Slash command.** Walk through the Snyk GitHub App install (login → install → add project) and verify it landed; optionally scaffold a pinned `snyk code test` CI workflow. |
+| `security-socket` | **Slash command.** Walk through the Socket Security (socket.dev) GitHub App OAuth install and verify it landed; optionally scaffold a pinned CI status-check workflow. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |

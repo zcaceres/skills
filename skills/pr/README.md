@@ -21,7 +21,8 @@ if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 
 ## Modes
 
-`/pr` with no subcommand does the everyday action for the active mode:
+`/pr` with no subcommand — or `/pr commit [message]` — does the everyday
+action for the active mode:
 
 - **normal** → commit + push + open/update a single PR against the trunk.
 - **stacked** → checkpoint: cut the current diff as the next stacked
@@ -34,6 +35,7 @@ one; unset means normal). Named subcommands below work in either mode.
 
 | Subcommand | What it does |
 |---|---|
+| `commit [message]` | Mode-aware alias for the default action — `update` in normal mode, `checkpoint` in stacked mode. Same as bare `/pr`. |
 | `setup` | Show the current mode and switch between `normal` and `stacked` (writes `git config pr.mode`, global by default). |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). Doesn't change an existing PR's base. The normal-mode default. |
 | `log` | Read-only. In normal mode show the current branch's PR; in stacked mode print the stack tree. |

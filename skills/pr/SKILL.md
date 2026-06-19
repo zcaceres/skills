@@ -1,7 +1,7 @@
 ---
 name: pr
 description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a PostToolUse hook that nudges toward /pr when the uncommitted diff grows large. Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
-argument-hint: "[setup | update | log | merge | checkpoint | submit | sync] [args]"
+argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [args]"
 disable-model-invocation: true
 hooks:
   PostToolUse:
@@ -50,6 +50,7 @@ either mode — the user asked for it by name, so honor it.
 
 | Subcommand | Reference | What it does |
 |---|---|---|
+| `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
 | `setup` | [references/setup.md](references/setup.md) | Show the current mode and switch between `normal` and `stacked` (writes `git config pr.mode`, global by default). |
 | `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
 | `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
@@ -105,19 +106,26 @@ the first whitespace-separated token of `$ARGUMENTS`:
 4. **First token starts with `-`** (e.g. `--help`, `-h`) → print this
    subcommand list and stop.
 
-5. **First token is anything else, OR `$ARGUMENTS` is empty** → this is
-   the **default action**, which depends on the mode:
+5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
+   this is the **default action**, which depends on the mode:
 
    - **normal mode** → read [references/update.md](references/update.md)
-     and follow it. The full `$ARGUMENTS` string (if any) seeds the
-     commit message / PR title. This commits your conversation changes,
-     pushes, and opens (or updates) a single PR against the trunk.
+     and follow it. This commits your conversation changes, pushes, and
+     opens (or updates) a single PR against the trunk.
 
    - **stacked mode** → read [references/checkpoint.md](references/checkpoint.md)
-     and follow it with the *full* `$ARGUMENTS` as the slice description.
+     and follow it, using the message as the slice description.
 
-   So in normal mode `/pr` ≡ `/pr update`, and in stacked mode `/pr` ≡
-   `/pr checkpoint` — no need to type the keyword for the everyday action.
+   `commit` is an explicit, mode-aware alias for this default action — it
+   is **not** hard-wired to `checkpoint`, so it never forces stacked
+   behavior on a normal-mode user. When the first token is literally
+   `commit`, strip it and pass the *remaining* `$ARGUMENTS` as the commit
+   message / slice description. For any other non-keyword first token, the
+   *full* `$ARGUMENTS` string seeds the commit message / PR title.
+
+   So in normal mode `/pr` ≡ `/pr commit` ≡ `/pr update`, and in stacked
+   mode `/pr` ≡ `/pr commit` ≡ `/pr checkpoint` — no need to type the
+   keyword for the everyday action.
 
 If the agent is unsure which mode the user wants — e.g. the first token
 is ambiguous between a subcommand and a description — ask the user before

@@ -28,7 +28,6 @@ Install one or more specific skills with `-s <name>`:
 ```bash
 npx skills add zcaceres/skills -s acid-trip
 npx skills add zcaceres/skills -s quality-chaos-monkey
-npx skills add zcaceres/skills -s checkpoint
 npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s clean-ai-slop
 npx skills add zcaceres/skills -s quality-cli-agent-friendly-audit
@@ -38,6 +37,7 @@ npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
+npx skills add zcaceres/skills -s gh-project
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s pr
@@ -100,7 +100,6 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 |---|---|
 | `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
 | `quality-chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
-| `checkpoint` | Commit current diff as the next stacked PR against the parent branch. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `clean-ai-slop` | Diff the current branch against `main` and strip AI-generated slop — superfluous comments, defensive `try/catch`, `any`-casts, style inconsistent with the file. |
 | `quality-cli-agent-friendly-audit` | Audit a CLI tool against the agent-friendliness checklist for agent ergonomics. |
@@ -111,6 +110,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
+| `gh-project` | Manage a repo's GitHub Projects kanban board as one skill: bootstrap (setup), pick the next card (next), create/edit/decompose/delete cards, audit board vs codebase (review), and batch create/update/delete many cards at once. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the PostToolUse diff-size nudge. |

@@ -18,6 +18,7 @@ Board access goes through `.github/scripts/gh-project-board.sh`:
 
 - `list [--query <q>] [--include-body]` — compact JSONL of all items
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector
+- `find-many <selector> [<selector> …]` — resolve many selectors in one fetch
 - `get <item-id>` — full row with body
 - `set-status <item-id> <status-name>` — move card between columns
 
@@ -32,6 +33,7 @@ Card workflow (all via the `/gh-project` skill):
 - Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
 - Audit:     `/gh-project review` (board vs codebase)
 - Delete:    `/gh-project delete [id|number|title]`
+- Batch:     `/gh-project batch <create|update|delete>` (same op across many cards at once)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

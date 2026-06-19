@@ -15,6 +15,10 @@
 #                                          exits non-zero on truncation.
 #   find <selector>                       Resolve PVTI_… / issue# / title-substring.
 #                                          Outputs zero or more JSONL rows.
+#   find-many <selector> [<selector>…]    Resolve many selectors against ONE
+#                                          board fetch. One JSONL row per
+#                                          selector: {selector, matchCount,
+#                                          matches:[…]}. For batch operations.
 #   get  <item-id>                        Full row for one item, body included.
 #   set-status <item-id> <status-name>    Move card to a Status column.
 #                                          Looks up field+option ids from config.
@@ -90,12 +94,12 @@ cmd_list() {
   printf '%s' "$raw" | jq -c "$jq_filter"
 }
 
-cmd_find() {
-  [[ $# -ge 1 ]] || die "usage: find <PVTI_… | issue-number | title-substring>"
-  local selector="$1"
-  local rows
-  rows=$(cmd_list)
-
+# Match one selector against pre-fetched board rows (JSONL passed as $1).
+# Auto-detects PVTI_… (item id) / all-digits (issue number) / else title
+# substring (case-insensitive). Emits zero or more matching JSONL rows.
+# Shared by `find` (one selector) and `find-many` (many selectors, one fetch).
+match_selector() {
+  local rows="$1" selector="$2"
   if [[ "$selector" =~ ^PVTI_ ]]; then
     printf '%s\n' "$rows" | jq -c --arg id "$selector" 'select(.id == $id)'
   elif [[ "$selector" =~ ^[0-9]+$ ]]; then
@@ -105,6 +109,29 @@ cmd_find() {
     needle=$(printf '%s' "$selector" | tr '[:upper:]' '[:lower:]')
     printf '%s\n' "$rows" | jq -c --arg q "$needle" 'select(.title | ascii_downcase | contains($q))'
   fi
+}
+
+cmd_find() {
+  [[ $# -ge 1 ]] || die "usage: find <PVTI_… | issue-number | title-substring>"
+  local rows
+  rows=$(cmd_list)
+  match_selector "$rows" "$1"
+}
+
+cmd_find_many() {
+  [[ $# -ge 1 ]] || die "usage: find-many <selector> [<selector> …]"
+  # Fetch the board ONCE, then resolve every selector against it. Looping
+  # `find` would re-fetch the whole board per selector — O(n) API calls for
+  # what should be one. Each output row pairs the selector with its matches
+  # so the caller can spot 0-match (skip) and >1-match (ambiguous) cases.
+  local rows
+  rows=$(cmd_list)
+  local selector matches
+  for selector in "$@"; do
+    matches=$(match_selector "$rows" "$selector")
+    printf '%s\n' "$matches" | jq -s -c --arg sel "$selector" \
+      '{selector: $sel, matchCount: length, matches: .}'
+  done
 }
 
 cmd_get() {
@@ -136,12 +163,17 @@ usage() {
 Usage:
   gh-project-board.sh list [--query <q>] [--include-body]
   gh-project-board.sh find <PVTI_… | issue-number | title-substring>
+  gh-project-board.sh find-many <selector> [<selector> …]
   gh-project-board.sh get  <item-id>
   gh-project-board.sh set-status <item-id> <status-name>
 
 Reads .github/gh-project.json for project number, owner, status field id,
 and status option ids. All output is compact JSONL on stdout; errors and
 truncation warnings go to stderr with non-zero exit.
+
+find-many resolves every selector against a single board fetch and emits one
+row per selector — {selector, matchCount, matches:[…]} — so batch callers can
+spot unresolved (matchCount 0) and ambiguous (matchCount > 1) selectors.
 EOF
 }
 
@@ -151,6 +183,7 @@ main() {
   case "$cmd" in
     list)        cmd_list "$@" ;;
     find)        cmd_find "$@" ;;
+    find-many)   cmd_find_many "$@" ;;
     get)         cmd_get  "$@" ;;
     set-status)  cmd_set_status "$@" ;;
     -h|--help)   usage ;;

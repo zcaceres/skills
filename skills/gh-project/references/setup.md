@@ -175,6 +175,7 @@ The first call should print usage. The second should emit JSONL rows (or nothing
 
 - `list [--query <q>] [--include-body]` — all items as JSONL, with completeness check
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector to matching rows
+- `find-many <selector> [<selector> …]` — resolve many selectors against one board fetch (for batch ops)
 - `get <item-id>` — full row including body
 - `set-status <item-id> <status-name>` — move a card to a status column
 
@@ -213,6 +214,7 @@ Board access goes through `.github/scripts/gh-project-board.sh`:
 
 - `list [--query <q>] [--include-body]` — compact JSONL of all items
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector
+- `find-many <selector> [<selector> …]` — resolve many selectors in one fetch
 - `get <item-id>` — full row with body
 - `set-status <item-id> <status-name>` — move card between columns
 
@@ -227,6 +229,7 @@ Card workflow:
 - Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
 - Audit:     `/gh-project review` (board vs codebase)
 - Delete:    `/gh-project delete [id|number|title]`
+- Batch:     `/gh-project batch <create|update|delete>` (same op across many cards at once)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.
@@ -315,6 +318,7 @@ Subcommands:
   /gh-project update     — edit a card
   /gh-project decompose  — split a big card into linked subtasks
   /gh-project delete     — remove a card
+  /gh-project batch      — create/update/delete many cards at once
 ```
 
 ## Edge cases

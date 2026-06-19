@@ -22,6 +22,7 @@ subcommand.
 | `review` | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
 | `decompose [id\|number\|title]` | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. |
 | `delete [id\|number\|title]` | Remove a card from the board with mandatory show-and-confirm. |
+| `batch <create\|update\|delete> [list\|file\|--query]` | Apply one operation across many cards at once — create a list, update a set, or delete a set. Ingests an inline list / file / board query, previews the whole set once, confirms once, applies in a continue-on-error loop, and reports a tally. Reuses the single-card `new-task` / `update` / `delete` recipes. |
 
 See [SKILL.md](./SKILL.md) for the dispatcher and the per-subcommand
 references for the full workflows.
@@ -34,10 +35,12 @@ references for the full workflows.
   field ID, and status option IDs. Every other subcommand reads this
   instead of hard-coding IDs.
 - `.github/scripts/gh-project-board.sh` — a small bash helper
-  (`list` / `find` / `get` / `set-status`) that all subcommands use for
-  board access. It asserts completeness against `totalCount` and exits
-  non-zero on truncation, so an agent that "doesn't see" a card fails
-  loudly instead of silently missing it.
+  (`list` / `find` / `find-many` / `get` / `set-status`) that all
+  subcommands use for board access. It asserts completeness against
+  `totalCount` and exits non-zero on truncation, so an agent that
+  "doesn't see" a card fails loudly instead of silently missing it.
+  `find-many` resolves many selectors against a single board fetch, which
+  is what `batch update` / `batch delete` use to target a set of cards.
 
 The canonical helper script ships with this skill at
 [scripts/gh-project-board.sh](scripts/gh-project-board.sh).

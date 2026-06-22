@@ -35,6 +35,7 @@ npx skills add zcaceres/skills -s quality-dead-code-analyzer
 npx skills add zcaceres/skills -s quality-perf-review
 npx skills add zcaceres/skills -s copywriting
 npx skills add zcaceres/skills -s decompose
+npx skills add zcaceres/skills -s code-tour
 npx skills add zcaceres/skills -s quality-docs-update
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
@@ -116,6 +117,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `quality-perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
+| `code-tour` | **Slash command.** Walk an unfamiliar codebase and write a concise `CODE_TOUR.md` onboarding guide — key components, a Mermaid diagram of how they connect, and the areas worth a closer look to understand it. |
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |

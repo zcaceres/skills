@@ -11,12 +11,15 @@ set -euo pipefail
 input=$(cat)
 cwd=$(printf '%s' "$input" | jq -r '.cwd')
 
-# Act only inside a *linked* worktree (git-dir != git-common-dir); skip the
-# main checkout, where this hook also fires.
-gd=$(git -C "$cwd" rev-parse --git-dir 2>/dev/null || true)
-gcd=$(git -C "$cwd" rev-parse --git-common-dir 2>/dev/null || true)
-[ -z "$gd" ] && exit 0                       # not a git dir at all
-[ "$gd" = "$gcd" ] && exit 0                 # main checkout → nothing to do
+# Act only inside a worktree that `claude --worktree` created — these live under
+# .claude/worktrees/. This is correct whether the session was launched from the
+# primary checkout OR from another linked worktree (e.g. a Conductor workspace,
+# which is itself a linked worktree, so a `git-dir != git-common-dir` test alone
+# would wrongly fire on the launch dir).
+case "$cwd" in
+  */.claude/worktrees/*) : ;;   # a claude --worktree worktree → proceed
+  *) exit 0 ;;                   # primary checkout / unrelated dir → no-op
+esac
 
 # Run setup once per worktree, not on every resume/clear/compact.
 marker="$cwd/.claude-worktree-ready"

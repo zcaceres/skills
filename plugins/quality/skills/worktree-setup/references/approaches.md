@@ -93,13 +93,21 @@ user opts into the symlink and accepts the shared-mutation risk.
 
 Bake these into every generated hook:
 
-- **Linked-worktree guard (SessionStart only).** The hook fires in the main
-  checkout too. Act only when `git-dir != git-common-dir`:
+- **Worktree-only guard (SessionStart only).** The hook fires in the launch
+  checkout too, so it must skip anything that isn't a `claude --worktree`
+  worktree. Gate on the path — those worktrees live under `.claude/worktrees/`:
   ```bash
-  gd=$(git -C "$cwd" rev-parse --git-dir 2>/dev/null || true)
-  gcd=$(git -C "$cwd" rev-parse --git-common-dir 2>/dev/null || true)
-  [ -n "$gd" ] && [ "$gd" = "$gcd" ] && exit 0   # main checkout → do nothing
+  case "$cwd" in
+    */.claude/worktrees/*) : ;;   # a claude --worktree worktree → proceed
+    *) exit 0 ;;                   # primary checkout / unrelated dir → no-op
+  esac
   ```
+  Do **not** use the common `git-dir != git-common-dir` ("am I a linked
+  worktree?") test as the sole guard. It wrongly fires when Claude is launched
+  from a linked worktree that *isn't* a `--worktree` one — e.g. a Conductor
+  workspace, which is itself a linked worktree — running setup (and dropping a
+  marker) in the user's working checkout. The path test is correct regardless
+  of where the session was launched.
 - **Run-once marker (SessionStart only).** SessionStart fires on every
   resume/clear/compact. Gate setup on a marker so it runs once per worktree:
   ```bash

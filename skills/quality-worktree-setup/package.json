@@ -1,0 +1,30 @@
+{
+  "name": "@zcaceres/skill-quality-worktree-setup",
+  "version": "0.0.0",
+  "description": "Bootstrap and maintain Claude Code worktree auto-setup for a repo — interview the codebase for what a fresh --worktree needs (gitignored files, installs, per-worktree ports, shared caches), then generate and verify the right .worktreeinclude + hooks. Invoke via /quality-worktree-setup.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skill",
+    "slash-command",
+    "quality-worktree-setup",
+    "quality",
+    "worktree",
+    "hooks"
+  ]
+}

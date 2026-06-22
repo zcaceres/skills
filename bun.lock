@@ -89,6 +89,10 @@
       "name": "@zcaceres/skill-quality-project-health",
       "version": "0.0.0",
     },
+    "skills/quality-worktree-setup": {
+      "name": "@zcaceres/skill-quality-worktree-setup",
+      "version": "0.0.0",
+    },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
       "version": "0.0.0",
@@ -251,6 +255,8 @@
     "@zcaceres/skill-quality-perf-review": ["@zcaceres/skill-quality-perf-review@workspace:skills/quality-perf-review"],
 
     "@zcaceres/skill-quality-project-health": ["@zcaceres/skill-quality-project-health@workspace:skills/quality-project-health"],
+
+    "@zcaceres/skill-quality-worktree-setup": ["@zcaceres/skill-quality-worktree-setup@workspace:skills/quality-worktree-setup"],
 
     "@zcaceres/skill-record-gif": ["@zcaceres/skill-record-gif@workspace:skills/record-gif"],
 

@@ -158,7 +158,7 @@ skills/
 │   ├── package.json        # monorepo plumbing: workspace, version, scripts
 │   └── README.md
 ├── _template/              # scaffold copied by `bun run new`
-├── scripts/                # new-skill, build-skill, build-plugins, release-skill, check
+├── scripts/                # new-skill, build-skill, build-plugins, release-skill, check-skills, smoke-bundle
 ├── plugins/<group>/        # GENERATED Claude Code plugins (bun run build:plugins)
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/<name>/SKILL.md

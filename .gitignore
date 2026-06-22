@@ -7,3 +7,6 @@ dist/
 skills/*/dist/
 skills/*/scripts/bin/
 skills/*/*.tgz
+
+# Claude Code worktrees (created by `claude --worktree`; set up by quality-worktree-setup)
+.claude/worktrees/

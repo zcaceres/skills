@@ -1,0 +1,22 @@
+{
+  "name": "@zcaceres/skill-code-tour",
+  "version": "0.0.0",
+  "description": "Walk an unfamiliar codebase and write a concise CODE_TOUR.md onboarding guide: the key components, a Mermaid diagram of how they connect, and the areas worth a closer look to understand it. Invoked via /code-tour.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "onboarding",
+    "codebase",
+    "architecture",
+    "code-tour"
+  ]
+}

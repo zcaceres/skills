@@ -22,6 +22,10 @@
       "name": "@zcaceres/skill-cleanup-computer",
       "version": "0.0.0",
     },
+    "skills/code-tour": {
+      "name": "@zcaceres/skill-code-tour",
+      "version": "0.0.0",
+    },
     "skills/copywriting": {
       "name": "@zcaceres/skill-copywriting",
       "version": "1.0.0",
@@ -215,6 +219,8 @@
     "@zcaceres/skill-clean-ai-slop": ["@zcaceres/skill-clean-ai-slop@workspace:skills/clean-ai-slop"],
 
     "@zcaceres/skill-cleanup-computer": ["@zcaceres/skill-cleanup-computer@workspace:skills/cleanup-computer"],
+
+    "@zcaceres/skill-code-tour": ["@zcaceres/skill-code-tour@workspace:skills/code-tour"],
 
     "@zcaceres/skill-copywriting": ["@zcaceres/skill-copywriting@workspace:skills/copywriting"],
 

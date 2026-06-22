@@ -10,6 +10,7 @@ Code-quality analysis: chaos-monkey bug hunting, dead-code/duplication detection
 | `/quality:docs-update` | Audit project documentation against the current state of the codebase and produce a revision plan. |
 | `/quality:perf-review` | Analyze a codebase for performance bottlenecks in full-stack web applications. |
 | `/quality:project-health` | Assess the current project's repo and work-tracker status, then rate overall project health from 0-10. |
+| `/quality:worktree-setup` | Bootstrap and maintain Claude Code worktree auto-setup for a repo. |
 
 ## Install
 

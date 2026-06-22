@@ -1,0 +1,36 @@
+{
+  "_comment": "Merge ONE of these hook blocks into .claude/settings.json — do not clobber existing hooks. Default to SessionStart; use WorktreeCreate only on a genuine escalation trigger.",
+
+  "SessionStart": {
+    "hooks": {
+      "SessionStart": [
+        {
+          "matcher": "startup",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-init.sh",
+              "timeout": 300
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  "WorktreeCreate": {
+    "hooks": {
+      "WorktreeCreate": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-create.sh",
+              "timeout": 300
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

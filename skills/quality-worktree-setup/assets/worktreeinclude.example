@@ -1,0 +1,9 @@
+# .worktreeinclude — gitignored files to copy into each new worktree.
+# Uses .gitignore pattern syntax. Only copies files that are BOTH present in
+# the main checkout AND gitignored (tracked files are never duplicated).
+# Auto-applies to `claude --worktree`, subagent worktrees, and desktop parallel
+# sessions — UNLESS a WorktreeCreate hook is configured, which bypasses it.
+#
+# quality-worktree-setup fills these from the gitignored files it discovers.
+.env
+.env.local

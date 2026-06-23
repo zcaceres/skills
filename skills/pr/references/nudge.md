@@ -69,6 +69,39 @@ was installed at user scope or project scope. Flags: `--project`
 (writes to `./.claude/settings.json`), `--target PATH` (explicit
 file). Requires `jq`.
 
+`install.sh` also runs `scripts/fetch-binary.sh` to provision the
+binary (see below), so the two-step install both wires the hook *and*
+makes it functional.
+
+### Provisioning the binary
+
+The hook execs a compiled binary (`scripts/bin/pr-nudge-<os>-<arch>`).
+Those binaries are ~60 MB build artifacts — gitignored, never
+committed, fetched or built on demand. A pure file-copy install
+(`npx skills add`, a sparse checkout) therefore lands the source and
+`run.sh` but **no binary**, and `run.sh` then silently no-ops. That's
+the gap `scripts/fetch-binary.sh` closes. Run it directly any time, or
+let `install.sh` / `/pr setup` call it for you:
+
+```sh
+~/.claude/skills/pr/scripts/fetch-binary.sh
+```
+
+It's idempotent and layered — first match wins:
+
+1. Binary already present + executable → done.
+2. **Download** the prebuilt binary for this platform from the skill's
+   GitHub release (needs `gh`) — the path that works on machines with
+   no Bun toolchain. Resolves the latest `pr@*` release, then pulls the
+   asset matching `*-<os>-<arch>`. Override with `SKILL_BINARY_REPO`
+   (default `zcaceres/skills`) or `SKILL_BINARY_TAG` (default: latest).
+3. **Build** locally with `bun` (always matches the local source).
+4. Otherwise print manual instructions and exit non-zero.
+
+The script is generic across every binary-bundling skill in this repo
+(it derives the skill name from its own location and globs the asset by
+platform), so the same file drops into `safety-*` and friends unchanged.
+
 If you're migrating from the standalone `pr-size-nudge` skill,
 **remove its hook entry from settings.json before running this
 install.sh** — otherwise you'll get two nudges per fire, with

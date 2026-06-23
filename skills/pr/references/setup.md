@@ -82,10 +82,29 @@ If it's missing, tell them stacked mode still works via `gh` + `git`, but
 `submit` (whole-stack push) needs `git stack` — install it from
 <https://github.com/zcaceres/git-stack/releases>.
 
+### 5. Provision the nudge hook binary
+
+`/pr` bundles a PostToolUse hook (see [nudge.md](nudge.md)) that nudges you
+toward a focused PR once the uncommitted diff grows large. The hook execs a
+small prebuilt binary that a file-copy install (`npx skills add`, a sparse
+checkout) ships the source for but **not** the binary itself — so until it's
+provisioned the hook silently no-ops. Run the provisioner once from the `pr`
+skill's `scripts/` directory (e.g. `~/.claude/skills/pr/scripts`):
+
+```bash
+./fetch-binary.sh
+```
+
+It downloads the prebuilt binary for your platform from the skill's GitHub
+release (needs `gh`), or builds it with `bun` if no release asset is
+available. It's idempotent — a no-op once the binary is present, so it's safe
+to run on every `/pr setup`. Re-run it if you ever see a "binary not found"
+note in your hook logs.
+
 ## Important
 
-- This subcommand only reads and writes `git config pr.mode`. It never
-  commits, pushes, or opens PRs.
+- This subcommand reads and writes `git config pr.mode` and provisions the
+  nudge hook binary (step 5). It never commits, pushes, or opens PRs.
 - `pr.mode` is plain git config — the user can also set it by hand with
   `git config [--global] pr.mode <normal|stacked>`.
 - Any value other than `stacked` (including unset) is treated as

@@ -37,15 +37,33 @@ jobs:
           tar -czf ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz \
             -C skills/${{ steps.tag.outputs.name }}/dist ${{ steps.tag.outputs.name }}
 
+      # Standalone per-platform binaries (skills that bundle a compiled hook,
+      # e.g. pr, safety-*). Uploaded as individual release assets so a
+      # file-copy install can download just its host binary via scripts/fetch-binary.sh.
+      # Empty for skills with no bundled binary — both steps below tolerate that.
+      - name: Collect standalone binaries
+        id: bins
+        run: |
+          BIN_DIR="skills/${{ steps.tag.outputs.name }}/dist/${{ steps.tag.outputs.name }}/scripts/bin"
+          {
+            echo "paths<<EOF"
+            [ -d "$BIN_DIR" ] && find "$BIN_DIR" -maxdepth 1 -type f
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Attest build provenance
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32  # v4.1.0
         with:
-          subject-path: ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz
+          subject-path: |
+            ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz
+            ${{ steps.bins.outputs.paths }}
 
       - name: GitHub Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
         with:
-          files: ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz
+          files: |
+            ${{ steps.tag.outputs.name }}-${{ steps.tag.outputs.version }}.tgz
+            ${{ steps.bins.outputs.paths }}
           name: ${{ github.ref_name }}
           generate_release_notes: true
 

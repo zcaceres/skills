@@ -1,73 +1,105 @@
-# `/pr setup` — Choose Normal or Stacked Mode
+# `/pr setup` — Persistent `/pr` Settings
 
-Show the current `/pr` mode and switch between **normal** (default) and
-**stacked**. The mode is stored in `git config pr.mode` and controls only
-what the bare `/pr` (default) action does:
+Show and change the two persistent `/pr` settings, both stored in git
+config (a local value always overrides a global one):
 
-- **normal** → `/pr` commits your conversation changes, pushes, and opens
-  a single PR against the trunk (see [update.md](update.md)).
-- **stacked** → `/pr` cuts the current diff as the next branch in a stack
-  and opens a PR against its parent (see [checkpoint.md](checkpoint.md)).
+- **mode** (`pr.mode`) — switch between **normal** (default) and
+  **stacked**. Controls only what the bare `/pr` (default) action does:
+  - **normal** → `/pr` commits your conversation changes, pushes, and
+    opens a single PR against the trunk (see [update.md](update.md)).
+  - **stacked** → `/pr` cuts the current diff as the next branch in a
+    stack and opens a PR against its parent (see [checkpoint.md](checkpoint.md)).
+- **draft default** (`pr.draft`) — when `true`, every PR this skill
+  **creates** is opened as a draft unless the invocation passes
+  `--ready`/`--no-draft`. Orthogonal to the mode; applies to both flows.
 
 Named subcommands (`update`, `log`, `merge`, `checkpoint`, `submit`,
-`sync`) work in either mode regardless of this setting.
+`sync`) work in either mode regardless of these settings. The draft
+default affects PR creation only; a per-invocation `--draft`/`-d` or
+`--ready`/`--no-draft` always overrides it for that run.
+
+## What the user asked to change
+
+`/pr setup` manages both settings. Figure out which the invocation
+targets, then only touch that one:
+
+- Mode words → `normal`, `stacked` (e.g. `/pr setup stacked`).
+- Draft words → `draft`, `--draft`, `draft on` (turn on); `no-draft`,
+  `--no-draft`, `ready`, `draft off` (turn off) (e.g. `/pr setup draft`).
+- Both in one go is fine: `/pr setup stacked draft`.
+- No setting word → show everything (step 1) and ask which to change.
+
+A `--global` / `--local` token sets the scope for whatever is written
+(default **global**).
 
 ## Workflow
 
-### 1. Show the current mode
+### 1. Show the current settings
 
 ```bash
-echo "local:  $(git config --local pr.mode 2>/dev/null || echo '(unset)')"
-echo "global: $(git config --global pr.mode 2>/dev/null || echo '(unset)')"
-echo "active: $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
+echo "mode   local:  $(git config --local pr.mode  2>/dev/null || echo '(unset)')"
+echo "mode   global: $(git config --global pr.mode 2>/dev/null || echo '(unset)')"
+echo "mode   active: $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
+echo "draft  local:  $(git config --local pr.draft  2>/dev/null || echo '(unset)')"
+echo "draft  global: $(git config --global pr.draft 2>/dev/null || echo '(unset)')"
+echo "draft  active: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on (drafts by default)' || echo 'off (ready by default)')"
 ```
 
-`git config pr.mode` resolves the local value first, then the global one.
-If neither is set, the active mode is **normal**.
+`git config <key>` resolves the local value first, then the global one.
+If `pr.mode` is unset the active mode is **normal**; if `pr.draft` is
+unset (or not `true`) new PRs default to **ready**.
 
 ### 2. Ask the user what they want
 
-If the user's invocation already made it clear (e.g. `/pr setup stacked`,
-`/pr setup normal`, `/pr setup --global stacked`), skip the question and
-go straight to step 3. Otherwise ask:
+If the invocation already made it clear (e.g. `/pr setup stacked`,
+`/pr setup draft`, `/pr setup --global stacked`, `/pr setup no-draft`),
+skip the question and go straight to step 3. Otherwise ask which
+setting(s) to change:
 
-- Which mode? `normal` or `stacked`.
+- Mode? `normal` or `stacked`.
+- Drafts by default? `on` or `off`.
 - Scope? **global** (applies to every repo on this machine — the right
   choice if you always work this way) or **local** (this repo only).
 
 Default to **global** scope unless the user asks for local — most people
-want one consistent mode everywhere.
+want one consistent setup everywhere.
 
-### 3. Write the setting
+### 3. Write the setting(s)
 
-Global (recommended default):
+Only write the keys the user is changing. Global is the recommended
+default; pass `--local` to scope to this repo.
+
+Mode:
 
 ```bash
 git config --global pr.mode stacked   # or: normal
 ```
 
-Local (this repo only):
+Draft default:
 
 ```bash
-git config --local pr.mode stacked    # or: normal
+git config --global pr.draft true     # drafts on by default
+git config --global --unset pr.draft  # drafts off (back to the default)
 ```
 
 To clear a setting and fall back to the default / the other scope:
 
 ```bash
-git config --global --unset pr.mode   # or --local
+git config --global --unset pr.mode   # or --local; same for pr.draft
 ```
 
 > A local value always wins over a global one. If you set `stacked`
 > globally but want one repo to stay `normal`, set `git config --local
-> pr.mode normal` in that repo.
+> pr.mode normal` in that repo. The same precedence applies to
+> `pr.draft`.
 
 ### 4. Confirm + point at stacked tooling
 
-Re-read and report the active mode:
+Re-read and report the active settings:
 
 ```bash
-git config pr.mode 2>/dev/null || echo 'normal (default)'
+echo "mode:  $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
+echo "draft: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
 ```
 
 If the user switched **to stacked mode**, check for the `git stack` CLI
@@ -81,6 +113,11 @@ git stack --version 2>/dev/null && echo "git stack: installed" \
 If it's missing, tell them stacked mode still works via `gh` + `git`, but
 `submit` (whole-stack push) needs `git stack` — install it from
 <https://github.com/zcaceres/git-stack/releases>.
+
+If the user turned the **draft default on**, remind them it applies to
+PRs `/pr` creates from now on; an existing PR is unaffected until you
+explicitly flip it (`gh pr ready --undo` to draft, `gh pr ready` to mark
+ready), and a single run can still opt out with `--ready`/`--no-draft`.
 
 ### 5. Wire and provision the nudge hook
 
@@ -120,10 +157,13 @@ if you ever see a "binary not found" note in your hook logs.
 
 ## Important
 
-- This subcommand reads and writes `git config pr.mode`, and wires + provisions
-  the nudge hook (step 5, via `install.sh` — which edits the host's
-  `settings.json`, backing it up first). It never commits, pushes, or opens PRs.
-- `pr.mode` is plain git config — the user can also set it by hand with
-  `git config [--global] pr.mode <normal|stacked>`.
-- Any value other than `stacked` (including unset) is treated as
-  `normal`.
+- This subcommand reads and writes `git config pr.mode` and
+  `git config pr.draft`, and wires + provisions the nudge hook (step 5, via
+  `install.sh` — which edits the host's `settings.json`, backing it up
+  first). It never commits, pushes, or opens PRs.
+- Both keys are plain git config — the user can also set them by hand
+  with `git config [--global] pr.mode <normal|stacked>` or
+  `git config [--global] pr.draft true`.
+- Any `pr.mode` other than `stacked` (including unset) is treated as
+  `normal`. Any `pr.draft` other than `true` (including unset) is treated
+  as **ready** (drafts off).

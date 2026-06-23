@@ -37,12 +37,31 @@ action for the active mode:
 The mode lives in `git config pr.mode` (a local value overrides a global
 one; unset means normal). Named subcommands below work in either mode.
 
+## Drafts
+
+Any PR `/pr` **creates** can be a draft, independently of the mode:
+
+- **Per invocation** — add `--draft` (or `-d`) to any `/pr` command:
+  `/pr --draft`, `/pr update --draft`, `/pr checkpoint -d "wip"`. Use
+  `--ready` / `--no-draft` to force a ready PR for one run.
+- **By default** — `git config --global pr.draft true` (or `/pr setup
+  draft`) opens every new PR as a draft. A per-invocation flag always
+  overrides the default; `pr.draft` follows the same local-beats-global
+  precedence as `pr.mode`.
+
+Drafting applies at PR **creation**. An already-open PR is only flipped
+when you pass an explicit flag that run (`gh pr ready` / `gh pr ready
+--undo` under the hood) — the configured default never silently re-drafts
+an open PR. `git stack submit` has no draft flag, so in the stacked
+git-stack path the skill marks the just-created PRs draft right after
+submitting.
+
 ## Subcommands
 
 | Subcommand | What it does |
 |---|---|
 | `commit [message]` | Mode-aware alias for the default action — `update` in normal mode, `checkpoint` in stacked mode. Same as bare `/pr`. |
-| `setup` | Show the current mode and switch between `normal` and `stacked` (writes `git config pr.mode`, global by default). |
+| `setup` | Show and change the persistent settings — the mode (`normal` ↔ `stacked`, `git config pr.mode`) and the draft default (`pr.draft`). Global by default. |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). Doesn't change an existing PR's base. The normal-mode default. |
 | `log` | Read-only. In normal mode show the current branch's PR; in stacked mode print the stack tree. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
@@ -94,6 +113,12 @@ To work in stacked mode by default everywhere:
 
 ```sh
 git config --global pr.mode stacked
+```
+
+To open every new PR as a draft by default:
+
+```sh
+git config --global pr.draft true
 ```
 
 Optional but recommended for stacked mode:

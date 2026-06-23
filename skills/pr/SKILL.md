@@ -136,5 +136,10 @@ acting. Don't guess at workflow-changing inputs.
 - NEVER commit files you didn't modify in this conversation.
 - NEVER use `git add .` or `git add -A`. Stage explicitly.
 - Report the PR URL when done.
+- Whenever you write a PR body for a **stacked** PR (base is another
+  feature branch, not the trunk), include a one-line pointer to the branch
+  it's stacked on top of, so human reviewers see the dependency and review
+  order. Canonical format: [checkpoint.md → "Stacked-on
+  line"](references/checkpoint.md#stacked-on-line).
 - If `git stack` is installed and the branch is stacked, prefer its
   primitives over hand-rolled `gh` loops.

@@ -82,6 +82,12 @@ This pushes all branches in the stack (force-with-lease) and
 creates/updates a GitHub PR for each branch with the correct base.
 Idempotent.
 
+`git stack` owns the PR bodies here. For any branch whose base is another
+stacked branch (not the trunk), confirm the body points reviewers at its
+parent and top it up with the **Stacked-on line** if it doesn't — see
+[checkpoint.md → "Stacked-on line"](checkpoint.md#stacked-on-line). A later
+`git stack submit` may rewrite the body, so treat this as best-effort.
+
 **Otherwise → plain `gh` + `git` path:**
 
 ```bash
@@ -124,6 +130,22 @@ gh pr create --base "<base>" --title "<title>" --body "$(cat <<'EOF'
 EOF
 )"
 ```
+
+**If `<base>` is a non-trunk branch** (i.e. this is a stacked PR — its
+base is another feature branch, not `main`/`master`), append a
+**Stacked-on line** to the body so reviewers see the dependency:
+
+```markdown
+---
+**Stacked on** [`<base>`](<base-PR-url>) — this PR targets that branch,
+not `main`. Review the parent first; the stack merges bottom-up.
+```
+
+Resolve the parent PR link with
+`gh pr list --head "<base>" --state open --json url -q '.[0].url'`; if it's
+empty, keep the bare branch name. See
+[checkpoint.md → "Stacked-on line"](checkpoint.md#stacked-on-line) for the
+canonical format. Skip this line when `<base>` is the trunk.
 
 ## Important
 

@@ -70,6 +70,13 @@ This:
   set to the parent branch.
 - Updates the title/body of existing PRs (per `git stack` defaults).
 
+`git stack` owns the PR bodies. For every PR whose base is another stacked
+branch (not the trunk at the bottom), confirm the body points reviewers at
+its parent branch and add the **Stacked-on line** if it's missing — see
+[checkpoint.md → "Stacked-on line"](checkpoint.md#stacked-on-line). Use
+`gh pr edit <number> --body` for the top-up; a later `git stack submit` may
+rewrite the body, so this is best-effort.
+
 ### 5. Report
 
 Print one line per PR with the URL and base, e.g.:

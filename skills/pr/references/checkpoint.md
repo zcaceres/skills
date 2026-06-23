@@ -82,12 +82,28 @@ git stack submit
 This pushes (force-with-lease) and creates/updates one GitHub PR per
 branch in the stack, with the correct base branches.
 
+`git stack` owns the PR body here, so confirm the new PR carries the
+**Stacked-on line** (see ["Stacked-on line"](#stacked-on-line)) and add it
+if missing — don't duplicate it if `git stack` already points at the
+parent:
+
+```bash
+NEW_PR=$(gh pr view --json number,body,baseRefName)
+```
+
+If the body doesn't already reference its base branch, append the
+Stacked-on line with `gh pr edit --body` (re-running `git stack submit`
+later may rewrite the body, so this is a best-effort top-up, not a
+guarantee).
+
 ### 6B. `gh` Fallback Path — Create Branch + PR
 
-Record the current branch as the parent:
+Record the current branch as the parent, and look up its PR so the body
+can link reviewers straight to it:
 
 ```bash
 PARENT_BRANCH=$(git branch --show-current)
+PARENT_PR_URL=$(gh pr list --head "$PARENT_BRANCH" --state open --json url -q '.[0].url')
 ```
 
 Generate a branch name from the commit message or the slice description
@@ -121,10 +137,18 @@ gh pr create --base "$PARENT_BRANCH" --title "<title>" --body "$(cat <<'EOF'
 - <how to verify>
 
 ---
-Stack: this PR targets `<PARENT_BRANCH>`, not `main`. Merge bottom-up.
+**Stacked on** [`<PARENT_BRANCH>`](<PARENT_PR_URL>) — this PR targets that
+branch, not `main`. Review the parent first; the stack merges bottom-up.
 EOF
 )"
 ```
+
+Fill in `<PARENT_BRANCH>` and `<PARENT_PR_URL>` from the values resolved
+above. That trailing line is the **Stacked-on line** (see
+["Stacked-on line"](#stacked-on-line)). Every stacked PR body the skill
+writes must carry it. If `PARENT_PR_URL` came back empty (the parent has no
+PR yet), drop the `](<PARENT_PR_URL>)` link and keep the bare branch name:
+`` **Stacked on `<PARENT_BRANCH>`** — … ``.
 
 ### 7. Report
 
@@ -134,6 +158,25 @@ Report:
 - The new branch name (`git branch --show-current`).
 - A reminder: "You're on the child branch now. Keep working — the next
   `/pr` (or `/pr checkpoint`) will stack on top."
+
+## Stacked-on line
+
+Every PR body the skill writes for a **stacked** PR (one whose base is
+another feature branch, not the trunk) must include a one-line pointer to
+the branch it sits on top of, so human reviewers on GitHub immediately see
+the dependency and review order. Put it at the bottom of the body:
+
+```markdown
+**Stacked on** [`<PARENT_BRANCH>`](<PARENT_PR_URL>) — this PR targets that
+branch, not `main`. Review the parent first; the stack merges bottom-up.
+```
+
+- Link the parent PR (`<PARENT_PR_URL>`) when you know it; otherwise keep
+  the bare branch name: `` **Stacked on `<PARENT_BRANCH>`** — … ``.
+- This applies to a non-trunk base of any name (`master`, a release
+  branch, etc.), not just literal `main`.
+- Don't add it to a normal PR that already targets the trunk — there's no
+  parent branch to point at.
 
 ## Important
 

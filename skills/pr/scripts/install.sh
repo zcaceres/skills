@@ -50,6 +50,16 @@ TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
   exit 1
 }
 
+# Provision the platform binary the hook execs (download from this skill's
+# GitHub release, or build with bun). Independent of the settings wiring below
+# and best-effort: a missing binary only makes the hook a silent no-op, so we
+# never abort the install over it. Runs on every invocation, so re-running
+# install.sh also repairs a wired-but-missing-binary state.
+if [ -x "$SCRIPT_DIR/fetch-binary.sh" ]; then
+  "$SCRIPT_DIR/fetch-binary.sh" || \
+    echo "⚠ $SKILL_NAME: binary not provisioned — run $SCRIPT_DIR/fetch-binary.sh once gh or bun is available." >&2
+fi
+
 command -v jq >/dev/null || {
   echo "install.sh: requires jq. Install:" >&2
   echo "  macOS:  brew install jq" >&2

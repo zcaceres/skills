@@ -7,7 +7,7 @@
 // changesets `bun run version`). Tag format: <skill-name>@<version>.
 
 import { $ } from "bun";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
@@ -37,14 +37,26 @@ await $`bun run build ${name}`;
 // containing SKILL.md + optional scripts/references/assets/agents.
 await $`tar -czf ${tarball} -C ${join(src, "dist")} ${name}`;
 
+// Standalone per-platform binaries (skills that bundle a compiled hook). These
+// ride along as individual release assets so a file-copy install can download
+// just its host binary via scripts/fetch-binary.sh. Empty for binary-less skills.
+const binDir = join(src, "dist", name, "scripts", "bin");
+const binaries = existsSync(binDir)
+  ? (await readdir(binDir)).map((f) => join(binDir, f))
+  : [];
+
 if (dryRun) {
   console.log(`Dry run: tarball at ${tarball}`);
+  if (binaries.length) {
+    console.log(`Dry run: ${binaries.length} binary asset(s):`);
+    for (const b of binaries) console.log(`  ${b}`);
+  }
   process.exit(0);
 }
 
 await $`git tag ${tag}`;
 await $`git push origin ${tag}`;
-await $`gh release create ${tag} ${tarball} --title ${tag} --notes "Release ${tag}"`;
+await $`gh release create ${tag} ${tarball} ${binaries} --title ${tag} --notes "Release ${tag}"`;
 
 // skills.sh publish — wire in once the CLI/API is finalized.
 // await $`bunx skills publish ${join(src, "dist", name)}`;

@@ -83,6 +83,13 @@ installed at user scope or project scope. Flags: `--project`,
 `--target PATH`. Requires `jq`. See [references/nudge.md](references/nudge.md)
 for thresholds, env-var overrides, and manual wiring as an alternative.
 
+`install.sh` also provisions the compiled binary the hook execs (a
+file-copy install ships the source but not the ~60 MB binary) by
+running `scripts/fetch-binary.sh` — which downloads the prebuilt binary
+for your platform from the skill's GitHub release, or builds it with
+`bun`. `/pr setup` runs it too, so configuring the skill leaves the
+hook fully functional. See [references/nudge.md](references/nudge.md#provisioning-the-binary).
+
 ## Dispatcher
 
 First read the mode (see "Determine the mode first" above), then parse

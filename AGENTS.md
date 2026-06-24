@@ -78,7 +78,9 @@ changeset.
 3. After merge, publish a skill by pushing its `<skill>@<version>` tag.
    `release.yml` builds it, attests provenance, and creates the GitHub Release
    (tarball + per-platform binaries for binary-bundling skills). Pushing a tag is
-   the irreversible publish step.
+   the irreversible publish step. Push **at most 3 tags per `git push`** — GitHub
+   creates no events (so no releases fire) when more than three tags arrive in a
+   single push, so batch a multi-skill release.
 
 **Binary-bundling skills** (`pr`, `safety-*`, `stacked-pr-gemini`) compile a
 ~60 MB `scripts/bin/<name>-<os>-<arch>` binary that is gitignored and never

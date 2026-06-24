@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-security-gitleaks",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Set up gitleaks secret-scanning on a repo: scan history for existing leaks first (stops if dirty), then scaffold .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. Use when the user says 'add gitleaks', 'set up secret scanning', 'gitleaks boilerplate', or '/security-gitleaks'.",
   "license": "MIT",
   "type": "module",
@@ -9,5 +9,11 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-quality-project-health",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Assess the current project's repo and work-tracker status, then rate overall project health from 0-10. Invoke via /quality-project-health.",
   "license": "MIT",
   "type": "module",

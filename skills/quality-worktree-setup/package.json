@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-quality-worktree-setup",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Bootstrap and maintain Claude Code worktree auto-setup for a repo — interview the codebase for what a fresh --worktree needs (gitignored files, installs, per-worktree ports, shared caches), then generate and verify the right .worktreeinclude + hooks. Invoke via /quality-worktree-setup.",
   "license": "MIT",
   "type": "module",

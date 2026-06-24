@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-review-code",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Code-review pipeline as one skill. Subcommands review the current branch diff and report bugs as structured findings (review, the default), reproduce and validate each finding to filter false positives (repro), and plan + apply fixes after user approval (fix).",
   "license": "MIT",
   "type": "module",

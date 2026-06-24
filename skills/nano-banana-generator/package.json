@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-nano-banana-generator",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Generate arbitrary graphic assets using Google's Nano Banana (Gemini image generation). Use for logos, icons, illustrations, UI elements, or any one-off graphics.",
   "license": "MIT",
   "type": "module",
@@ -9,7 +9,13 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ],
   "keywords": [
     "claude-code",
     "skill",

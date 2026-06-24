@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-safety-rm-rf-guard",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Claude Code PreToolUse hook that blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants; redirects to the trash CLI.",
   "license": "MIT",
   "type": "module",

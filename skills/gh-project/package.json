@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-gh-project",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Manage a repo's GitHub Projects kanban board as one skill. Subcommands bootstrap the board (setup), pick the next Todo card (next), create cards (new-task), edit cards (update), audit the board against the codebase (review), split big cards into subtasks (decompose), and remove cards (delete).",
   "license": "MIT",
   "type": "module",

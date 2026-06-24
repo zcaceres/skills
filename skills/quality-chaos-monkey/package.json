@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-quality-chaos-monkey",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Trace code paths to find bugs, logic errors, race conditions. Static analysis first, then runtime browser testing for frontend.",
   "license": "MIT",
   "type": "module",

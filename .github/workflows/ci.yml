@@ -27,3 +27,22 @@ jobs:
             exit 1
           fi
       - run: bun test
+
+  changeset:
+    name: changeset present
+    # Every PR touching skills/** must add a changeset, else versions + CHANGELOGs
+    # silently never update. Skipped on push and via the 'skip-changeset' label
+    # (e.g. the "Version Packages" PR, which changes skills but carries none).
+    if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-changeset') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6  # v2.2.0
+        with:
+          bun-version: latest
+      - name: Require a changeset for skill changes
+        run: |
+          git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+          bunx @changesets/cli status --since="origin/${{ github.base_ref }}"

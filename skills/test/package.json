@@ -1,0 +1,30 @@
+{
+  "name": "@zcaceres/skill-test",
+  "version": "0.0.0",
+  "description": "Test-suite review pipeline as one skill. Subcommands cross-reference the tests against the source they cover and report missing edge cases — untested branches, error paths, and boundary conditions — as structured findings (gaps, the default).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "slash-command",
+    "testing",
+    "test-coverage",
+    "edge-cases",
+    "completeness",
+    "review"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-safety-git-reset-guard",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Claude Code PreToolUse hook that blocks destructive git commands (reset --hard, push --force, clean -f, checkout <path>, branch -D, stash drop/clear, worktree remove --force) and points at safer alternatives.",
   "license": "MIT",
   "type": "module",

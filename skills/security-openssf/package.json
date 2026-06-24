@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-security-openssf",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Scaffold OpenSSF Scorecard GitHub Action in a repo with a safe two-phase rollout: first commit runs with publish_results: false so issues can be triaged privately, then flips to publish_results: true and adds a badge once the score is acceptable. Use when the user says 'add OpenSSF', 'set up Scorecard', 'OpenSSF boilerplate', or '/security-openssf'.",
   "license": "MIT",
   "type": "module",
@@ -9,5 +9,11 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ]
 }

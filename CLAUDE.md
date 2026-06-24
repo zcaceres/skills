@@ -48,3 +48,40 @@ generated tree drifts. See `scripts/build-plugins.ts` for the transforms
 (prefix-stripping, `${CLAUDE_PLUGIN_ROOT}` path rewrites, `hooks:` lifting, and
 `<!-- plugin:omit -->` regions). `safety-*` is deferred — its guards run a
 compiled binary a file-copy marketplace can't ship.
+
+## Versioning & releases
+
+Every skill is its own versioned package (`skills/<name>/package.json`) and ships
+through [Changesets](https://github.com/changesets/changesets). The README
+"Workflow" section is the command reference; the rules below are what's easy to
+get wrong.
+
+**Every change to a skill needs a changeset.** After editing anything under
+`skills/<name>/`, run `bun run changeset`, then pick the skill(s) and bump level
+(patch/minor/major). CI enforces this: the `changeset` job fails any PR that
+touches `skills/**` without one (`changeset status --since=origin/main`). Label a
+PR `skip-changeset` for a deliberate exception. Never hand-edit a skill's
+`version` or `CHANGELOG.md` — `bun run version` generates both. Root/infra
+changes (this file, `scripts/`, `.github/`) are not packages and need no
+changeset.
+
+**Cutting a release** (maintainer, occasional):
+
+1. `bunx @changesets/cli status` first. `bun run version` consumes *all* pending
+   changesets at once (all-or-nothing) and bumps every affected skill — it's a
+   coordinated event, not per-skill. Review the blast radius before running it.
+2. Run `bun run version`. `main` is branch-protected, so land the generated
+   "Version Packages" diff via a PR built from a throwaway
+   `git worktree add <dir> origin/main` (keeps the active branch untouched), and
+   label it `skip-changeset` (it changes skills but intentionally carries no
+   changeset). Re-run `bun run build:plugins` and commit if `plugins/` drifts.
+3. After merge, publish a skill by pushing its `<skill>@<version>` tag.
+   `release.yml` builds it, attests provenance, and creates the GitHub Release
+   (tarball + per-platform binaries for binary-bundling skills). Pushing a tag is
+   the irreversible publish step.
+
+**Binary-bundling skills** (`pr`, `safety-*`, `stacked-pr-gemini`) compile a
+~60 MB `scripts/bin/<name>-<os>-<arch>` binary that is gitignored and never
+committed. Releases publish those as individual assets; installs provision them
+via `scripts/fetch-binary.sh` (download from the GH release, else build with bun)
+— `/pr setup` and the skills' `install.sh` run it.

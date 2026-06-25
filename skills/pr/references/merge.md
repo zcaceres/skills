@@ -275,6 +275,11 @@ Print:
   in step 4B as `main` or `master`) before merging the next PR. Don't
   trust auto-retarget — it's a repo setting that may not be on.
 - Merge **bottom-up**. Top-down is never correct for stacks.
+- This subcommand does **not** rewrite the `[<name> N/M]` title markers
+  (see [title-convention.md](title-convention.md)). As PRs land, the
+  survivors' labels read stale (`3/4` after the bottom merges) until the
+  next `/pr submit` renumbers them — that's intentional, so merging stays
+  focused on landing the stack.
 - For `--rebase`/`--squash`: keep the original (pre-rebase) parent
   SHAs handy — they're the seed for `git rebase --onto`.
 - If anything goes wrong, **stop**. The recovery path

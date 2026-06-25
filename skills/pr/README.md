@@ -7,8 +7,14 @@ requests with `/pr`. It has two modes:
   conversation, push, and open a single PR against the trunk
   (`main`/`master`). The everyday "ship my work" flow.
 - **stacked** — `/pr` becomes a stacked-PR workflow: each `/pr` cuts the
-  current diff onto a new branch stacked on the last, plus subcommands to
-  push the whole stack, rebase onto trunk, and merge bottom-up.
+  current diff onto a new branch stacked on the last (built **locally**,
+  with `git stack`), then you publish the finished stack all at once with
+  `submit` — no trickle of partial PRs on GitHub. Plus subcommands to
+  rebase onto trunk and merge bottom-up. Published PRs get a
+  `[<name> N/M]` title marker (e.g. `[ENG-456 2/4] …`, named after the
+  ticket when the branch carries one, else a slug) so GitHub shows at a
+  glance which stack a PR is in and where it sits — see
+  [references/title-convention.md](references/title-convention.md).
 
 Normal mode is the default. Switch with [`/pr setup`](references/setup.md)
 (or `git config --global pr.mode stacked`).
@@ -40,8 +46,8 @@ one; unset means normal). Named subcommands below work in either mode.
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). Doesn't change an existing PR's base. The normal-mode default. |
 | `log` | Read-only. In normal mode show the current branch's PR; in stacked mode print the stack tree. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
-| `checkpoint [slice description]` | Cut current diff as the next stacked branch + PR. The stacked-mode default. |
-| `submit` | Push the whole stack (force-with-lease) and create/update one PR per branch. Requires `git stack`. |
+| `checkpoint [slice description]` | Cut current diff as the next stacked branch. Local-only on the git-stack path (publishes nothing); the `gh`-fallback path still publishes eagerly. The stacked-mode default. |
+| `submit` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. Requires `git stack`. |
 | `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 
 See [references/recovery.md](references/recovery.md) if a `--delete-branch`

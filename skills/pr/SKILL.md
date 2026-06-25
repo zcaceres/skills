@@ -55,9 +55,22 @@ either mode — the user asked for it by name, so honor it.
 | `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
 | `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
-| `checkpoint [slice description]` | [references/checkpoint.md](references/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack, push it, open a PR against the parent branch. **This is the stacked-mode default.** |
-| `submit` | [references/submit.md](references/submit.md) | Push the whole stack (force-with-lease) and create/update one PR per branch. Stacked workflow; requires `git stack`. |
+| `checkpoint [slice description]` | [references/checkpoint.md](references/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
+| `submit` | [references/submit.md](references/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. Requires `git stack`. |
 | `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
+
+## Stacked-PR title markers
+
+When a stack is published, each PR's title is prefixed with a
+`[<name> N/M]` marker (e.g. `[ENG-456 2/4] Add token middleware`) so it's
+obvious in GitHub that the PR belongs to a stack and where it sits.
+`<name>` is the ticket identifier the work is tracked under (e.g.
+`ENG-456`) when the branch carries one, else a slug derived from the
+bottom branch; `N/M` is the position from the bottom over the total.
+`submit` stamps the markers at publish time; `merge` deliberately leaves
+them alone. See
+[references/title-convention.md](references/title-convention.md) for the
+format and the renumber routine.
 
 ## Bundled hook
 

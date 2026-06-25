@@ -152,6 +152,10 @@
       "name": "@zcaceres/skill-storage-cleanup",
       "version": "1.0.0",
     },
+    "skills/test": {
+      "name": "@zcaceres/skill-test",
+      "version": "0.0.0",
+    },
     "skills/transcribe-youtube": {
       "name": "@zcaceres/skill-transcribe-youtube",
       "version": "0.0.0",
@@ -285,6 +289,8 @@
     "@zcaceres/skill-stacked-pr-gemini": ["@zcaceres/skill-stacked-pr-gemini@workspace:skills/stacked-pr-gemini"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
+
+    "@zcaceres/skill-test": ["@zcaceres/skill-test@workspace:skills/test"],
 
     "@zcaceres/skill-transcribe-youtube": ["@zcaceres/skill-transcribe-youtube@workspace:skills/transcribe-youtube"],
 

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-test",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Test-suite review pipeline as one skill. Subcommands cross-reference the tests against the source they cover and report missing edge cases — untested branches, error paths, and boundary conditions — as structured findings (gaps, the default).",
   "license": "MIT",
   "type": "module",

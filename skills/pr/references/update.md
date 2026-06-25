@@ -82,6 +82,12 @@ This pushes all branches in the stack (force-with-lease) and
 creates/updates a GitHub PR for each branch with the correct base.
 Idempotent.
 
+This re-publishes the whole stack, so run the renumber routine from
+[references/title-convention.md](title-convention.md) afterward (the same
+post-pass `submit` runs) to keep each PR's `[<name> N/M]` marker current.
+Skip it on the plain `gh` single-PR path below; a lone PR isn't a stack
+and gets no marker.
+
 **Otherwise → plain `gh` + `git` path:**
 
 ```bash

@@ -131,7 +131,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `nano-banana-generator` | Generate one-off graphic assets (logos, icons, illustrations, UI elements) via Google's Nano Banana / Gemini image generation. |
 | `reflect-on-conversation` | Structured retrospective on the current conversation — prompting, gaps, efficiency. |
-| `review-code` | **Slash command.** One skill for the full code-review pipeline: `/review-code` reviews the branch diff and reports findings (default), `repro` reproduces each finding to filter false positives, `fix` plans fixes, gates on approval, then applies and verifies. Supersedes `review-code-repro` and `review-code-fix`. |
+| `review-code` | **Slash command.** One skill for the full code-review pipeline: `/review-code` reviews the branch diff and reports findings (default), `repro` reproduces each finding to filter false positives, `fix` plans fixes, gates on approval, then applies and verifies, and `comments` processes the review comments a reviewer left on your PR. Supersedes `review-code-repro` and `review-code-fix`. |
 | `safety-dotenv-guard` | **Hook.** Blocks `Read`/`Bash`/`Grep`/`Glob` tool calls that touch `.env` files; allows `.env.example`-style templates. |
 | `safety-git-reset-guard` | **Hook.** Blocks destructive git commands (`reset --hard`, `push --force`, etc.); redirects to safer alternatives. |
 | `safety-op-creds` | **Hook + wrapper.** Use 1Password-stored credentials via `op` CLI + bash process substitution / `op run`; blocks bare `op read` and other secret-printing op subcommands. |

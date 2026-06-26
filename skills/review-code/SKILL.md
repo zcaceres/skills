@@ -1,7 +1,7 @@
 ---
 name: review-code
-description: Code-review pipeline as one skill. Subcommands review the current branch diff and report bugs as structured findings (review, the default), reproduce and validate each finding to filter false positives (repro), and plan + apply fixes after user approval (fix). Use when the user says "review code", "review my changes", "code review", "reproduce the findings", "validate the review", "fix the findings", "plan fixes", or "/review-code".
-argument-hint: "[review | repro | fix] [args]"
+description: Code-review pipeline as one skill. Subcommands review the current branch diff and report bugs as structured findings (review, the default), reproduce and validate each finding to filter false positives (repro), plan + apply fixes after user approval (fix), and process the review comments a reviewer left on your PR (comments). Use when the user says "review code", "review my changes", "code review", "reproduce the findings", "validate the review", "fix the findings", "plan fixes", "process the PR comments", "address the review comments", or "/review-code".
+argument-hint: "[review | repro | fix | comments] [args]"
 ---
 
 # Code Review — One Skill
@@ -23,15 +23,16 @@ reference file and follow it exactly.
 | `review [base-branch]` | [references/review.md](references/review.md) | Review the branch diff (committed + uncommitted) against the merge base and report bugs as a numbered list of inline-style findings. **Default subcommand.** |
 | `repro` | [references/repro.md](references/repro.md) | Validate each finding by executing code — failing test, probe run, tool run — and issue a verdict per finding (Confirmed / False positive / Out of scope / Cannot determine). Never fixes anything. |
 | `fix` | [references/fix.md](references/fix.md) | Plan the smallest fix for each confirmed finding, stop at an explicit approval gate, then apply and verify. Never edits before the user signs off. |
+| `comments [PR#]` | [references/comments.md](references/comments.md) | Fetch the review comments a reviewer left on your PR, categorize them into a task list, then implement / discuss / decline each, reply on the thread, and push. The inbound counterpart to `review`. |
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`review`, `repro`,
-   `fix`) → read `references/<keyword>.md`, then follow its workflow with
-   the remaining `$ARGUMENTS` (everything after the first token) as that
-   subcommand's arguments.
+   `fix`, `comments`) → read `references/<keyword>.md`, then follow its
+   workflow with the remaining `$ARGUMENTS` (everything after the first
+   token) as that subcommand's arguments.
 
 2. **First token starts with `-`** (e.g. `--help`, `-h`) → print the
    subcommand table above and stop.
@@ -48,7 +49,8 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    the user's intent to a subcommand using the trigger phrases in each
    reference's "When to use" section (e.g. "review my changes" →
    `review`, "are these bugs real" → `repro`, "fix the findings" →
-   `fix`). If the intent is ambiguous between two subcommands, ask.
+   `fix`, "address the comments on my PR" → `comments`). If the intent is
+   ambiguous between two subcommands, ask.
 
 ## The pipeline
 
@@ -67,3 +69,10 @@ fix     →  approved plan → applied + verified fixes
   whether to run `repro` first; if declined, every finding is treated as
   unvalidated ("Confirmed (traced only)") and the plan says so.
 - `fix` never edits code before the user explicitly approves the plan.
+
+`comments` sits outside this linear pipeline — it's the *inbound* counterpart.
+Where `review` → `repro` → `fix` produces and acts on findings about a local
+diff, `comments` consumes the findings a human reviewer already left on your
+PR. It reuses the same discipline (`repro` to validate a doubtful reviewer
+claim, `fix`'s plan-then-approve gate for non-trivial changes) but starts from
+GitHub comments rather than a `git diff`.

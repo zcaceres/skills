@@ -17,6 +17,7 @@ as before the consolidation.
 | `review [base-branch]` | Diff the current branch against the merge base, apply a strict "would-the-author-actually-fix-this" bar, and emit a tight numbered list of findings formatted for inline review. **Default.** |
 | `repro` | Validate each finding by executing code — failing test, probe run, tool run — and issue a per-finding verdict (Confirmed / False positive / Out of scope / Cannot determine). Filters false positives before any fix is planned. |
 | `fix` | Plan the smallest fix for each confirmed finding, stop at an explicit approval gate, then apply and verify. Never edits before sign-off. |
+| `comments [PR#]` | Fetch the review comments a reviewer left on your PR, sort them into a task list, then implement / discuss / decline each, reply on the thread, and push. The inbound counterpart to `review`. |
 
 See [SKILL.md](./SKILL.md) for the dispatcher and the per-subcommand
 references for the full workflows.

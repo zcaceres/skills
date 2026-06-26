@@ -1,10 +1,20 @@
-# `/stacked-pr checkpoint` — Ship Current Slice as a Stacked PR
+# `/stacked-pr-gemini checkpoint` — Cut the Current Slice as the Next Stacked Branch
 
-Commit the current uncommitted work as the next branch in a stack, push
-it, and open a PR against the parent branch. Leave the user on the new
-child branch, ready to keep working.
+Commit the current uncommitted work as the next branch in a stack and
+leave the user on the new child branch, ready to keep working.
+
+**Publishing is deferred.** On the `git stack` path this is a purely
+**local** operation — it does **not** push or open a PR. You build the
+whole stack locally with repeated checkpoints, then publish it as one
+finished set with [`/stacked-pr-gemini submit`](submit.md). This keeps half-built,
+partial PRs from accumulating on GitHub and confusing reviewers.
 
 Uses `git stack` when available, otherwise falls back to `gh` CLI + `git`.
+
+> **`gh`-fallback caveat (temporary):** without `git stack`, this path
+> still pushes and opens the PR immediately — deferred publishing isn't
+> wired into the `gh`-only path yet. If you want the deferred workflow,
+> use `git stack`.
 
 **Slice description:** the dispatcher passes either the explicit text
 after the `checkpoint` keyword, or — when invoked without a keyword —
@@ -60,7 +70,7 @@ Stage explicitly — never `git add .` / `git add -A`:
 git add <file1> <file2> ...
 ```
 
-### 6A. git-stack Path — Create Branch + Submit
+### 6A. git-stack Path — Create Branch (local, no publish)
 
 If the slice description is empty, generate a concise
 conventional-commit-style message from the diff (e.g. `feat: add user
@@ -71,18 +81,17 @@ git stack create -m "<commit message>"
 ```
 
 This creates a new branch (auto-slugified from the message), records the
-parent relationship, and commits staged changes.
+parent relationship, and commits staged changes — **all local**.
 
-Then submit the stack:
+**Do not** run `git stack submit` here. Publishing is deferred to
+[`/stacked-pr-gemini submit`](submit.md): the stack reaches GitHub (all branches pushed,
+all PRs opened, titles marked) only once, when you're done building it.
+Skip ahead to step 7.
 
-```bash
-git stack submit
-```
+### 6B. `gh` Fallback Path — Create Branch + PR (eager publish)
 
-This pushes (force-with-lease) and creates/updates one GitHub PR per
-branch in the stack, with the correct base branches.
-
-### 6B. `gh` Fallback Path — Create Branch + PR
+> This path still publishes immediately — see the caveat at the top of
+> this file. Deferred publishing is `git stack`-only for now.
 
 Record the current branch as the parent:
 
@@ -126,27 +135,48 @@ EOF
 )"
 ```
 
+### 6C. Renumber Stack Title Markers (`gh`-fallback path only)
+
+The `gh`-fallback path (6B) just published a PR, so run the renumber
+routine from [references/title-convention.md](title-convention.md) to give
+every PR in the stack an up-to-date `[<name> N/M]` marker — adding this
+checkpoint grew `M`, so the siblings' titles need rewriting too.
+
+Skip this on the git-stack path (6A) — nothing is published yet, so
+there's nothing to mark. Markers are applied when you
+[`/stacked-pr-gemini submit`](submit.md).
+
 ### 7. Report
 
-Report:
+**git-stack path (local):**
+
+- The new branch name (`git branch --show-current`).
+- "Sliced locally — nothing pushed. Keep working; the next `/stacked-pr-gemini` (or
+  `/stacked-pr-gemini checkpoint`) stacks on top. Run `/stacked-pr-gemini submit` to publish the whole
+  stack when it's ready."
+
+**`gh`-fallback path (published):**
 
 - The new PR URL (`gh pr view --json url --jq .url`).
 - The new branch name (`git branch --show-current`).
+- The PR's marked title (`[<name> N/M] …`) so the user sees its place in
+  the stack.
 - A reminder: "You're on the child branch now. Keep working — the next
-  `/stacked-pr` (or `/stacked-pr checkpoint`) will stack on top."
+  `/stacked-pr-gemini` (or `/stacked-pr-gemini checkpoint`) will stack on top."
 
 ## Important
 
 - NEVER commit files you didn't modify in this conversation.
 - NEVER use `git add .` or stage unrelated changes.
+- **git-stack path:** local only — never `git stack submit` here.
+  Publishing happens at [`/stacked-pr-gemini submit`](submit.md).
 - **`gh` path:** Always set `--base` to the parent branch, not `main`,
-  to preserve the stack chain.
-- Report the PR URL when done.
+  to preserve the stack chain. Report the PR URL when done.
 
-## Merging the Stack
+## Publishing and Merging the Stack
 
-When ready to land, use `/stacked-pr merge` (added in a later PR in
-this consolidation stack). Until then, follow the "Stacked PRs" section
-in your `~/.claude/CLAUDE.md` — merge bottom-up, never use
-`--delete-branch`, and verify each child's `baseRefName` is `main`
+When the stack is built, publish it all at once with
+[`/stacked-pr-gemini submit`](submit.md) (git-stack path). Then, when ready to land, use
+[`/stacked-pr-gemini merge`](merge.md) — it merges the stack bottom-up, never uses
+`--delete-branch`, and verifies each child's `baseRefName` is the trunk
 before merging the next.

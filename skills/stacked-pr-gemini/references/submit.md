@@ -1,12 +1,17 @@
-# `/stacked-pr submit` — Push the Whole Stack
+# `/stacked-pr-gemini submit` — Publish the Whole Stack
 
-Push every branch in the current stack (force-with-lease) and
-create/update one GitHub PR per branch, each targeting the branch
-below it. Idempotent — safe to re-run after rebases.
+**This is the publish point for a stack.** Checkpoints are built locally
+and unpublished (see [`/stacked-pr-gemini checkpoint`](checkpoint.md)); `submit` is what
+pushes every branch (force-with-lease), opens one GitHub PR per branch
+(each targeting the branch below it), and stamps the `[<name> N/M]` title
+markers — so the finished stack reaches GitHub as one coherent set rather
+than a trickle of partial PRs. Idempotent — safe to re-run after rebases
+or after adding more checkpoints.
 
-Pure wrapper around `git stack submit`. There is no clean `gh`-only
-equivalent for "push the whole stack at once" — `/stacked-pr update`
-is the single-branch path when `git stack` isn't installed.
+Wrapper around `git stack submit` plus a title-marker pass. There is no
+clean `gh`-only equivalent for "publish the whole stack at once" — when
+`git stack` isn't installed, checkpoints publish eagerly and `/stacked-pr-gemini update`
+is the single-branch path.
 
 ## Workflow
 
@@ -21,8 +26,8 @@ If this prints nothing, the current branch isn't a recorded stack
 member. Tell the user:
 
 > "`<branch>` isn't part of a tracked stack — there's nothing for
-> `/stacked-pr submit` to push as a group. Use `/stacked-pr update` for
-> a single-branch push, or `/stacked-pr checkpoint` to start a new
+> `/stacked-pr-gemini submit` to push as a group. Use `/stacked-pr-gemini update` for
+> a single-branch push, or `/stacked-pr-gemini checkpoint` to start a new
 > stack from this branch."
 
 Stop here.
@@ -38,7 +43,7 @@ If this fails, the user doesn't have `git stack`. Tell them:
 > "`git stack` isn't installed, and there's no safe `gh`-only
 > equivalent for submitting a whole stack at once. Either install it
 > from <https://github.com/zcaceres/git-stack/releases>, or push each
-> branch individually with `/stacked-pr update` while checked out on
+> branch individually with `/stacked-pr-gemini update` while checked out on
 > it."
 
 Stop here. Don't try to fake the multi-branch push with a `gh` loop —
@@ -70,14 +75,23 @@ This:
   set to the parent branch.
 - Updates the title/body of existing PRs (per `git stack` defaults).
 
-### 5. Report
+### 5. Renumber Stack Title Markers
 
-Print one line per PR with the URL and base, e.g.:
+Run the renumber routine from
+[references/title-convention.md](title-convention.md) so every PR's title
+carries its `[<name> N/M]` marker. This runs *after* `git stack submit`,
+so it overrides whatever titles git-stack set and keeps the position
+labels (`N/M`) accurate for the current stack size.
+
+### 6. Report
+
+Print one line per PR with the title (marker included), URL, and base,
+e.g.:
 
 ```
-#42  base: main                          (bottom)  https://github.com/…/pull/42
-#43  base: feat/layer-1                            https://github.com/…/pull/43
-#44  base: feat/layer-2                  (top)     https://github.com/…/pull/44
+#42  [auth 1/3] Add token model        base: main          (bottom)  https://github.com/…/pull/42
+#43  [auth 2/3] Add token middleware    base: feat/layer-1            https://github.com/…/pull/43
+#44  [auth 3/3] Wire into the router    base: feat/layer-2  (top)     https://github.com/…/pull/44
 ```
 
 Recover URLs via `gh pr view <number> --json url,baseRefName -q '...'`
@@ -90,4 +104,4 @@ or by parsing `git stack log` output.
   stop and surface the error. Don't retry blindly — partial state is
   recoverable, blind retries can amplify mistakes.
 - Don't rewrite or amend commits inside this subcommand. Use
-  `/stacked-pr update` or `/stacked-pr sync` for those workflows.
+  `/stacked-pr-gemini update` or `/stacked-pr-gemini sync` for those workflows.

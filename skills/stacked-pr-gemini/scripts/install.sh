@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Wire the stacked-pr PostToolUse hook (matchers: Edit, Write, MultiEdit,
-# NotebookEdit) into a Claude Code settings.json so the diff-size nudge fires
+# Wire the pr AfterTool hook (matchers: Edit, Write, MultiEdit,
+# NotebookEdit) into a Gemini CLI settings.json so the diff-size nudge fires
 # after every file-modifying tool call, not just when this skill is loaded
 # into context. Idempotent — re-running is a no-op.
 #
 # Usage:
-#   scripts/install.sh                 # user scope: $HOME/.claude/settings.json
-#   scripts/install.sh --project       # project scope: ./.claude/settings.json
+#   scripts/install.sh                 # user scope: $HOME/.gemini/settings.json
+#   scripts/install.sh --project       # project scope: ./.gemini/settings.json
 #   scripts/install.sh --target PATH   # explicit target file
 #
 # Requires: jq. macOS: brew install jq. Linux: apt-get install jq.
@@ -22,17 +22,17 @@ SKILL_NAME="stacked-pr-gemini"
 HOOK_EVENT="AfterTool"
 HOOK_MATCHER="replace|write_file"
 
-CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.gemini}"
+GEMINI_HOME="${GEMINI_CONFIG_DIR:-$HOME/.gemini}"
 # Resolve HOOK_COMMAND from this script's own location so it points at the
 # correct runner whether the skill was installed at user scope, project
-# scope, or under a custom CLAUDE_CONFIG_DIR.
+# scope, or under a custom GEMINI_CONFIG_DIR.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOK_COMMAND="$SCRIPT_DIR/run.sh"
 
 TARGET=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --user)    TARGET="$CLAUDE_HOME/settings.json"; shift ;;
+    --user)    TARGET="$GEMINI_HOME/settings.json"; shift ;;
     --project) TARGET="./.gemini/settings.json"; shift ;;
     --target)  TARGET="$2"; shift 2 ;;
     -h|--help)
@@ -42,13 +42,23 @@ while [ $# -gt 0 ]; do
     *) echo "install.sh: unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+TARGET="${TARGET:-$GEMINI_HOME/settings.json}"
 
 [ -x "$HOOK_COMMAND" ] || {
   echo "install.sh: runner not found at $HOOK_COMMAND" >&2
   echo "Run install.sh from inside the unpacked skill's scripts/ directory." >&2
   exit 1
 }
+
+# Provision the platform binary the hook execs (download from this skill's
+# GitHub release, or build with bun). Independent of the settings wiring below
+# and best-effort: a missing binary only makes the hook a silent no-op, so we
+# never abort the install over it. Runs on every invocation, so re-running
+# install.sh also repairs a wired-but-missing-binary state.
+if [ -x "$SCRIPT_DIR/fetch-binary.sh" ]; then
+  "$SCRIPT_DIR/fetch-binary.sh" || \
+    echo "⚠ $SKILL_NAME: binary not provisioned — run $SCRIPT_DIR/fetch-binary.sh once gh or bun is available." >&2
+fi
 
 command -v jq >/dev/null || {
   echo "install.sh: requires jq. Install:" >&2
@@ -77,7 +87,7 @@ fi
 # but the user will get double nudges until they remove the old entry.
 if jq -e --arg event "$HOOK_EVENT" \
     '(.hooks[$event] // []) | map(.hooks[]?.command) | flatten
-     | any(test("/pr-size-nudge/scripts/run\\.(sh|cmd)$"))' \
+     | any(test("/stacked-pr-gemini-size-nudge/scripts/run\\.(sh|cmd)$"))' \
     "$TARGET" > /dev/null 2>&1; then
   echo "⚠ Detected an older pr-size-nudge hook entry in $TARGET."
   echo "  Both hooks will fire and you'll get double nudges until you"

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-stacked-pr-gemini",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Gemini CLI version of the bundled stacked-PR workflow. Subcommands ship the next slice (checkpoint), update the current branch's PR (update), push the whole stack (submit), visualize it (log), rebase onto trunk (sync), merge bottom-up (merge). Also bundles the AfterTool pr-size-nudge hook. Uses git stack when installed, falls back to gh + git.",
   "license": "MIT",
   "type": "module",

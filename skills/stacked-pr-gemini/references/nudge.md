@@ -19,8 +19,8 @@ wiring — see Install below) and has no user-facing command surface.
 
 | Setting | Default | Env var |
 |---|---|---|
-| Line threshold | 300 lines | `STACKED_PR_NUDGE_LINES` (or legacy `PR_NUDGE_LINES`) |
-| File threshold | 8 files | `STACKED_PR_NUDGE_FILES` (or legacy `PR_NUDGE_FILES`) |
+| Line threshold | 200 lines | `STACKED_PR_NUDGE_LINES` (or legacy `PR_NUDGE_LINES`) |
+| File threshold | 4 files | `STACKED_PR_NUDGE_FILES` (or legacy `PR_NUDGE_FILES`) |
 | Cooldown window | 30 minutes | (none) |
 | Re-fire on +lines delta | 150 | (none) |
 | Re-fire on +files delta | 3 | (none) |

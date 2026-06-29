@@ -59,8 +59,8 @@ const DEFAULT_EXCLUDE_GLOBS = [
   "*.min.css",
 ];
 
-const THRESHOLD_LINES = Number(process.env.STACKED_PR_NUDGE_LINES ?? process.env.PR_NUDGE_LINES ?? 300);
-const THRESHOLD_FILES = Number(process.env.STACKED_PR_NUDGE_FILES ?? process.env.PR_NUDGE_FILES ?? 8);
+const THRESHOLD_LINES = Number(process.env.STACKED_PR_NUDGE_LINES ?? process.env.PR_NUDGE_LINES ?? 200);
+const THRESHOLD_FILES = Number(process.env.STACKED_PR_NUDGE_FILES ?? process.env.PR_NUDGE_FILES ?? 4);
 
 const REFIRE_AFTER_MS = 30 * 60 * 1000;
 const REFIRE_LINES_DELTA = 150;

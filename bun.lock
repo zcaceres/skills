@@ -12,11 +12,15 @@
     },
     "skills/acid-trip": {
       "name": "@zcaceres/skill-acid-trip",
-      "version": "1.0.0",
+      "version": "1.1.0",
+    },
+    "skills/audit-aws-costs": {
+      "name": "@zcaceres/skill-audit-aws-costs",
+      "version": "0.0.0",
     },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/cleanup-computer": {
       "name": "@zcaceres/skill-cleanup-computer",
@@ -24,7 +28,7 @@
     },
     "skills/code-tour": {
       "name": "@zcaceres/skill-code-tour",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/copywriting": {
       "name": "@zcaceres/skill-copywriting",
@@ -32,7 +36,7 @@
     },
     "skills/decompose": {
       "name": "@zcaceres/skill-decompose",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/find-docs": {
       "name": "@zcaceres/skill-find-docs",
@@ -44,7 +48,7 @@
     },
     "skills/gh-project": {
       "name": "@zcaceres/skill-gh-project",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/investigate-repo": {
       "name": "@zcaceres/skill-investigate-repo",
@@ -52,7 +56,7 @@
     },
     "skills/nano-banana-generator": {
       "name": "@zcaceres/skill-nano-banana-generator",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/optimize-permissions": {
       "name": "@zcaceres/skill-optimize-permissions",
@@ -64,38 +68,38 @@
     },
     "skills/pr": {
       "name": "@zcaceres/skill-pr",
-      "version": "0.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "zod": "^4.4.3",
       },
     },
     "skills/quality-chaos-monkey": {
       "name": "@zcaceres/skill-quality-chaos-monkey",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/quality-dead-code-analyzer": {
       "name": "@zcaceres/skill-quality-dead-code-analyzer",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/quality-docs-update": {
       "name": "@zcaceres/skill-quality-docs-update",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/quality-perf-review": {
       "name": "@zcaceres/skill-quality-perf-review",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/quality-project-health": {
       "name": "@zcaceres/skill-quality-project-health",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/quality-worktree-setup": {
       "name": "@zcaceres/skill-quality-worktree-setup",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/record-gif": {
       "name": "@zcaceres/skill-record-gif",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/reflect-on-conversation": {
       "name": "@zcaceres/skill-reflect-on-conversation",
@@ -103,23 +107,23 @@
     },
     "skills/review-code": {
       "name": "@zcaceres/skill-review-code",
-      "version": "0.0.0",
+      "version": "0.2.0",
     },
     "skills/safety-dotenv-guard": {
       "name": "@zcaceres/skill-safety-dotenv-guard",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/safety-git-reset-guard": {
       "name": "@zcaceres/skill-safety-git-reset-guard",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/safety-op-creds": {
       "name": "@zcaceres/skill-safety-op-creds",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/safety-rm-rf-guard": {
       "name": "@zcaceres/skill-safety-rm-rf-guard",
-      "version": "1.0.0",
+      "version": "2.0.0",
     },
     "skills/security-bumblebee": {
       "name": "@zcaceres/skill-security-bumblebee",
@@ -127,11 +131,11 @@
     },
     "skills/security-gitleaks": {
       "name": "@zcaceres/skill-security-gitleaks",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/security-openssf": {
       "name": "@zcaceres/skill-security-openssf",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/security-snyk": {
       "name": "@zcaceres/skill-security-snyk",
@@ -154,7 +158,7 @@
     },
     "skills/test": {
       "name": "@zcaceres/skill-test",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/transcribe-youtube": {
       "name": "@zcaceres/skill-transcribe-youtube",
@@ -162,7 +166,7 @@
     },
     "skills/trip-planner": {
       "name": "@zcaceres/skill-trip-planner",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/zoom": {
       "name": "@zcaceres/skill-zoom",
@@ -223,6 +227,8 @@
     "@types/node": ["@types/node@25.9.1", "", { "dependencies": { "undici-types": ">=7.24.0 <7.24.7" } }, "sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg=="],
 
     "@zcaceres/skill-acid-trip": ["@zcaceres/skill-acid-trip@workspace:skills/acid-trip"],
+
+    "@zcaceres/skill-audit-aws-costs": ["@zcaceres/skill-audit-aws-costs@workspace:skills/audit-aws-costs"],
 
     "@zcaceres/skill-clean-ai-slop": ["@zcaceres/skill-clean-ai-slop@workspace:skills/clean-ai-slop"],
 

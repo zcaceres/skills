@@ -1,0 +1,21 @@
+{
+  "name": "@zcaceres/skill-audit-aws-costs",
+  "version": "0.0.0",
+  "description": "Read-only audit of AWS spend and recently provisioned resources. Sweeps CloudTrail across all regions, inventories billable resources, breaks down Cost Explorer spend, and prints a decision-ready report. Never deletes by default.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "aws",
+    "cost",
+    "cloudtrail",
+    "audit"
+  ]
+}

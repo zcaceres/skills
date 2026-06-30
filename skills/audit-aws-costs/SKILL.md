@@ -1,6 +1,7 @@
 ---
 name: audit-aws-costs
-description: Read-only audit of AWS spend and recently provisioned resources. Sweeps CloudTrail for recent write activity across all regions, inventories billable resources, breaks down Cost Explorer spend by service, drills into the top cost drivers, and prints a decision-ready report. Never deletes anything by default. Use on "audit my AWS costs", "what am I running in AWS", "did I provision something by accident", "why is my AWS bill so high", "find idle AWS resources".
+description: Read-only audit of AWS spend and recently provisioned resources. Sweeps CloudTrail for recent write activity across all regions, inventories billable resources, breaks down Cost Explorer spend by service, drills into the top cost drivers, and prints a decision-ready report. Never deletes anything by default. Invoke via /audit-aws-costs.
+disable-model-invocation: true
 ---
 
 # Audit AWS Costs
@@ -12,6 +13,9 @@ default.** It gathers facts and presents an audit; teardown only happens later,
 on an explicit, per-resource request.
 
 ## When to Use This Skill
+
+This skill is **invoked explicitly via `/audit-aws-costs`** — it does not
+activate on its own. Run it when you want to answer questions like:
 
 - "Audit my AWS costs" / "why is my AWS bill so high?"
 - "What am I running in AWS?" / "What's provisioned in my account?"

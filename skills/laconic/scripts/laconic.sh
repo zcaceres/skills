@@ -10,6 +10,7 @@
 #   laconic.sh off  [--project|--user]
 #   laconic.sh mode <prose-only|prose+code> [--project|--user]
 #   laconic.sh status
+#   laconic.sh statusline   # compact badge for a status line ("◆ laconic" when on, else nothing)
 #
 # Defaults: scope = user; mode = prose+code.
 # Precedence: a project state file overrides the user one (so a project `off`
@@ -99,8 +100,17 @@ EOF
       echo "  user:    '$(read_state "$(user_state)")'  [$(user_state)]"
     fi
     ;;
+  statusline)
+    # Compact badge for embedding in a status line. Prints nothing (and no
+    # trailing newline) when laconic is off/unset, so callers can splice it in
+    # unconditionally. Honours project-over-user precedence via resolve().
+    read -r src state smode <<EOF
+$(resolve)
+EOF
+    [ "$state" = "on" ] && printf '◆ laconic' || true
+    ;;
   -h|--help)
-    sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
     ;;
   *)
     echo "laconic: unknown command: $cmd (use on|off|mode|status)" >&2

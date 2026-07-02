@@ -65,6 +65,24 @@ test("mode changes the mode and keeps the on/off state", () => {
   expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on prose-only");
 });
 
+test("statusline emits a badge when on, nothing when off/unset", () => {
+  const { vars } = fresh();
+  expect(laconic(["statusline"], vars).out).toBe(""); // unset
+  laconic(["on", "--user", "prose+code"], vars);
+  expect(laconic(["statusline"], vars).out).toBe("◆ laconic");
+  laconic(["mode", "prose-only", "--user"], vars);
+  expect(laconic(["statusline"], vars).out).toBe("◆ laconic"); // badge is mode-agnostic
+  laconic(["off", "--user"], vars);
+  expect(laconic(["statusline"], vars).out).toBe("");
+});
+
+test("statusline honours project-over-user precedence", () => {
+  const { vars } = fresh();
+  laconic(["on", "--user"], vars);
+  laconic(["off", "--project"], vars);
+  expect(laconic(["statusline"], vars).out).toBe(""); // project off wins
+});
+
 test("hook injects only the active mode block (prose-only)", () => {
   const { vars, projDir } = fresh();
   laconic(["on", "--user", "prose-only"], vars);

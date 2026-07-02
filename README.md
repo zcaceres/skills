@@ -57,6 +57,7 @@ npx skills add zcaceres/skills -s safety-rm-rf-guard
 npx skills add zcaceres/skills -s security-bumblebee
 npx skills add zcaceres/skills -s security-gitleaks
 npx skills add zcaceres/skills -s security-openssf
+npx skills add zcaceres/skills -s security-scfw
 npx skills add zcaceres/skills -s security-snyk
 npx skills add zcaceres/skills -s security-socket
 npx skills add zcaceres/skills -s storage-cleanup
@@ -139,6 +140,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `security-bumblebee` | **Slash command.** Run Perplexity's bumblebee endpoint scanner for supply-chain exposure checks; `setup` baselines and schedules scans, `review` reads the latest and surfaces drift. |
 | `security-gitleaks` | **Slash command.** Set up gitleaks secret-scanning — scans history first, then scaffolds `.gitleaks.toml`, a pre-commit hook, and a pinned CI workflow. |
 | `security-openssf` | **Slash command.** Scaffold OpenSSF Scorecard CI on a public repo with a safe two-phase rollout; `fix` turns a report into a remediation plan. Public repos only. |
+| `security-scfw` | **Slash command.** Set up Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time; `setup` installs + aliases pip/npm/poetry through the firewall (plus an optional agent hook), `review` reads the local log and audits installed packages. |
 | `security-snyk` | **Slash command.** Walk through the Snyk GitHub App install (login → install → add project) and verify it landed; optionally scaffold a pinned `snyk code test` CI workflow. |
 | `security-socket` | **Slash command.** Walk through the Socket Security (socket.dev) GitHub App OAuth install and verify it landed; optionally scaffold a pinned CI status-check workflow. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |

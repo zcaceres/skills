@@ -7,6 +7,7 @@ Repo + endpoint security setup: OpenSSF Scorecard, gitleaks, Snyk, Socket, and t
 | `/security:bumblebee` | Set up and use Perplexity's bumblebee endpoint scanner for supply-chain exposure checks. |
 | `/security:gitleaks` | Set up gitleaks secret-scanning on a repo. |
 | `/security:openssf` | Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with… |
+| `/security:scfw` | Set up and use Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time. |
 | `/security:snyk` | Set up Snyk on a repo. |
 | `/security:socket` | Set up Socket Security (socket.dev) on a repo. |
 

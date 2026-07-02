@@ -14,3 +14,7 @@ skills/*/*.tgz
 
 # Claude Code worktrees (created by `claude --worktree`; set up by quality-worktree-setup)
 .claude/worktrees/
+
+# Personal skill-install artifacts (from `npx skills add`) and settings backups
+skills-lock.json
+*.bak.*

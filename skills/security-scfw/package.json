@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-security-scfw",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Set up Datadog's Supply-Chain Firewall (scfw) on a developer machine to block known-malicious npm/PyPI/Poetry packages at install time. Installs scfw, wires shell aliases via `scfw configure` so pip/npm/poetry passively route through the firewall, smoke-tests the pipeline, and optionally installs a Claude Code PreToolUse hook so the agent's own installs are vetted too. Review mode reads the local JSON Lines log, audits installed packages, and answers advisory lookups. User-triggered only.",
   "license": "MIT",
   "type": "module",
@@ -9,5 +9,9 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "README.md"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "README.md"
+  ]
 }

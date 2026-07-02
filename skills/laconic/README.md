@@ -9,8 +9,9 @@ mode. Plain English made economical, not clipped fragments.
 - `SKILL.md` — manifest + instructions (skills.sh standard)
 - `scripts/laconic.sh` — control surface: on/off/mode/status/uninstall (writes a state file)
 - `scripts/session-start.sh` — SessionStart hook that injects the voice when active
-- `scripts/install.sh` — wires the hook into `settings.json` (idempotent, backs up)
-- `scripts/uninstall.sh` — unwires the hook and deletes the state file (idempotent, backs up)
+- `scripts/statusline.sh` — status-line wrapper (runs your saved original + appends the badge)
+- `scripts/install.sh` — wires the hook + status-line badge into `settings.json` (idempotent, backs up)
+- `scripts/uninstall.sh` — unwires the hook, restores the status line, deletes the state file (idempotent, backs up)
 - `assets/rules.md` — the voice the hook injects
 
 ## Install
@@ -44,10 +45,12 @@ explicit file. The script self-locates, so it works at user or project scope.
 
 `uninstall.sh` is the exact inverse of `install.sh` (same flags, needs `jq`): it
 backs up `settings.json`, removes the laconic `SessionStart` hook while leaving
-other hooks intact, and deletes that scope's state file. It's idempotent and
-warns — rather than silently breaking — if a `statusLine` command still
-references laconic. Pass `--keep-state` to unwire the hook but keep `laconic.state`.
-The skill's own files stay put; remove them with your skills CLI.
+other hooks intact, restores the status line it replaced (from the saved
+original), and deletes that scope's state file. It's idempotent and warns —
+rather than silently breaking — if a *hand-added* `statusLine` reference to
+laconic (one it didn't manage) remains. Pass `--keep-state` to unwire the hook
+but keep `laconic.state`, or `--statusline-only` to restore just the status line
+and keep the voice. The skill's own files stay put; remove them with your skills CLI.
 
 ## Notes
 
@@ -59,6 +62,8 @@ The skill's own files stay put; remove them with your skills CLI.
 - **Presentation, not reasoning.** The voice only shapes what the agent shows
   you; it never constrains the agent's reasoning. Full clarity is preserved for
   security warnings, irreversible actions, and genuine ambiguity.
-- **Status-line badge.** `laconic.sh statusline` prints `◆ laconic` when on
-  (nothing when off), so you can splice it into your `settings.json` `statusLine`
-  command to see at a glance that the voice is active. See SKILL.md.
+- **Status-line badge.** `install.sh` adds it by default: it saves your existing
+  `.statusLine`, then routes it through `statusline.sh`, which re-runs your
+  original and appends `◆ laconic` when on (nothing when off). Opt out with
+  `install.sh --no-statusline`; remove later with `uninstall.sh --statusline-only`.
+  The underlying primitive is `laconic.sh statusline`. See SKILL.md.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// Release a single skill: build, tarball, GH release, skills.sh publish.
+// Release a single skill: build, tarball, GH release.
 //
 // Usage: bun run release <skill-name> [--dry-run]
 //
@@ -58,7 +58,7 @@ await $`git tag ${tag}`;
 await $`git push origin ${tag}`;
 await $`gh release create ${tag} ${tarball} ${binaries} --title ${tag} --notes "Release ${tag}"`;
 
-// skills.sh publish — wire in once the CLI/API is finalized.
-// await $`bunx skills publish ${join(src, "dist", name)}`;
+// No registry publish: the `skills` CLI installs directly from this GitHub
+// repo and has no `publish` command. If one ever ships, wire it in here.
 
 console.log(`Published ${tag}`);

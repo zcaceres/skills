@@ -2,7 +2,7 @@
 # Cleanly reverse a laconic install: unwire the SessionStart hook from a Claude
 # Code settings.json, restore any status line install.sh replaced with the
 # laconic wrapper, and delete that scope's laconic.state. The exact inverse of
-# install.sh. Idempotent — re-running (or running when nothing is wired) is a
+# install.sh. Idempotent. Re-running (or running when nothing is wired) is a
 # no-op that still reports success.
 #
 # Usage:
@@ -16,7 +16,7 @@
 #
 # What it does NOT touch: the skill's own files (managed by your skills CLI) and
 # any laconic reference you hand-added to a `statusLine` command (as opposed to
-# the managed wrapper) — that one it can't safely rewrite, so it warns you to
+# the managed wrapper). That one it can't safely rewrite, so it warns you to
 # remove it yourself before the missing script breaks the status line.
 
 set -euo pipefail
@@ -62,7 +62,7 @@ command -v jq >/dev/null || {
 
 changed=0
 
-# Back up once, lazily, before the first mutation — shared across hook +
+# Back up once, lazily, before the first mutation. Shared across hook +
 # status-line changes so a single run leaves at most one backup.
 BACKUP=""
 backup_once() {
@@ -111,7 +111,7 @@ if [ -f "$TARGET" ]; then
     saved="null"
     [ -f "$STATUSLINE_ORIG" ] && saved="$(jq -c '.' "$STATUSLINE_ORIG" 2>/dev/null || echo null)"
     if [ "$saved" = "null" ] || [ -z "$saved" ]; then
-      # No saved original (or it was empty) — drop the wrapper so the soon-to-be
+      # No saved original (or it was empty). Drop the wrapper so the soon-to-be
       # missing script can't break the status line.
       jq 'del(.statusLine)' "$TARGET" > "$TARGET.tmp"
       mv "$TARGET.tmp" "$TARGET"
@@ -124,11 +124,11 @@ if [ -f "$TARGET" ]; then
     [ -f "$STATUSLINE_ORIG" ] && rm -f "$STATUSLINE_ORIG"
     changed=1
   elif jq -e '(.statusLine.command // "") | contains("laconic")' "$TARGET" > /dev/null 2>&1; then
-    # A hand-added laconic reference (not the managed wrapper) — can't safely
+    # A hand-added laconic reference (not the managed wrapper). Can't safely
     # rewrite it, so warn rather than break the line once the files are gone.
     echo
     echo "⚠ $TARGET has a hand-added 'laconic' reference in its statusLine command."
-    echo "  Remove that part by hand — once the skill's files are gone it will error."
+    echo "  Remove that part by hand. Once the skill's files are gone it will error."
   fi
 else
   echo "• $TARGET does not exist; nothing to unwire."
@@ -145,6 +145,6 @@ if [ "$changed" -eq 1 ]; then
   echo "$SKILL_NAME uninstalled from this scope. Restart Claude Code (or open a new"
   echo "conversation) for the change to take effect."
 else
-  echo "Nothing to do — $SKILL_NAME was not wired in this scope."
+  echo "Nothing to do. $SKILL_NAME was not wired in this scope."
 fi
 echo "The skill's files are left in place; remove them with your skills CLI if desired."

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# laconic — control surface for the laconic voice.
+# laconic: control surface for the laconic voice.
 #
 # Reads/writes a tiny state file ("<on|off> <mode>") at project or user scope.
 # The SessionStart hook (session-start.sh) reads that state and injects the
@@ -96,7 +96,7 @@ EOF
     if [ "$src" = "none" ]; then
       echo "laconic: inactive (no state file). Default mode when enabled: $DEFAULT_MODE."
     else
-      echo "laconic: $state (mode: $smode) — resolved from $src scope"
+      echo "laconic: $state (mode: $smode), resolved from $src scope"
       echo "  project: '$(read_state "$(project_state)")'  [$(project_state)]"
       echo "  user:    '$(read_state "$(user_state)")'  [$(user_state)]"
     fi

@@ -5,7 +5,7 @@
 # Claude Code status JSON on stdin, runs the wrapped original status-line command
 # (saved by install.sh) with that same JSON, and appends the laconic badge
 # ("◆ laconic") when the voice resolves on for the workspace. When the voice is
-# off the badge is empty, so the line is exactly the original — the wrapper is
+# off the badge is empty, so the line is exactly the original. The wrapper is
 # invisible until you turn laconic on.
 #
 # Env:

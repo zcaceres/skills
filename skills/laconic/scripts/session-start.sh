@@ -2,7 +2,7 @@
 # laconic — SessionStart hook.
 #
 # Reads the persisted state (project overrides user) and, when active, prints
-# the mode-filtered register to stdout. Claude Code injects SessionStart stdout
+# the mode-filtered voice to stdout. Claude Code injects SessionStart stdout
 # as hidden session context. Prints nothing when laconic is off or unset — it
 # never injects noise.
 #
@@ -38,7 +38,7 @@ MODE="${LINE#* }"
 case "$MODE" in prose-only|prose+code) ;; *) MODE="prose+code" ;; esac
 [ -f "$RULES" ] || exit 0
 
-echo "LACONIC MODE ACTIVE (mode: $MODE). The register below governs how you present"
+echo "LACONIC MODE ACTIVE (mode: $MODE). The voice below governs how you present"
 echo "answers to the user. Follow it until told 'normal mode' or 'stop laconic'."
 echo
 

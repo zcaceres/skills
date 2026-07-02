@@ -1,6 +1,6 @@
 # laconic
 
-Answer in a spare, plain register — lead with the point, complete sentences, no
+Answer in a spare, plain voice — lead with the point, complete sentences, no
 filler or hedging. Persisted per project or per user, in prose-only or prose+code
 mode. Plain English made economical, not clipped fragments.
 
@@ -8,9 +8,9 @@ mode. Plain English made economical, not clipped fragments.
 
 - `SKILL.md` — manifest + instructions (skills.sh standard)
 - `scripts/laconic.sh` — control surface: on/off/mode/status (writes a state file)
-- `scripts/session-start.sh` — SessionStart hook that injects the register when active
+- `scripts/session-start.sh` — SessionStart hook that injects the voice when active
 - `scripts/install.sh` — wires the hook into `settings.json` (idempotent, backs up)
-- `assets/rules.md` — the register the hook injects
+- `assets/rules.md` — the voice the hook injects
 
 ## Install
 
@@ -30,7 +30,7 @@ Then enable it:
 
 Why the second step: the `skills` CLI only copies files. The SKILL.md
 frontmatter `hooks:` block fires only while the skill is active in context;
-`install.sh` gets the `SessionStart` hook onto every session so the register
+`install.sh` gets the `SessionStart` hook onto every session so the voice
 persists. Use `--project` for `./.claude/settings.json` or `--target PATH` for an
 explicit file. The script self-locates, so it works at user or project scope.
 
@@ -41,9 +41,9 @@ explicit file. The script self-locates, so it works at user or project scope.
   code itself.
 - **Scope precedence.** A project state file overrides the user one, so a project
   `off` suppresses a user `on`.
-- **Presentation, not reasoning.** The register only shapes what the agent shows
+- **Presentation, not reasoning.** The voice only shapes what the agent shows
   you; it never constrains the agent's reasoning. Full clarity is preserved for
   security warnings, irreversible actions, and genuine ambiguity.
 - **Status-line badge.** `laconic.sh statusline` prints `◆ laconic` when on
   (nothing when off), so you can splice it into your `settings.json` `statusLine`
-  command to see at a glance that the register is active. See SKILL.md.
+  command to see at a glance that the voice is active. See SKILL.md.

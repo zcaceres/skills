@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wire the laconic SessionStart hook into a Claude Code settings.json so the
-# register is injected at the start of every session (and after context
+# voice is injected at the start of every session (and after context
 # compaction), not just when the skill is loaded in context. Idempotent —
 # re-running is a no-op.
 #
@@ -14,7 +14,7 @@
 # Why this exists: the skills.sh CLI is a pure file copier — no install
 # lifecycle. SKILL.md frontmatter hooks only fire while the skill is active in
 # context, so they're not always-on. Wiring into settings.json is the only way
-# to keep the register on across sessions. Toggle it with `/laconic on|off`.
+# to keep the voice on across sessions. Toggle it with `/laconic on|off`.
 
 set -euo pipefail
 

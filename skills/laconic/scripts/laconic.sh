@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# laconic — control surface for the laconic register.
+# laconic — control surface for the laconic voice.
 #
 # Reads/writes a tiny state file ("<on|off> <mode>") at project or user scope.
 # The SessionStart hook (session-start.sh) reads that state and injects the
-# register when active; this script never prints the register itself.
+# voice when active; this script never prints the voice itself.
 #
 # Usage:
 #   laconic.sh on   [--project|--user] [prose-only|prose+code]

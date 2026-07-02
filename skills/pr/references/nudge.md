@@ -1,11 +1,15 @@
-# `pr` Hook — PostToolUse Diff-Size Nudge
+# `pr` Hook — Diff-Size Nudge
 
-A PostToolUse hook that runs after every file-modifying tool call
-(`Edit`, `Write`, `MultiEdit`, `NotebookEdit`). It opens the current
-repo, runs `git diff --numstat HEAD` plus a status-porcelain pass for
-untracked files, and — when the uncommitted diff is over the line/file
-thresholds — emits a soft reminder telling the agent to consider `/pr`
-to land the slice as a focused PR (a stacked checkpoint in stacked mode).
+A hook that runs after every file-modifying tool call — `PostToolUse`
+(`Edit`, `Write`, `MultiEdit`, `NotebookEdit`) under Claude Code, and
+`AfterTool` (`replace`, `write_file`) under Gemini CLI. It opens the
+current repo, runs `git diff --numstat HEAD` plus a status-porcelain
+pass for untracked files, and — when the uncommitted diff is over the
+line/file thresholds — emits a soft reminder telling the agent to
+consider `/pr` to land the slice as a focused PR (a stacked checkpoint
+in stacked mode). The same compiled binary serves both hosts: it reads
+the host's event name from the hook payload, echoes it back in the
+output envelope, and homes its state file accordingly (see below).
 
 The hook is **non-blocking by design**. It never exits non-zero, never
 returns block payloads, never errors out — soft failures are
@@ -34,10 +38,13 @@ The hook re-fires when either:
   `(session_id, repo)` pair, OR
 - The diff has grown by ≥150 lines OR ≥3 files since the last fire.
 
-State lives at `~/.claude/state/pr-nudge.json`. Entries older
-than 7 days are swept on the next write. (Distinct from the standalone
-`pr-size-nudge` skill's state file — the two coexist without colliding
-if you happen to have both installed.)
+State lives under the config dir of whichever host fired the hook —
+`~/.claude/state/pr-nudge.json` for Claude Code, `~/.gemini/state/pr-nudge.json`
+for Gemini CLI (the binary picks the dir from the payload's event name;
+override with `PR_NUDGE_STATE_DIR`). Entries older than 7 days are swept
+on the next write. (Distinct from the standalone `pr-size-nudge` skill's
+state file — the two coexist without colliding if you happen to have
+both installed.)
 
 ## Default exclusions
 
@@ -57,17 +64,22 @@ entirely.
 
 ```sh
 npx skills add zcaceres/skills -s pr
-~/.claude/skills/pr/scripts/install.sh
+~/.claude/skills/pr/scripts/install.sh                 # Claude Code (default)
+# or, for Gemini CLI:
+~/.gemini/skills/pr/scripts/install.sh --agent gemini
 ```
 
-The second step wires this hook into `~/.claude/settings.json` so it
-fires on every matching tool call, not just when the skill is active
-in context. The script is idempotent, backs up the target file with a
-timestamp, and is a no-op if the hook is already wired. It derives
-the runner path from its own location, so it works whether the skill
-was installed at user scope or project scope. Flags: `--project`
-(writes to `./.claude/settings.json`), `--target PATH` (explicit
-file). Requires `jq`.
+The second step wires this hook into the host's `settings.json`
+(`~/.claude` or `~/.gemini`) so it fires on every matching tool call,
+not just when the skill is active in context. `install.sh` auto-detects
+the host — override with `--agent claude|gemini` — and writes the right
+event name (`PostToolUse` / `AfterTool`), tool matcher, and settings
+dir. The script is idempotent, backs up the target file with a
+timestamp, and is a no-op if the hook is already wired. It derives the
+runner path from its own location, so it works whether the skill was
+installed at user scope or project scope. Flags: `--agent`, `--project`
+(writes to `./.claude/settings.json` or `./.gemini/settings.json`),
+`--target PATH` (explicit file). Requires `jq`.
 
 `install.sh` also runs `scripts/fetch-binary.sh` to provision the
 binary (see below), so the two-step install both wires the hook *and*
@@ -110,13 +122,14 @@ an existing pr-size-nudge entry.
 
 ### Why two steps
 
-The `hooks:` block in SKILL.md is the spec-correct shape for a Claude
-Code skill that registers a hook, but as of today Claude Code does
-**not** substitute `${CLAUDE_SKILL_DIR}` in frontmatter hook commands
+The `hooks:` block in SKILL.md is the spec-correct shape for a skill
+that registers a hook (it declares both the `PostToolUse` and `AfterTool`
+variants, one per host), but as of today neither Claude Code nor Gemini
+CLI substitutes `${CLAUDE_SKILL_DIR}` in frontmatter hook commands
 — see [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
 (closed as "not planned"). And frontmatter `hooks:` blocks only fire
 while the skill is loaded into context — not always-on. `install.sh`
-writes an absolute path into `settings.json`, closing both gaps.
+writes an absolute path into the host's `settings.json`, closing both gaps.
 
 ### Manual wiring (alternative)
 
@@ -139,15 +152,34 @@ replacing `<path>` with the unpacked skill's absolute path:
 }
 ```
 
+For **Gemini CLI**, wire the same runner under `~/.gemini/settings.json`
+using the `AfterTool` event and Gemini's tool names instead:
+
+```json
+{
+  "hooks": {
+    "AfterTool": [
+      {
+        "matcher": "replace|write_file",
+        "hooks": [
+          { "type": "command", "command": "<path>/scripts/run.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
 On Windows, point at `scripts\\run.cmd` instead.
 
 ## How it works
 
-1. Claude Code invokes `scripts/run.sh` after every matched tool call.
+1. The host (Claude Code or Gemini CLI) invokes `scripts/run.sh` after
+   every matched tool call.
 2. `run.sh` picks the right bundled binary for the host OS/arch
    (`pr-nudge-{darwin-arm64,linux-x64,windows-x64.exe}`).
 3. The binary reads the JSON hook payload from stdin (`cwd`,
-   `session_id`).
+   `session_id`, and — from Gemini — `hook_event_name`).
 4. It resolves the repo root via `git -C <cwd> rev-parse
    --show-toplevel`. If that fails (not in a repo), the hook exits
    silently.
@@ -162,8 +194,9 @@ On Windows, point at `scripts\\run.cmd` instead.
    hook exits silently.
 9. State is consulted to enforce the cooldown + re-fire deltas. If
    suppressed, exit silently.
-10. Otherwise, write a `PostToolUse:additionalContext` payload to
-    stdout with a one-liner like:
+10. Otherwise, write an `additionalContext` payload to stdout — echoing
+    the host's event name (`PostToolUse`, or `AfterTool` for Gemini) —
+    with a one-liner like:
 
     > Uncommitted diff is 412 lines across 11 files without a commit.
     > If this work forms a shippable slice, run /pr to land it as a

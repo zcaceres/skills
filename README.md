@@ -44,7 +44,6 @@ npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s optimize-skill-activation
 npx skills add zcaceres/skills -s pr
-npx skills add zcaceres/skills -s stacked-pr-gemini
 npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s nano-banana-generator
@@ -125,8 +124,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `optimize-skill-activation` | Right-size each installed skill's activation mode — slash-only, model-invocable, or eager-loaded — then rewrite its `SKILL.md` frontmatter. |
-| `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the PostToolUse diff-size nudge. |
-| `stacked-pr-gemini` | **Hook + slash command.** Stacked-PR workflow tuned for Gemini CLI (`checkpoint`, `update`, `submit`, `log`, `sync`, `merge`); uses `git stack` when present, falls back to `gh` + `git`. |
+| `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the diff-size nudge hook. Runs under both Claude Code and Gemini CLI (`install.sh --agent gemini`). |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `nano-banana-generator` | Generate one-off graphic assets (logos, icons, illustrations, UI elements) via Google's Nano Banana / Gemini image generation. |

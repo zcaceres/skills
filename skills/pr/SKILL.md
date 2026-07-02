@@ -1,11 +1,15 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a PostToolUse hook that nudges toward /pr when the uncommitted diff grows large. Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [args]"
 disable-model-invocation: true
 hooks:
   PostToolUse:
     - matcher: "Edit|Write|MultiEdit|NotebookEdit"
+      type: command
+      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
+  AfterTool:
+    - matcher: "replace|write_file"
       type: command
       command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
 ---
@@ -74,25 +78,33 @@ format and the renumber routine.
 
 ## Bundled hook
 
-A PostToolUse hook is shipped with this skill. It fires after every
-`Edit`/`Write`/`MultiEdit`/`NotebookEdit` tool call and nudges toward
-`/pr` when the uncommitted diff crosses size/file thresholds — so you
-land a focused PR (a stacked checkpoint in stacked mode) before the diff
-grows unwieldy.
+A diff-size nudge hook is shipped with this skill. It fires after every
+file-modifying tool call and nudges toward `/pr` when the uncommitted
+diff crosses size/file thresholds — so you land a focused PR (a stacked
+checkpoint in stacked mode) before the diff grows unwieldy. The same hook
+binary runs under **Claude Code** (`PostToolUse`;
+`Edit`/`Write`/`MultiEdit`/`NotebookEdit`) and **Gemini CLI**
+(`AfterTool`; `replace`/`write_file`) — it reads the host's event name
+from the hook payload and adapts. Only the settings wiring differs, and
+`install.sh --agent` handles that.
 
 Two-step install:
 
 ```sh
 npx skills add zcaceres/skills -s pr
-~/.claude/skills/pr/scripts/install.sh
+~/.claude/skills/pr/scripts/install.sh                 # Claude Code (default)
+# or, for Gemini CLI:
+~/.gemini/skills/pr/scripts/install.sh --agent gemini
 ```
 
-The second step wires the hook into `~/.claude/settings.json` so it
-fires on every matching tool call, not just when the skill is active
-in context (`${CLAUDE_SKILL_DIR}` substitution in frontmatter hook
-commands is not supported by Claude Code today). The script
-self-locates, so the same command works whether the skill was
-installed at user scope or project scope. Flags: `--project`,
+The second step wires the hook into the host's `settings.json` so it
+fires on every matching tool call, not just when the skill is active in
+context (`${CLAUDE_SKILL_DIR}` substitution in frontmatter hook commands
+is unsupported by both hosts today). `install.sh` auto-detects the host
+(override with `--agent claude|gemini`) and writes the right event name,
+tool matcher, and settings dir (`~/.claude` vs `~/.gemini`). The script
+self-locates, so the same command works whether the skill was installed
+at user scope or project scope. Flags: `--agent`, `--project`,
 `--target PATH`. Requires `jq`. See [references/nudge.md](references/nudge.md)
 for thresholds, env-var overrides, and manual wiring as an alternative.
 

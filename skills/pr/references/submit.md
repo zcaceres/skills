@@ -13,6 +13,14 @@ clean `gh`-only equivalent for "publish the whole stack at once" — when
 `git stack` isn't installed, checkpoints publish eagerly and `/pr update`
 is the single-branch path.
 
+## Flags (passed through `$ARGUMENTS`)
+
+- `--draft` — open the stack's PRs as **drafts**. Passes `--draft` through
+  to `git stack submit`, so every PR this run *creates* starts in draft
+  state. Existing PRs are left as-is (matches `git stack` / `gh pr create`
+  semantics — `--draft` only affects newly-created PRs; it will not convert
+  an already-open PR back to draft).
+
 ## Workflow
 
 ### 1. Verify You're In a Stack
@@ -64,16 +72,20 @@ how to reconcile before force-with-lease overwrites their work.
 
 ### 4. Submit
 
+Forward `--draft` only if the user supplied it — never add it on your own:
+
 ```bash
-git stack submit
+git stack submit            # default
+git stack submit --draft    # only when the user passed --draft
 ```
 
 This:
 
 - Pushes each branch in the stack with `--force-with-lease`.
 - Creates a PR for any branch that doesn't have one, with `--base`
-  set to the parent branch.
+  set to the parent branch — as a **draft** when `--draft` was passed.
 - Updates the title/body of existing PRs (per `git stack` defaults).
+  `--draft` does not change PRs that already exist.
 
 ### 5. Renumber Stack Title Markers
 

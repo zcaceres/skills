@@ -47,7 +47,7 @@ one; unset means normal). Named subcommands below work in either mode.
 | `log` | Read-only. In normal mode show the current branch's PR; in stacked mode print the stack tree. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
 | `checkpoint [slice description]` | Cut current diff as the next stacked branch. Local-only on the git-stack path (publishes nothing); the `gh`-fallback path still publishes eagerly. The stacked-mode default. |
-| `submit` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. Requires `git stack`. |
+| `submit [--draft]` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. `--draft` opens the created PRs as drafts. Requires `git stack`. |
 | `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 
 See [references/recovery.md](references/recovery.md) if a `--delete-branch`

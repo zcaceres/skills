@@ -1,5 +1,17 @@
 # @zcaceres/skill-laconic
 
+## 0.3.0
+
+### Minor Changes
+
+- 5cc9aaa: Add an uninstall command. `/laconic uninstall [--project|--user]` (and
+  `scripts/uninstall.sh`) reverses the install for a scope: it unwires the
+  `SessionStart` hook from `settings.json` (backing the file up first), prunes any
+  now-empty hook blocks while leaving unrelated hooks intact, and deletes that
+  scope's `laconic.state`. Idempotent, and it warns instead of silently breaking a
+  `statusLine` command that still references laconic. Pass `--keep-state` to unwire
+  the hook without deleting state.
+
 ## 0.2.1
 
 ### Patch Changes

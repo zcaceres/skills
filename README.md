@@ -41,6 +41,7 @@ npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
 npx skills add zcaceres/skills -s gh-project
 npx skills add zcaceres/skills -s investigate-repo
+npx skills add zcaceres/skills -s laconic
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s optimize-skill-activation
 npx skills add zcaceres/skills -s pr
@@ -122,6 +123,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
 | `gh-project` | **Slash command.** Manage the repo's GitHub Projects kanban board with one skill — `setup`, `next`, `new-task`, `update`, `review`, `decompose`, `delete` subcommands. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
+| `laconic` | **Hook + slash command.** Answer in a spare, plain register — economical full sentences, not fragments. Toggle per project or per user with `/laconic on\|off`, in `prose-only` or `prose+code` mode; a SessionStart hook injects it each session. Governs presentation, not reasoning. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `optimize-skill-activation` | Right-size each installed skill's activation mode — slash-only, model-invocable, or eager-loaded — then rewrite its `SKILL.md` frontmatter. |
 | `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Also bundles the diff-size nudge hook. Runs under both Claude Code and Gemini CLI (`install.sh --agent gemini`). |

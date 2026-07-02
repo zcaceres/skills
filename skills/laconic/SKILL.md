@@ -40,14 +40,17 @@ user `on`.
 | `mode <prose-only\|prose+code> [scope]` | Change the mode, keeping on/off as-is. |
 | `status` | Print the resolved state (project vs user). |
 | `statusline` | Print a compact badge (`◆ laconic`) when on, nothing when off — for a status line. |
-| `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook and delete its `laconic.state`. Idempotent. |
+| `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook, restore the status line, and delete its `laconic.state`. Idempotent. |
 
 ### What to do for each command
 
 - **`on`** — run three steps, in order:
   1. `~/.claude/skills/laconic/scripts/install.sh <--user|--project>` — idempotently
-     wires the `SessionStart` hook into that scope's `settings.json` (needs `jq`).
-     Skip if it reports the hook is already wired.
+     wires the `SessionStart` hook **and the status-line badge** into that scope's
+     `settings.json` (needs `jq`). The badge is added by default: it saves any
+     existing `.statusLine` and swaps in the laconic wrapper, which runs the
+     original and appends `◆ laconic` when on. Pass `--no-statusline` to wire the
+     hook only. Skip the step if it reports both already wired.
   2. `~/.claude/skills/laconic/scripts/laconic.sh on <scope> <mode>` — persists the state.
   3. Read `~/.claude/skills/laconic/assets/rules.md` and **adopt the voice
      immediately for the current session**, filtered to the chosen mode. Confirm
@@ -57,11 +60,13 @@ user `on`.
   After `off`, return to your normal voice.
 - **`uninstall`** — run
   `~/.claude/skills/laconic/scripts/laconic.sh uninstall <--user|--project>` (needs
-  `jq`). It unwires the `SessionStart` hook (backing up `settings.json` first) and
-  deletes that scope's `laconic.state`. If it warns about a `laconic` reference in
-  a `statusLine` command, tell the user to remove that part by hand — the installer
-  never added it, so uninstall won't rewrite it. The skill's own files stay put;
-  remove them with the skills CLI. Return to your normal voice.
+  `jq`). It unwires the `SessionStart` hook (backing up `settings.json` first),
+  **restores the status line the installer replaced** (from the saved original),
+  and deletes that scope's `laconic.state`. To drop just the badge and keep the
+  voice, run `install.sh`'s counterpart `uninstall.sh --statusline-only`. If it
+  warns about a *hand-added* `laconic` reference in a `statusLine` command (one the
+  installer didn't manage), tell the user to remove that part by hand. The skill's
+  own files stay put; remove them with the skills CLI. Return to your normal voice.
 
 ## The voice (canonical: `assets/rules.md`)
 
@@ -107,27 +112,26 @@ There's no undo. Confirm and I'll run it."
 
 ## Status-line badge
 
-`laconic.sh statusline` prints `◆ laconic` when the voice is on (honouring
-project-over-user precedence) and nothing when it's off — so it can be spliced
-into a status line unconditionally. To surface it, add its output as a part of
-your `settings.json` `statusLine` command. Example, appending it in a Python
-status-line script that already reads the payload on stdin:
+`install.sh` wires the badge automatically (default; opt out with
+`--no-statusline`). It saves any existing `.statusLine` to
+`<scope>/laconic.statusline.orig.json` and points `.statusLine.command` at
+`scripts/statusline.sh` — a wrapper that runs your saved original with the same
+stdin payload and appends `◆ laconic` when the voice resolves on (honouring
+project-over-user precedence). When off, the badge is empty, so the line is
+exactly your original — the wrapper is invisible until you turn laconic on.
+`uninstall.sh` restores the saved original; `uninstall.sh --statusline-only`
+restores it without touching the hook or state. Wiring is idempotent: a re-run
+detects the wrapper and never re-saves it as the "original".
 
-```python
-import subprocess, os
-laconic = subprocess.run(
-    [os.path.expanduser('~/.claude/skills/laconic/scripts/laconic.sh'), 'statusline'],
-    capture_output=True, text=True).stdout.strip()
-parts = []
-# … append project, branch, model, etc. …
-if laconic:
-    parts.append(laconic)
-```
+The primitive underneath is `laconic.sh statusline`, which prints `◆ laconic`
+when on and nothing when off — call it directly if you prefer to compose the
+badge into a status line by hand instead of using the wrapper.
 
 ## Directory layout
 
-- `scripts/laconic.sh` — the control surface (state file read/write).
+- `scripts/laconic.sh` — the control surface (state file read/write); `statusline` prints the badge.
 - `scripts/session-start.sh` — the `SessionStart` hook (injects the mode-filtered voice).
-- `scripts/install.sh` — wires the hook into `settings.json` (idempotent, backs up).
-- `scripts/uninstall.sh` — unwires the hook and deletes the state file (idempotent, backs up).
+- `scripts/statusline.sh` — the status-line wrapper (runs the saved original + appends the badge).
+- `scripts/install.sh` — wires the hook + badge into `settings.json` (idempotent, backs up).
+- `scripts/uninstall.sh` — unwires the hook, restores the status line, deletes the state file (idempotent, backs up).
 - `assets/rules.md` — the voice the hook injects.

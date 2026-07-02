@@ -9,6 +9,20 @@ const HOOK = join(SCRIPTS, "session-start.sh");
 const INSTALL = join(SCRIPTS, "install.sh");
 const UNINSTALL = join(SCRIPTS, "uninstall.sh");
 
+// A distinctive custom status line to wrap: echoes a marker plus the model name
+// read from the JSON payload, so we can prove the original still runs.
+const CUSTOM_STATUSLINE =
+  "python3 -c \"import sys,json; d=json.load(sys.stdin); print('CUSTOM', d.get('model',{}).get('display_name',''))\"";
+
+// Run a resolved .statusLine.command string with a JSON payload on stdin.
+function runStatusline(command: string, payload: object, vars: Record<string, string>) {
+  const p = Bun.spawnSync(["bash", "-c", command], {
+    env: vars,
+    stdin: Buffer.from(JSON.stringify(payload)),
+  });
+  return p.stdout.toString();
+}
+
 // Each test gets its own isolated user-config and project dir so state files
 // never leak between cases or touch the real ~/.claude.
 function fresh() {
@@ -156,6 +170,107 @@ test("uninstall.sh reverses install and deletes the scope's state", () => {
   const again = Bun.spawnSync(["bash", UNINSTALL, "--target", target], { env: vars });
   expect(again.exitCode).toBe(0);
   expect(again.stdout.toString()).toContain("Nothing to do");
+});
+
+test("install.sh wraps an existing status line and the wrapper composes original + badge", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env, CLAUDE_CONFIG_DIR: setDir } as Record<string, string>;
+  writeFileSync(target, JSON.stringify({ statusLine: { type: "command", command: CUSTOM_STATUSLINE } }));
+
+  const r = Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  expect(r.exitCode).toBe(0);
+
+  // Original saved verbatim; command now routes through the wrapper.
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  expect(cfg.statusLine.command).toContain("statusline.sh");
+  const saved = JSON.parse(readFileSync(join(setDir, "laconic.statusline.orig.json"), "utf8"));
+  expect(saved.command).toBe(CUSTOM_STATUSLINE);
+
+  const payload = { model: { display_name: "Opus 4.8" }, workspace: { current_dir: setDir } };
+  // Off: just the original. (No state file yet → unset → off.)
+  expect(runStatusline(cfg.statusLine.command, payload, vars).trim()).toBe("CUSTOM Opus 4.8");
+  // On: original + badge.
+  writeFileSync(join(setDir, "laconic.state"), "on prose+code\n");
+  expect(runStatusline(cfg.statusLine.command, payload, vars).trim()).toBe("CUSTOM Opus 4.8  ◆ laconic");
+});
+
+test("install.sh with no existing status line yields a badge-only wrapper", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env, CLAUDE_CONFIG_DIR: setDir } as Record<string, string>;
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  const saved = JSON.parse(readFileSync(join(setDir, "laconic.statusline.orig.json"), "utf8"));
+  expect(saved).toBeNull(); // nothing to restore later
+
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  writeFileSync(join(setDir, "laconic.state"), "on prose+code\n");
+  const out = runStatusline(cfg.statusLine.command, { workspace: { current_dir: setDir } }, vars);
+  expect(out.trim()).toBe("◆ laconic");
+});
+
+test("install.sh --no-statusline wires the hook only", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env } as Record<string, string>;
+  Bun.spawnSync(["bash", INSTALL, "--target", target, "--no-statusline"], { env: vars });
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  expect(cfg.statusLine).toBeUndefined();
+  expect(existsSync(join(setDir, "laconic.statusline.orig.json"))).toBe(false);
+});
+
+test("status-line wiring is idempotent — a re-run never re-saves the wrapper as the original", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env } as Record<string, string>;
+  writeFileSync(target, JSON.stringify({ statusLine: { type: "command", command: CUSTOM_STATUSLINE } }));
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  const orig1 = readFileSync(join(setDir, "laconic.statusline.orig.json"), "utf8");
+  const second = Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  expect(second.stdout.toString()).toContain("badge already wired");
+  const orig2 = readFileSync(join(setDir, "laconic.statusline.orig.json"), "utf8");
+  expect(orig2).toBe(orig1);
+  expect(JSON.parse(orig2).command).toBe(CUSTOM_STATUSLINE); // not the wrapper
+});
+
+test("uninstall.sh restores the wrapped status line verbatim", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env } as Record<string, string>;
+  writeFileSync(target, JSON.stringify({ statusLine: { type: "command", command: CUSTOM_STATUSLINE } }));
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  Bun.spawnSync(["bash", UNINSTALL, "--target", target], { env: vars });
+
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  expect(cfg.statusLine.command).toBe(CUSTOM_STATUSLINE);
+  expect(existsSync(join(setDir, "laconic.statusline.orig.json"))).toBe(false);
+});
+
+test("uninstall.sh --statusline-only restores the status line but keeps hook + state", () => {
+  if (!Bun.which("jq")) return;
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const state = join(setDir, "laconic.state");
+  const vars = { ...process.env } as Record<string, string>;
+  writeFileSync(target, JSON.stringify({ statusLine: { type: "command", command: CUSTOM_STATUSLINE } }));
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  writeFileSync(state, "on prose+code\n");
+  Bun.spawnSync(["bash", UNINSTALL, "--target", target, "--statusline-only"], { env: vars });
+
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  expect(cfg.statusLine.command).toBe(CUSTOM_STATUSLINE); // restored
+  const cmds = cfg.hooks.SessionStart.flatMap((e: any) => e.hooks.map((h: any) => h.command));
+  expect(cmds.some((c: string) => c.includes("session-start.sh"))).toBe(true); // hook kept
+  expect(existsSync(state)).toBe(true); // state kept
 });
 
 test("uninstall.sh leaves co-existing hooks and honours --keep-state", () => {

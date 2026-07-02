@@ -11,6 +11,7 @@
 #   laconic.sh mode <prose-only|prose+code> [--project|--user]
 #   laconic.sh status
 #   laconic.sh statusline   # compact badge for a status line ("◆ laconic" when on, else nothing)
+#   laconic.sh uninstall [--project|--user]   # unwire the hook + delete this scope's state
 #
 # Defaults: scope = user; mode = prose+code.
 # Precedence: a project state file overrides the user one (so a project `off`
@@ -109,11 +110,21 @@ $(resolve)
 EOF
     [ "$state" = "on" ] && printf '◆ laconic' || true
     ;;
+  uninstall)
+    # Delegate to uninstall.sh (needs jq) for the same scope. It unwires the
+    # SessionStart hook and deletes this scope's state file.
+    script_dir="$(cd "$(dirname "$0")" && pwd)"
+    if [ "$scope" = "project" ]; then
+      exec "$script_dir/uninstall.sh" --project
+    else
+      exec "$script_dir/uninstall.sh" --user
+    fi
+    ;;
   -h|--help)
-    sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
     ;;
   *)
-    echo "laconic: unknown command: $cmd (use on|off|mode|status)" >&2
+    echo "laconic: unknown command: $cmd (use on|off|mode|status|uninstall)" >&2
     exit 2
     ;;
 esac

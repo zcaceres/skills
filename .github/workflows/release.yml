@@ -67,7 +67,7 @@ jobs:
           name: ${{ github.ref_name }}
           generate_release_notes: true
 
-      # - name: Publish to skills.sh
-      #   run: bunx skills publish skills/${{ steps.tag.outputs.name }}/dist/${{ steps.tag.outputs.name }}
-      #   env:
-      #     SKILLS_TOKEN: ${{ secrets.SKILLS_TOKEN }}
+      # No registry-publish step: `skills add zcaceres/skills` installs directly
+      # from this GitHub repo, and the `skills` CLI has no `publish` command.
+      # skills.sh is a discovery directory, not a publish target. If the CLI ever
+      # gains a real publish command, a new step would go here.

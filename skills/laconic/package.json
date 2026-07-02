@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-laconic",
+  "version": "0.0.0",
+  "description": "Answer in a spare, plain register — lead with the point, complete sentences, no filler or hedging — persisted per project or per user, in prose-only or prose+code mode. Invoke via /laconic (on|off|status|mode).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "bun test"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

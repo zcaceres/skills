@@ -54,6 +54,10 @@
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
     },
+    "skills/laconic": {
+      "name": "@zcaceres/skill-laconic",
+      "version": "0.0.0",
+    },
     "skills/nano-banana-generator": {
       "name": "@zcaceres/skill-nano-banana-generator",
       "version": "0.1.0",
@@ -68,7 +72,7 @@
     },
     "skills/pr": {
       "name": "@zcaceres/skill-pr",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "dependencies": {
         "zod": "^4.4.3",
       },
@@ -240,6 +244,8 @@
     "@zcaceres/skill-gh-project": ["@zcaceres/skill-gh-project@workspace:skills/gh-project"],
 
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
+
+    "@zcaceres/skill-laconic": ["@zcaceres/skill-laconic@workspace:skills/laconic"],
 
     "@zcaceres/skill-nano-banana-generator": ["@zcaceres/skill-nano-banana-generator@workspace:skills/nano-banana-generator"],
 

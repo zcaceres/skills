@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-laconic",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Answer in a spare, plain voice — lead with the point, complete sentences, no filler or hedging — persisted per project or per user, in prose-only or prose+code mode. Invoke via /laconic (on|off|status|mode).",
   "license": "MIT",
   "type": "module",

@@ -1,18 +1,18 @@
 # laconic
 
-Answer in a spare, plain voice — lead with the point, complete sentences, no
+Answer in a spare, plain voice: lead with the point, complete sentences, no
 filler or hedging. Persisted per project or per user, in prose-only or prose+code
 mode. Plain English made economical, not clipped fragments.
 
 ## Layout
 
-- `SKILL.md` — manifest + instructions (skills.sh standard)
-- `scripts/laconic.sh` — control surface: on/off/mode/status/uninstall (writes a state file)
-- `scripts/session-start.sh` — SessionStart hook that injects the voice when active
-- `scripts/statusline.sh` — status-line wrapper (runs your saved original + appends the badge)
-- `scripts/install.sh` — wires the hook + status-line badge into `settings.json` (idempotent, backs up)
-- `scripts/uninstall.sh` — unwires the hook, restores the status line, deletes the state file (idempotent, backs up)
-- `assets/rules.md` — the voice the hook injects
+- `SKILL.md`: manifest + instructions (skills.sh standard)
+- `scripts/laconic.sh`: control surface for on/off/mode/status/uninstall (writes a state file)
+- `scripts/session-start.sh`: SessionStart hook that injects the voice when active
+- `scripts/statusline.sh`: status-line wrapper (runs your saved original + appends the badge)
+- `scripts/install.sh`: wires the hook + status-line badge into `settings.json` (idempotent, backs up)
+- `scripts/uninstall.sh`: unwires the hook, restores the status line, deletes the state file (idempotent, backs up)
+- `assets/rules.md`: the voice the hook injects
 
 ## Install
 
@@ -46,8 +46,8 @@ explicit file. The script self-locates, so it works at user or project scope.
 `uninstall.sh` is the exact inverse of `install.sh` (same flags, needs `jq`): it
 backs up `settings.json`, removes the laconic `SessionStart` hook while leaving
 other hooks intact, restores the status line it replaced (from the saved
-original), and deletes that scope's state file. It's idempotent and warns —
-rather than silently breaking — if a *hand-added* `statusLine` reference to
+original), and deletes that scope's state file. It's idempotent, and it warns
+rather than silently breaking if a *hand-added* `statusLine` reference to
 laconic (one it didn't manage) remains. Pass `--keep-state` to unwire the hook
 but keep `laconic.state`, or `--statusline-only` to restore just the status line
 and keep the voice. The skill's own files stay put; remove them with your skills CLI.
@@ -55,7 +55,7 @@ and keep the voice. The skill's own files stay put; remove them with your skills
 ## Notes
 
 - **Modes.** `prose-only` shapes conversational replies. `prose+code` (default)
-  also tightens commit messages, PR descriptions, and code comments — never the
+  also tightens commit messages, PR descriptions, and code comments, never the
   code itself.
 - **Scope precedence.** A project state file overrides the user one, so a project
   `off` suppresses a user `on`.

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# laconic — SessionStart hook.
+# laconic: SessionStart hook.
 #
 # Reads the persisted state (project overrides user) and, when active, prints
 # the mode-filtered voice to stdout. Claude Code injects SessionStart stdout
-# as hidden session context. Prints nothing when laconic is off or unset — it
+# as hidden session context. Prints nothing when laconic is off or unset. It
 # never injects noise.
 #
 # Wired into settings.json by install.sh (always-on). Also declared in

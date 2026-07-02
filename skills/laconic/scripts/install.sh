@@ -2,7 +2,7 @@
 # Wire the laconic SessionStart hook into a Claude Code settings.json so the
 # voice is injected at the start of every session (and after context
 # compaction), not just when the skill is loaded in context. Also wires the
-# status-line badge by default (see --no-statusline). Idempotent — re-running is
+# status-line badge by default (see --no-statusline). Idempotent. Re-running is
 # a no-op.
 #
 # Usage:
@@ -19,7 +19,7 @@
 #
 # Requires: jq. macOS: brew install jq. Linux: apt-get install jq.
 #
-# Why this exists: the skills.sh CLI is a pure file copier — no install
+# Why this exists: the skills.sh CLI is a pure file copier. No install
 # lifecycle. SKILL.md frontmatter hooks only fire while the skill is active in
 # context, so they're not always-on. Wiring into settings.json is the only way
 # to keep the voice on across sessions. Toggle it with `/laconic on|off`.
@@ -76,7 +76,7 @@ jq empty "$TARGET" 2>/dev/null || {
   exit 1
 }
 
-# Back up once, lazily, before the first mutation — shared by hook + statusline
+# Back up once, lazily, before the first mutation. Shared by hook + statusline
 # wiring so a single run leaves at most one backup.
 BACKUP=""
 backup_once() {

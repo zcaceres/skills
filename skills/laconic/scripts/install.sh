@@ -20,7 +20,7 @@ set -euo pipefail
 
 SKILL_NAME="laconic"
 HOOK_EVENT="SessionStart"
-HOOK_MATCHER="startup|resume|compact"
+HOOK_MATCHER="startup|resume|clear|compact"
 
 CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 # Resolve HOOK_COMMAND from this script's own location so it points at the

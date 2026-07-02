@@ -19,6 +19,13 @@ existing base.
 > current branch's PR), use `/pr checkpoint` instead — it creates
 > a new stacked branch rather than updating the current PR.
 
+**Draft:** resolve draft intent (**draft** or **ready**) per
+[SKILL.md → Determine draft intent](../SKILL.md). When **creating** a new
+PR and the answer is draft, add `--draft` to `gh pr create`. When a PR
+**already exists**, the configured `pr.draft` default leaves it alone —
+only an *explicit* `--draft`/`-d` or `--ready`/`--no-draft` on this
+invocation flips it (step 5).
+
 ## Workflow
 
 ### 1. Identify Your Changes
@@ -80,7 +87,9 @@ git stack submit
 
 This pushes all branches in the stack (force-with-lease) and
 creates/updates a GitHub PR for each branch with the correct base.
-Idempotent.
+Idempotent. `git stack submit` has no draft flag — if draft intent is
+**draft**, draft only the *newly created* PRs afterward (see
+["Drafting (the git-stack path)" in submit.md](submit.md#4b-drafting-the-git-stack-path)).
 
 This re-publishes the whole stack, so run the renumber routine from
 [references/title-convention.md](title-convention.md) afterward (the same
@@ -101,6 +110,14 @@ gh pr list --head "$(git branch --show-current)" --state open --json number,base
 ```
 
 **If a PR already exists:** report its URL. Do not change the base branch.
+If — and only if — the user passed an explicit draft flag this run, flip
+the PR's draft state to match (the configured `pr.draft` default never
+flips an open PR):
+
+```bash
+gh pr ready --undo   # --draft/-d: convert to draft
+gh pr ready          # --ready/--no-draft: mark ready for review
+```
 
 **If no PR exists**, determine the correct base:
 
@@ -116,7 +133,7 @@ gh pr list --head "$(git branch --show-current)" --state open --json number,base
    user which base to target.
 3. Default to `main` (fallback `master`).
 
-Create the PR:
+Create the PR (add `--draft` when draft intent is **draft**):
 
 ```bash
 gh pr create --base "<base>" --title "<title>" --body "$(cat <<'EOF'
@@ -136,6 +153,7 @@ EOF
 - NEVER commit files you didn't modify in this conversation.
 - NEVER use `git add .` or stage unrelated changes.
 - If unsure which files you changed, ASK the user.
-- Report the PR URL when done.
+- Report the PR URL when done — note "(draft)" if it was opened as one.
 - **`gh` path:** When a PR already exists, do not change its base
-  branch — it may be part of a stack.
+  branch — it may be part of a stack. Only an explicit `--draft`/`--ready`
+  flag flips its draft state.

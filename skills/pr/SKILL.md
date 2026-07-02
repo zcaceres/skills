@@ -1,7 +1,7 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
-argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [args]"
+description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
+argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [--draft] [args]"
 disable-model-invocation: true
 hooks:
   PostToolUse:
@@ -30,6 +30,12 @@ modes:
 Normal mode is the default. Stacked mode is opt-in — see
 [`/pr setup`](references/setup.md).
 
+Independently of the mode, any PR this skill **creates** can be a
+**draft**: pass `--draft` (or `-d`) on the invocation, or make drafts the
+default everywhere with [`/pr setup`](references/setup.md) (writes
+`git config pr.draft true`). Draft and mode are orthogonal — drafts work
+in both normal and stacked flows.
+
 **Usage:** `/pr [subcommand] [args]`
 
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched
@@ -50,12 +56,35 @@ Mode only changes what the **default** action (bare `/pr` or a
 description with no subcommand) does. Every *named* subcommand works in
 either mode — the user asked for it by name, so honor it.
 
+## Determine draft intent
+
+Resolve, once, whether a PR you **create** this run should be a draft.
+Per-invocation flags always win over the configured default:
+
+1. The dispatcher strips draft flags from `$ARGUMENTS` before matching a
+   subcommand (see below). If `--ready`/`--no-draft` was present →
+   **ready**. Else if `--draft`/`-d` was present → **draft**. If both
+   appear, the **last** one on the line wins.
+2. No per-invocation flag → read the default:
+
+   ```bash
+   git config pr.draft 2>/dev/null   # resolves local, then global
+   ```
+
+   Output `true` → **draft**. Anything else (including empty) → **ready**.
+
+Carry the resolved answer (**draft** or **ready**) into the matched
+subcommand. It only affects PR **creation** — `gh pr create` gets
+`--draft` when the answer is draft. An explicit per-invocation flag may
+also flip an *already-open* PR (`gh pr ready` / `gh pr ready --undo`); the
+configured default never does — see [update.md](references/update.md).
+
 ## Subcommands
 
 | Subcommand | Reference | What it does |
 |---|---|---|
 | `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
-| `setup` | [references/setup.md](references/setup.md) | Show the current mode and switch between `normal` and `stacked` (writes `git config pr.mode`, global by default). |
+| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`) and the draft default (`pr.draft`). Global by default. |
 | `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
 | `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
@@ -118,8 +147,25 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 
 ## Dispatcher
 
-First read the mode (see "Determine the mode first" above), then parse
-the first whitespace-separated token of `$ARGUMENTS`:
+First read the mode (see "Determine the mode first" above).
+
+**`setup` is exempt from the next step.** If the first non-flag token of
+`$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
+to [setup.md](references/setup.md) with the raw `$ARGUMENTS` — there,
+`draft`/`--draft`/`no-draft`/`ready` mean "which default to write", not
+per-run intent.
+
+Otherwise, **extract draft flags** from `$ARGUMENTS` wherever they appear
+and remove them from the token stream, recording the draft intent (see
+"Determine draft intent" above):
+
+- `--draft` / `-d` → draft.
+- `--ready` / `--no-draft` → ready (overrides a `pr.draft true` default).
+
+These are not subcommands and never consume the subcommand slot —
+`/pr --draft`, `/pr update --draft`, and `/pr -d "fix bug"` all dispatch
+to the default/named action with draft intent set. After stripping them,
+parse the first remaining whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is `setup`** → read [references/setup.md](references/setup.md)
    and follow it. This is how the user switches modes.
@@ -136,8 +182,9 @@ the first whitespace-separated token of `$ARGUMENTS`:
    one-line note: "(You're in normal mode — `/pr setup` makes `/pr`
    default to stacked operations.)"
 
-4. **First token starts with `-`** (e.g. `--help`, `-h`) → print this
-   subcommand list and stop.
+4. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
+   print this subcommand list and stop. (Draft flags were already
+   stripped in the pre-parse step, so they never land here.)
 
 5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
    this is the **default action**, which depends on the mode:

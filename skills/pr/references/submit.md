@@ -13,6 +13,12 @@ clean `gh`-only equivalent for "publish the whole stack at once" — when
 `git stack` isn't installed, checkpoints publish eagerly and `/pr update`
 is the single-branch path.
 
+**Draft:** resolve draft intent (**draft** or **ready**) per
+[SKILL.md → Determine draft intent](../SKILL.md). `git stack submit`
+(v0.2.0) has no draft flag, so when the answer is draft this subcommand
+opens the PRs ready, then converts the *newly created* ones to draft —
+see ["Drafting (the git-stack path)"](#4b-drafting-the-git-stack-path) below.
+
 ## Workflow
 
 ### 1. Verify You're In a Stack
@@ -64,6 +70,15 @@ how to reconcile before force-with-lease overwrites their work.
 
 ### 4. Submit
 
+If draft intent is **draft**, first snapshot which branches already have
+an open PR — these are the ones you must NOT re-draft afterward:
+
+```bash
+gh pr list --state open --json headRefName -q '.[].headRefName' | sort > /tmp/pr-before.txt
+```
+
+Then submit:
+
 ```bash
 git stack submit
 ```
@@ -74,6 +89,24 @@ This:
 - Creates a PR for any branch that doesn't have one, with `--base`
   set to the parent branch.
 - Updates the title/body of existing PRs (per `git stack` defaults).
+
+### 4b. Drafting (the git-stack path)
+
+Only when draft intent is **draft**. `git stack submit` opens new PRs
+ready for review, so convert the ones it *just created* to draft. Diff
+the open-PR set against the pre-submit snapshot and `gh pr ready --undo`
+each newly created branch's PR:
+
+```bash
+gh pr list --state open --json headRefName -q '.[].headRefName' | sort > /tmp/pr-after.txt
+comm -13 /tmp/pr-before.txt /tmp/pr-after.txt | while read -r branch; do
+  gh pr ready "$branch" --undo   # convert the just-created PR to draft
+done
+```
+
+This deliberately leaves already-open PRs untouched — re-running `submit`
+won't flip a PR you've since marked ready back to draft. If draft intent
+is **ready** (or unset), skip this entirely.
 
 ### 5. Renumber Stack Title Markers
 
@@ -95,7 +128,8 @@ e.g.:
 ```
 
 Recover URLs via `gh pr view <number> --json url,baseRefName -q '...'`
-or by parsing `git stack log` output.
+or by parsing `git stack log` output. If you drafted any PRs in step 4b,
+mark them "(draft)" in the report.
 
 ## Important
 

@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -7,6 +7,7 @@ const SCRIPTS = join(import.meta.dir, "..", "scripts");
 const LACONIC = join(SCRIPTS, "laconic.sh");
 const HOOK = join(SCRIPTS, "session-start.sh");
 const INSTALL = join(SCRIPTS, "install.sh");
+const UNINSTALL = join(SCRIPTS, "uninstall.sh");
 
 // Each test gets its own isolated user-config and project dir so state files
 // never leak between cases or touch the real ~/.claude.
@@ -130,4 +131,59 @@ test("install.sh wires the SessionStart hook idempotently", () => {
   expect(second.stdout.toString()).toContain("already wired");
   const cfg2 = JSON.parse(readFileSync(target, "utf8"));
   expect(cfg2.hooks.SessionStart.length).toBe(1);
+});
+
+test("uninstall.sh reverses install and deletes the scope's state", () => {
+  if (!Bun.which("jq")) return; // requires jq; skip when unavailable
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const state = join(setDir, "laconic.state");
+  const vars = { ...process.env } as Record<string, string>;
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  writeFileSync(state, "on prose+code\n");
+  const r = Bun.spawnSync(["bash", UNINSTALL, "--target", target], { env: vars });
+  expect(r.exitCode).toBe(0);
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  // The empty SessionStart array (and empty hooks object) get pruned away.
+  const cmds = (cfg.hooks?.SessionStart ?? []).flatMap((e: any) =>
+    e.hooks.map((h: any) => h.command),
+  );
+  expect(cmds.some((c: string) => c.includes("session-start.sh"))).toBe(false);
+  expect(existsSync(state)).toBe(false);
+
+  // Idempotent: a second run is a clean no-op.
+  const again = Bun.spawnSync(["bash", UNINSTALL, "--target", target], { env: vars });
+  expect(again.exitCode).toBe(0);
+  expect(again.stdout.toString()).toContain("Nothing to do");
+});
+
+test("uninstall.sh leaves co-existing hooks and honours --keep-state", () => {
+  if (!Bun.which("jq")) return; // requires jq; skip when unavailable
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const state = join(setDir, "laconic.state");
+  const vars = { ...process.env } as Record<string, string>;
+
+  // A pre-existing, unrelated SessionStart hook that must survive.
+  writeFileSync(
+    target,
+    JSON.stringify({
+      hooks: {
+        SessionStart: [
+          { matcher: "startup", hooks: [{ type: "command", command: "/x/other.sh" }] },
+        ],
+      },
+    }),
+  );
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  writeFileSync(state, "on prose+code\n");
+
+  const r = Bun.spawnSync(["bash", UNINSTALL, "--target", target, "--keep-state"], { env: vars });
+  expect(r.exitCode).toBe(0);
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  const cmds = cfg.hooks.SessionStart.flatMap((e: any) => e.hooks.map((h: any) => h.command));
+  expect(cmds).toContain("/x/other.sh");
+  expect(cmds.some((c: string) => c.includes("session-start.sh"))).toBe(false);
+  expect(existsSync(state)).toBe(true); // --keep-state preserved it
 });

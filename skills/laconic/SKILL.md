@@ -1,7 +1,7 @@
 ---
 name: laconic
 description: Answer in a simple, concise voice, no filler or hedging. Persisted per project or per user, in prose-only or prose+code mode. Invoke via /laconic (on|off|status|mode).
-argument-hint: "[on|off|status|mode] [--project|--user] [prose-only|prose+code]"
+argument-hint: "[on|off|status|mode|uninstall] [--project|--user] [prose-only|prose+code]"
 disable-model-invocation: true
 hooks:
   SessionStart:
@@ -40,6 +40,7 @@ user `on`.
 | `mode <prose-only\|prose+code> [scope]` | Change the mode, keeping on/off as-is. |
 | `status` | Print the resolved state (project vs user). |
 | `statusline` | Print a compact badge (`◆ laconic`) when on, nothing when off — for a status line. |
+| `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook and delete its `laconic.state`. Idempotent. |
 
 ### What to do for each command
 
@@ -54,6 +55,13 @@ user `on`.
 - **`off` / `mode` / `status`** — just run
   `~/.claude/skills/laconic/scripts/laconic.sh <command> …` and report the result.
   After `off`, return to your normal voice.
+- **`uninstall`** — run
+  `~/.claude/skills/laconic/scripts/laconic.sh uninstall <--user|--project>` (needs
+  `jq`). It unwires the `SessionStart` hook (backing up `settings.json` first) and
+  deletes that scope's `laconic.state`. If it warns about a `laconic` reference in
+  a `statusLine` command, tell the user to remove that part by hand — the installer
+  never added it, so uninstall won't rewrite it. The skill's own files stay put;
+  remove them with the skills CLI. Return to your normal voice.
 
 ## The voice (canonical: `assets/rules.md`)
 
@@ -121,4 +129,5 @@ if laconic:
 - `scripts/laconic.sh` — the control surface (state file read/write).
 - `scripts/session-start.sh` — the `SessionStart` hook (injects the mode-filtered voice).
 - `scripts/install.sh` — wires the hook into `settings.json` (idempotent, backs up).
+- `scripts/uninstall.sh` — unwires the hook and deletes the state file (idempotent, backs up).
 - `assets/rules.md` — the voice the hook injects.

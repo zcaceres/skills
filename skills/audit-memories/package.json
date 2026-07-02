@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-audit-memories",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Audit an AI agent's saved memories — inventory by type, flag stale/contradictory/redundant ones, and walk the user through keep/update/delete decisions. Use for 'audit memories', 'prune memories', 'clean up my Claude memories', 'review memories', 'stale memories'.",
   "license": "MIT",
   "type": "module",
@@ -9,7 +9,13 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ],
   "keywords": [
     "claude-code",
     "skill",

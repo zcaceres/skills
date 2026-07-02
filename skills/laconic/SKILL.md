@@ -5,7 +5,7 @@ argument-hint: "[on|off|status|mode] [--project|--user] [prose-only|prose+code]"
 disable-model-invocation: true
 hooks:
   SessionStart:
-    - matcher: "startup|resume|compact"
+    - matcher: "startup|resume|clear|compact"
       type: command
       command: "~/.claude/skills/laconic/scripts/session-start.sh"
 ---

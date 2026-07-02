@@ -44,3 +44,6 @@ explicit file. The script self-locates, so it works at user or project scope.
 - **Presentation, not reasoning.** The register only shapes what the agent shows
   you; it never constrains the agent's reasoning. Full clarity is preserved for
   security warnings, irreversible actions, and genuine ambiguity.
+- **Status-line badge.** `laconic.sh statusline` prints `◆ laconic` when on
+  (nothing when off), so you can splice it into your `settings.json` `statusLine`
+  command to see at a glance that the register is active. See SKILL.md.

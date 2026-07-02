@@ -41,6 +41,7 @@ user `on`.
 | `off [scope]` | Turn it off at that scope. |
 | `mode <prose-only\|prose+code> [scope]` | Change the mode, keeping on/off as-is. |
 | `status` | Print the resolved state (project vs user). |
+| `statusline` | Print a compact badge (`◆ laconic`) when on, nothing when off — for a status line. |
 
 ### What to do for each command
 
@@ -97,6 +98,25 @@ totally transparent, running `git reset --hard` is going to permanently discard
 all your uncommitted changes, and there's really no easy way to get them back…" →
 Laconic: "`git reset --hard` will permanently discard your uncommitted changes.
 There's no undo. Confirm and I'll run it."
+
+## Status-line badge
+
+`laconic.sh statusline` prints `◆ laconic` when the register is on (honouring
+project-over-user precedence) and nothing when it's off — so it can be spliced
+into a status line unconditionally. To surface it, add its output as a part of
+your `settings.json` `statusLine` command. Example, appending it in a Python
+status-line script that already reads the payload on stdin:
+
+```python
+import subprocess, os
+laconic = subprocess.run(
+    [os.path.expanduser('~/.claude/skills/laconic/scripts/laconic.sh'), 'statusline'],
+    capture_output=True, text=True).stdout.strip()
+parts = []
+# … append project, branch, model, etc. …
+if laconic:
+    parts.append(laconic)
+```
 
 ## Directory layout
 

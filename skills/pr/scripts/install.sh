@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Wire the pr PostToolUse hook (matchers: Edit, Write, MultiEdit,
-# NotebookEdit) into a Claude Code settings.json so the diff-size nudge fires
+# Wire the pr diff-size nudge hook into a host's settings.json so it fires
 # after every file-modifying tool call, not just when this skill is loaded
-# into context. Idempotent — re-running is a no-op.
+# into context. Supports Claude Code (PostToolUse hook; Edit|Write|MultiEdit|
+# NotebookEdit) and Gemini CLI (AfterTool hook; replace|write_file) from the
+# same skill dir — the only differences are the event name, tool matcher, and
+# settings dir, all selected by --agent. Idempotent — re-running is a no-op.
 #
 # Usage:
-#   scripts/install.sh                 # user scope: $HOME/.claude/settings.json
-#   scripts/install.sh --project       # project scope: ./.claude/settings.json
-#   scripts/install.sh --target PATH   # explicit target file
+#   scripts/install.sh                  # auto-detect host, user scope
+#   scripts/install.sh --agent gemini   # wire for Gemini CLI  (~/.gemini)
+#   scripts/install.sh --agent claude   # wire for Claude Code (~/.claude)
+#   scripts/install.sh --project        # project scope: ./.claude|.gemini/settings.json
+#   scripts/install.sh --target PATH    # explicit target file
 #
 # Requires: jq. macOS: brew install jq. Linux: apt-get install jq.
 #
@@ -19,30 +23,64 @@
 set -euo pipefail
 
 SKILL_NAME="pr"
-HOOK_EVENT="PostToolUse"
-HOOK_MATCHER="Edit|Write|MultiEdit|NotebookEdit"
 
-CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-# Resolve HOOK_COMMAND from this script's own location so it points at the
-# correct runner whether the skill was installed at user scope, project
-# scope, or under a custom CLAUDE_CONFIG_DIR.
+# Resolve the runner from this script's own location so it points at the
+# correct binary launcher whether the skill was installed at user or project
+# scope. The wired command is a bare path — host differences are handled by
+# the binary (it reads the event name from the payload), not the command.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOK_COMMAND="$SCRIPT_DIR/run.sh"
 
+AGENT=""
+SCOPE=""
 TARGET=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --user)    TARGET="$CLAUDE_HOME/settings.json"; shift ;;
-    --project) TARGET="./.claude/settings.json"; shift ;;
+    --agent)   AGENT="$2"; shift 2 ;;
+    --user)    SCOPE="user"; shift ;;
+    --project) SCOPE="project"; shift ;;
     --target)  TARGET="$2"; shift 2 ;;
     -h|--help)
-      sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) echo "install.sh: unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+
+# Auto-detect the host when --agent is omitted: pick Gemini only if its config
+# dir exists and Claude's does not; otherwise default to Claude Code.
+if [ -z "$AGENT" ]; then
+  if [ -d "$HOME/.gemini" ] && [ ! -d "$HOME/.claude" ]; then
+    AGENT="gemini"
+  else
+    AGENT="claude"
+  fi
+fi
+
+case "$AGENT" in
+  claude)
+    HOOK_EVENT="PostToolUse"
+    HOOK_MATCHER="Edit|Write|MultiEdit|NotebookEdit"
+    HOME_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+    PROJECT_SUBDIR=".claude"
+    HOST_LABEL="Claude Code"
+    ;;
+  gemini)
+    HOOK_EVENT="AfterTool"
+    HOOK_MATCHER="replace|write_file"
+    HOME_DIR="${GEMINI_CONFIG_DIR:-$HOME/.gemini}"
+    PROJECT_SUBDIR=".gemini"
+    HOST_LABEL="Gemini CLI"
+    ;;
+  *) echo "install.sh: unknown --agent '$AGENT' (expected: claude|gemini)" >&2; exit 2 ;;
+esac
+
+case "$SCOPE" in
+  user)    TARGET="$HOME_DIR/settings.json" ;;
+  project) TARGET="./$PROJECT_SUBDIR/settings.json" ;;
+esac
+TARGET="${TARGET:-$HOME_DIR/settings.json}"
 
 [ -x "$HOOK_COMMAND" ] || {
   echo "install.sh: runner not found at $HOOK_COMMAND" >&2
@@ -111,4 +149,4 @@ mv "$TARGET.tmp" "$TARGET"
 echo "✓ Wired $SKILL_NAME → $TARGET"
 echo "  Backup: $BACKUP"
 echo
-echo "Restart Claude Code (or open a new conversation) for the hook to take effect."
+echo "Restart $HOST_LABEL (or open a new conversation) for the hook to take effect."

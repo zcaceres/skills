@@ -82,7 +82,7 @@ changeset.
    creates no events (so no releases fire) when more than three tags arrive in a
    single push, so batch a multi-skill release.
 
-**Binary-bundling skills** (`pr`, `safety-*`, `stacked-pr-gemini`) compile a
+**Binary-bundling skills** (`pr`, `safety-*`) compile a
 ~60 MB `scripts/bin/<name>-<os>-<arch>` binary that is gitignored and never
 committed. Releases publish those as individual assets; installs provision them
 via `scripts/fetch-binary.sh` (download from the GH release, else build with bun)

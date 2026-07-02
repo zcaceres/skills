@@ -1,10 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { join, sep } from "path";
 
 import {
   buildNudgeMessage,
   globToRegex,
   isExcluded,
   shouldFire,
+  stateFileFor,
 } from "../scripts/index";
 
 describe("globToRegex", () => {
@@ -106,5 +108,33 @@ describe("buildNudgeMessage", () => {
     expect(msg).toContain("321 lines");
     expect(msg).toContain("9 files");
     expect(msg).toContain("/pr");
+  });
+});
+
+describe("stateFileFor", () => {
+  const prev = process.env.PR_NUDGE_STATE_DIR;
+  afterEach(() => {
+    if (prev === undefined) delete process.env.PR_NUDGE_STATE_DIR;
+    else process.env.PR_NUDGE_STATE_DIR = prev;
+  });
+
+  test("Gemini's AfterTool homes state under ~/.gemini", () => {
+    delete process.env.PR_NUDGE_STATE_DIR;
+    const p = stateFileFor("AfterTool");
+    expect(p).toContain(`${sep}.gemini${sep}state${sep}`);
+    expect(p.endsWith("pr-nudge.json")).toBe(true);
+  });
+
+  test("Claude Code (no event name, or PostToolUse) homes state under ~/.claude", () => {
+    delete process.env.PR_NUDGE_STATE_DIR;
+    expect(stateFileFor(undefined)).toContain(`${sep}.claude${sep}state${sep}`);
+    expect(stateFileFor("PostToolUse")).toContain(`${sep}.claude${sep}state${sep}`);
+  });
+
+  test("PR_NUDGE_STATE_DIR overrides the host default", () => {
+    process.env.PR_NUDGE_STATE_DIR = join(sep, "tmp", "nudge-state");
+    expect(stateFileFor("AfterTool")).toBe(
+      join(sep, "tmp", "nudge-state", "pr-nudge.json"),
+    );
   });
 });

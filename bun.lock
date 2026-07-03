@@ -20,7 +20,7 @@
     },
     "skills/audit-memories": {
       "name": "@zcaceres/skill-audit-memories",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
@@ -60,6 +60,10 @@
     },
     "skills/laconic": {
       "name": "@zcaceres/skill-laconic",
+      "version": "0.6.0",
+    },
+    "skills/memory-insights": {
+      "name": "@zcaceres/skill-memory-insights",
       "version": "0.0.0",
     },
     "skills/nano-banana-generator": {
@@ -147,7 +151,7 @@
     },
     "skills/security-scfw": {
       "name": "@zcaceres/skill-security-scfw",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/security-snyk": {
       "name": "@zcaceres/skill-security-snyk",
@@ -256,6 +260,8 @@
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
     "@zcaceres/skill-laconic": ["@zcaceres/skill-laconic@workspace:skills/laconic"],
+
+    "@zcaceres/skill-memory-insights": ["@zcaceres/skill-memory-insights@workspace:skills/memory-insights"],
 
     "@zcaceres/skill-nano-banana-generator": ["@zcaceres/skill-nano-banana-generator@workspace:skills/nano-banana-generator"],
 

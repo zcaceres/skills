@@ -6,6 +6,7 @@ import { join } from "node:path";
 const SCRIPTS = join(import.meta.dir, "..", "scripts");
 const LACONIC = join(SCRIPTS, "laconic.sh");
 const HOOK = join(SCRIPTS, "session-start.sh");
+const REMINDER = join(SCRIPTS, "prompt-reminder.sh");
 const INSTALL = join(SCRIPTS, "install.sh");
 const UNINSTALL = join(SCRIPTS, "uninstall.sh");
 
@@ -338,4 +339,102 @@ test("uninstall.sh leaves co-existing hooks and honours --keep-state", () => {
   expect(cmds).toContain("/x/other.sh");
   expect(cmds.some((c: string) => c.includes("session-start.sh"))).toBe(false);
   expect(existsSync(state)).toBe(true); // --keep-state preserved it
+});
+
+// --- UserPromptSubmit reminder + cadence -----------------------------------
+
+// Run the per-turn reminder hook with a UserPromptSubmit payload. Omit
+// sessionId to exercise the no-counter fallback path.
+function runReminder(vars: Record<string, string>, cwd: string, sessionId?: string) {
+  const payload: Record<string, unknown> = { cwd, hook_event_name: "UserPromptSubmit" };
+  if (sessionId) payload.session_id = sessionId;
+  const p = Bun.spawnSync(["bash", REMINDER], { env: vars, stdin: Buffer.from(JSON.stringify(payload)) });
+  return { code: p.exitCode, out: p.stdout.toString() };
+}
+
+test("reminder hook is silent when unset and when off", () => {
+  const { vars, projDir } = fresh();
+  expect(runReminder(vars, projDir, "s").out).toBe(""); // unset
+  laconic(["off", "--user"], vars);
+  expect(runReminder(vars, projDir, "s").out).toBe(""); // explicit off
+});
+
+test("reminder emits every turn at the default cadence and names the active mode", () => {
+  const { vars, projDir } = fresh();
+  laconic(["on", "--user", "laconic-code"], vars);
+  for (let t = 0; t < 3; t++) {
+    expect(runReminder(vars, projDir, "sess-default").out).toContain(
+      "Reminder to follow the laconic-code laconic rules",
+    );
+  }
+});
+
+test("cadence writes its own file and status reports it", () => {
+  const { userDir, vars } = fresh();
+  laconic(["on", "--user"], vars);
+  const c = laconic(["cadence", "3", "--user"], vars);
+  expect(c.code).toBe(0);
+  expect(readFileSync(join(userDir, "laconic.cadence"), "utf8").trim()).toBe("3");
+  expect(laconic(["status"], vars).out).toContain("reminder cadence: every 3 turn(s)");
+});
+
+test("cadence N gates the reminder to turns 1, 1+N, 1+2N", () => {
+  const { vars, projDir } = fresh();
+  vars.TMPDIR = mkdtempSync(join(tmpdir(), "laconic-tmpdir-")); // isolate the turn counter
+  laconic(["on", "--user", "prose+code"], vars);
+  laconic(["cadence", "3", "--user"], vars);
+  const emitted: number[] = [];
+  for (let turn = 1; turn <= 7; turn++) {
+    if (runReminder(vars, projDir, "sess-3").out !== "") emitted.push(turn);
+  }
+  expect(emitted).toEqual([1, 4, 7]);
+});
+
+test("cadence rejects zero, non-numeric, and missing values", () => {
+  const { vars } = fresh();
+  expect(laconic(["cadence", "0", "--user"], vars).code).toBe(2);
+  expect(laconic(["cadence", "abc", "--user"], vars).code).toBe(2);
+  expect(laconic(["cadence", "--user"], vars).code).toBe(2);
+});
+
+test("reminder falls back to every turn when the payload has no session_id", () => {
+  const { vars, projDir } = fresh();
+  vars.TMPDIR = mkdtempSync(join(tmpdir(), "laconic-tmpdir-"));
+  laconic(["on", "--user"], vars);
+  laconic(["cadence", "5", "--user"], vars);
+  // Can't count without a session id, so remind every turn rather than go silent.
+  expect(runReminder(vars, projDir).out).not.toBe("");
+  expect(runReminder(vars, projDir).out).not.toBe("");
+});
+
+test("cadence resolves project-over-user", () => {
+  const { vars } = fresh();
+  laconic(["on", "--user"], vars);
+  laconic(["cadence", "5", "--user"], vars);
+  laconic(["cadence", "2", "--project"], vars);
+  expect(laconic(["status"], vars).out).toContain("reminder cadence: every 2 turn(s)");
+});
+
+test("install wires the UserPromptSubmit reminder with no matcher; uninstall removes it and the cadence file", () => {
+  if (!Bun.which("jq")) return; // requires jq; skip when unavailable
+  const setDir = mkdtempSync(join(tmpdir(), "laconic-set-"));
+  const target = join(setDir, "settings.json");
+  const vars = { ...process.env } as Record<string, string>;
+
+  Bun.spawnSync(["bash", INSTALL, "--target", target], { env: vars });
+  const cfg = JSON.parse(readFileSync(target, "utf8"));
+  const ups = cfg.hooks.UserPromptSubmit;
+  const cmds = ups.flatMap((e: any) => e.hooks.map((h: any) => h.command));
+  expect(cmds.some((c: string) => c.endsWith("prompt-reminder.sh"))).toBe(true);
+  expect(ups.every((e: any) => !("matcher" in e))).toBe(true); // UserPromptSubmit takes no matcher
+
+  writeFileSync(join(setDir, "laconic.state"), "on prose+code\n");
+  writeFileSync(join(setDir, "laconic.cadence"), "3\n");
+  Bun.spawnSync(["bash", UNINSTALL, "--target", target], { env: vars });
+  const cfg2 = JSON.parse(readFileSync(target, "utf8"));
+  const cmds2 = (cfg2.hooks?.UserPromptSubmit ?? []).flatMap((e: any) =>
+    e.hooks.map((h: any) => h.command),
+  );
+  expect(cmds2.some((c: string) => c.includes("prompt-reminder.sh"))).toBe(false);
+  expect(existsSync(join(setDir, "laconic.cadence"))).toBe(false);
 });

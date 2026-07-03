@@ -35,7 +35,7 @@ fi
 STATE="${LINE%% *}"
 MODE="${LINE#* }"
 [ "$STATE" = "on" ] || exit 0          # off / unset → inject nothing
-case "$MODE" in prose-only|prose+code) ;; *) MODE="prose+code" ;; esac
+case "$MODE" in prose-only|prose+code|laconic-code) ;; *) MODE="prose+code" ;; esac
 [ -f "$RULES" ] || exit 0
 
 echo "LACONIC MODE ACTIVE (mode: $MODE). The voice below governs how you present"
@@ -43,12 +43,15 @@ echo "answers to the user. Follow it until told 'normal mode' or 'stop laconic'.
 echo
 
 # Emit rules.md keeping only the active mode's block. Lines inside a
-# <!-- mode:X --> … <!-- /mode:X --> region print only when X == MODE; lines
-# outside any region always print. Markers themselves are never printed.
+# <!-- mode:X --> … <!-- /mode:X --> region print only when the active mode is X;
+# X may be a comma-separated list (<!-- mode:a,b -->) to target several modes.
+# Lines outside any region always print. Markers themselves are never printed.
 awk -v active="$MODE" '
   /<!-- mode:.* -->/ {
     m = $0; sub(/.*<!-- mode:/, "", m); sub(/ -->.*/, "", m);
-    skip = (m != active); next
+    skip = 1; n = split(m, modes, ",");
+    for (i = 1; i <= n; i++) if (modes[i] == active) skip = 0;
+    next
   }
   /<!-- \/mode:.* -->/ { skip = 0; next }
   { if (!skip) print }

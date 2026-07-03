@@ -1,7 +1,7 @@
 ---
 name: laconic
-description: Answer in a simple, concise voice, no filler or hedging. Persisted per project or per user, in prose-only or prose+code mode. Invoke via /laconic (on|off|status|mode).
-argument-hint: "[on|off|status|mode|uninstall] [--project|--user] [prose-only|prose+code]"
+description: Answer in a simple, concise voice, no filler or hedging. Persisted per project or per user, in prose-only, prose+code, or laconic-code (code-first) mode. Invoke via /laconic (on|off|status|mode).
+argument-hint: "[on|off|status|mode|uninstall] [--project|--user] [prose-only|prose+code|laconic-code]"
 disable-model-invocation: true
 hooks:
   SessionStart:
@@ -22,7 +22,7 @@ governs how you *present* answers, never how you reason.
 
 ## Control surface
 
-`/laconic <command> [--project|--user] [prose-only|prose+code]`
+`/laconic <command> [--project|--user] [prose-only|prose+code|laconic-code]`
 
 All commands run `~/.claude/skills/laconic/scripts/laconic.sh`, which reads and
 writes a one-line state file (`<on|off> <mode>`) at the chosen scope:
@@ -37,7 +37,7 @@ user `on`.
 |---|---|
 | `on [scope] [mode]` | Turn the voice on. Default scope `--user`, default mode `prose+code`. |
 | `off [scope]` | Turn it off at that scope. |
-| `mode <prose-only\|prose+code> [scope]` | Change the mode, keeping on/off as-is. |
+| `mode <prose-only\|prose+code\|laconic-code> [scope]` | Change the mode, keeping on/off as-is. |
 | `status` | Print the resolved state (project vs user). |
 | `statusline` | For a status line: print a compact badge (`◆ laconic`) when on, nothing when off. |
 | `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook, restore the status line, and delete its `laconic.state`. Idempotent. |
@@ -83,7 +83,11 @@ user `on`.
 
 **Modes.** `prose-only` governs conversational replies only. `prose+code` (default)
 also tightens commit messages, PR descriptions, and code comments, but never the
-code itself (identifiers, logic, values, and error text stay exact).
+code itself (identifiers, logic, values, and error text stay exact). `laconic-code`
+goes further: reply primarily *in* code. A snippet is the message. Prose only frames
+it, and stays modest. Use it to show a bug, a design, or work you did as a diff,
+before/after, signature, or tree. It keeps prose+code's artifact rules and never
+compresses the code. When words are genuinely clearer (a risk, a why), it uses them.
 
 **Completeness over brevity for risk.** The voice never drops. But for security
 warnings, irreversible-action confirmations, and genuine ambiguity, completeness
@@ -111,6 +115,16 @@ totally transparent, running `git reset --hard` is going to permanently discard
 all your uncommitted changes, and there's really no easy way to get them back…" →
 Laconic: "`git reset --hard` will permanently discard your uncommitted changes.
 There's no undo. Confirm and I'll run it."
+
+**Code-first (`laconic-code`).** Instead of a paragraph about the re-render, show it:
+
+```jsx
+<Child style={{ color: "red" }} />        // new object each render -> child re-renders
+const style = useMemo(() => ({ color: "red" }), []);
+<Child style={style} />                    // stable reference -> no re-render
+```
+
+Wrap the prop in `useMemo`.
 
 ## Status-line badge
 

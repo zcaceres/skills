@@ -6,9 +6,9 @@
 # voice when active; this script never prints the voice itself.
 #
 # Usage:
-#   laconic.sh on   [--project|--user] [prose-only|prose+code]
+#   laconic.sh on   [--project|--user] [prose-only|prose+code|laconic-code]
 #   laconic.sh off  [--project|--user]
-#   laconic.sh mode <prose-only|prose+code> [--project|--user]
+#   laconic.sh mode <prose-only|prose+code|laconic-code> [--project|--user]
 #   laconic.sh status
 #   laconic.sh statusline   # compact badge for a status line ("◆ laconic" when on, else nothing)
 #   laconic.sh uninstall [--project|--user]   # unwire the hook + delete this scope's state
@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-VALID_MODES="prose-only prose+code"
+VALID_MODES="prose-only prose+code laconic-code"
 DEFAULT_MODE="prose+code"
 
 user_state()    { echo "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/laconic.state"; }
@@ -55,7 +55,7 @@ for arg in "$@"; do
   case "$arg" in
     --project) scope="project" ;;
     --user)    scope="user" ;;
-    prose-only|prose+code) mode="$arg" ;;
+    prose-only|prose+code|laconic-code) mode="$arg" ;;
     *) echo "laconic: unexpected argument: $arg" >&2; exit 2 ;;
   esac
 done
@@ -82,7 +82,7 @@ case "$cmd" in
     echo "laconic off ($scope) → $file"
     ;;
   mode)
-    [ -n "$mode" ] || { echo "laconic: mode requires prose-only|prose+code" >&2; exit 2; }
+    [ -n "$mode" ] || { echo "laconic: mode requires prose-only|prose+code|laconic-code" >&2; exit 2; }
     file="$(target_file)"
     existing="$(read_state "$file")"; estate="${existing%% *}"
     [ "$estate" = "on" ] || estate="off"

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-memory-insights",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Read the agent's file-based memory (the current project by default, or all projects on request), then give the user a few one-sentence, non-obvious pieces of feedback (constructive or observational) about themselves. Use for 'memory insights', 'what do you notice about me', 'read my memory and tell me something', or '/memory-insights'.",
   "license": "MIT",
   "type": "module",
@@ -9,7 +9,13 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ],
   "keywords": [
     "claude-code",
     "skill",

@@ -116,6 +116,43 @@ test("hook injects the prose+code block in prose+code mode", () => {
   expect(r.out).not.toContain("Scope: prose-only");
 });
 
+test("on --user laconic-code writes state and status resolves it", () => {
+  const { userDir, vars } = fresh();
+  laconic(["on", "--user", "laconic-code"], vars);
+  expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on laconic-code");
+  expect(laconic(["status"], vars).out).toContain("on (mode: laconic-code)");
+});
+
+test("mode laconic-code is accepted and switches from a prose mode", () => {
+  const { userDir, vars } = fresh();
+  laconic(["on", "--user", "prose+code"], vars);
+  laconic(["mode", "laconic-code", "--user"], vars);
+  expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on laconic-code");
+});
+
+test("hook injects only the code-first block in laconic-code mode", () => {
+  const { vars, projDir } = fresh();
+  laconic(["on", "--user", "laconic-code"], vars);
+  const r = runHook(vars, projDir);
+  expect(r.out).toContain("LACONIC MODE ACTIVE (mode: laconic-code)");
+  expect(r.out).toContain("Scope: code-first");
+  expect(r.out).not.toContain("Scope: prose-only");
+  expect(r.out).not.toContain("Scope: prose + code");
+  // Code-first examples show; the prose-only/prose+code examples are gated out.
+  expect(r.out).toContain("Explaining a bug");
+  expect(r.out).not.toContain("**Cutting asides**");
+  // The risk warning is mode-agnostic and always injected.
+  expect(r.out).toContain("Warning before something irreversible");
+});
+
+test("prose modes keep the prose examples and hide the code-first ones", () => {
+  const { vars, projDir } = fresh();
+  laconic(["on", "--user", "prose+code"], vars);
+  const r = runHook(vars, projDir);
+  expect(r.out).toContain("**Cutting asides**");
+  expect(r.out).not.toContain("Explaining a bug");
+});
+
 test("hook is silent when unset and when off", () => {
   const { vars, projDir } = fresh();
   const unset = runHook(vars, projDir);

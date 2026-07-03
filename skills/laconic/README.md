@@ -1,8 +1,9 @@
 # laconic
 
 Answer in a spare, plain voice: lead with the point, complete sentences, no
-filler or hedging. Persisted per project or per user, in prose-only or prose+code
-mode. Plain English made economical, not clipped fragments.
+filler or hedging. Persisted per project or per user, in prose-only, prose+code,
+or laconic-code (code-first) mode. Plain English made economical, not clipped
+fragments.
 
 ## Layout
 
@@ -26,6 +27,7 @@ Then enable it:
 ```sh
 /laconic on                 # user scope, prose+code (defaults)
 /laconic on --project prose-only
+/laconic mode laconic-code   # reply primarily in code
 /laconic status
 /laconic off
 ```
@@ -56,7 +58,9 @@ and keep the voice. The skill's own files stay put; remove them with your skills
 
 - **Modes.** `prose-only` shapes conversational replies. `prose+code` (default)
   also tightens commit messages, PR descriptions, and code comments, never the
-  code itself.
+  code itself. `laconic-code` replies primarily *in* code: a snippet is the
+  message and prose only frames it, kept modest. It keeps prose+code's artifact
+  rules and never compresses the code.
 - **Scope precedence.** A project state file overrides the user one, so a project
   `off` suppresses a user `on`.
 - **Presentation, not reasoning.** The voice only shapes what the agent shows

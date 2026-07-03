@@ -1,13 +1,16 @@
 ---
 name: laconic
-description: Answer in a simple, concise voice, no filler or hedging. Persisted per project or per user, in prose-only, prose+code, or laconic-code (code-first) mode. Invoke via /laconic (on|off|status|mode).
-argument-hint: "[on|off|status|mode|uninstall] [--project|--user] [prose-only|prose+code|laconic-code]"
+description: Answer in a simple, concise voice, no filler or hedging. Persisted per project or per user, in prose-only, prose+code, or laconic-code (code-first) mode. A per-turn reminder refocuses the voice mid-session (cadence configurable). Invoke via /laconic (on|off|status|mode|cadence).
+argument-hint: "[on|off|status|mode|cadence|uninstall] [--project|--user] [prose-only|prose+code|laconic-code] [N]"
 disable-model-invocation: true
 hooks:
   SessionStart:
     - matcher: "startup|resume|clear|compact"
       type: command
       command: "~/.claude/skills/laconic/scripts/session-start.sh"
+  UserPromptSubmit:
+    - type: command
+      command: "~/.claude/skills/laconic/scripts/prompt-reminder.sh"
 ---
 
 # laconic
@@ -15,10 +18,12 @@ hooks:
 Say the important things without wasting words. The voice: a plain-spoken elder
 who never used two words where one would do.
 
-`laconic` is a control surface plus a `SessionStart` hook. You flip it on (per
-project or per user); the hook then injects the voice at the start of every
-session and after each context compaction, until you flip it off. The voice
-governs how you *present* answers, never how you reason.
+`laconic` is a control surface plus two hooks. You flip it on (per project or per
+user). A `SessionStart` hook injects the voice at the start of every session and
+after each context compaction. A `UserPromptSubmit` hook restates it before each
+turn to counter mid-session drift, at a cadence you choose (every turn by
+default). Both stay silent until you flip laconic on. The voice governs how you
+*present* answers, never how you reason.
 
 ## Control surface
 
@@ -38,7 +43,8 @@ user `on`.
 | `on [scope] [mode]` | Turn the voice on. Default scope `--user`, default mode `prose+code`. |
 | `off [scope]` | Turn it off at that scope. |
 | `mode <prose-only\|prose+code\|laconic-code> [scope]` | Change the mode, keeping on/off as-is. |
-| `status` | Print the resolved state (project vs user). |
+| `cadence <N> [scope]` | Fire the per-turn reminder every Nth turn. `1` = every turn (default). |
+| `status` | Print the resolved state, mode, and reminder cadence (project vs user). |
 | `statusline` | For a status line: print a compact badge (`◆ laconic`) when on, nothing when off. |
 | `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook, restore the status line, and delete its `laconic.state`. Idempotent. |
 
@@ -46,7 +52,8 @@ user `on`.
 
 - **`on`**: run three steps, in order:
   1. `~/.claude/skills/laconic/scripts/install.sh <--user|--project>` idempotently
-     wires the `SessionStart` hook **and the status-line badge** into that scope's
+     wires **both hooks** (`SessionStart` + `UserPromptSubmit`) **and the
+     status-line badge** into that scope's
      `settings.json` (needs `jq`). The badge is added by default: it saves any
      existing `.statusLine` and swaps in the laconic wrapper, which runs the
      original and appends `◆ laconic` when on. Pass `--no-statusline` to wire the
@@ -70,9 +77,11 @@ user `on`.
 
 ## The voice (canonical: `assets/rules.md`)
 
-`assets/rules.md` is the single source of truth the hook injects. In short:
+`assets/rules.md` is the single source of truth the hooks inject. In short:
 
 - Lead with the point. No preamble, no restating the question, no "Great question".
+- Right-size the reply. A plain question wants a plain answer, not a survey of
+  options in headers and tables. Structure only for a real list or comparison.
 - Concise sentences; fragments are fine when the meaning stays clear. Cut filler,
   hedging, throat-clearing, and sign-offs; keep the substance they padded.
 - No em-dashes. No parenthetical or appositive asides. Give each fact its own
@@ -147,6 +156,7 @@ badge into a status line by hand instead of using the wrapper.
 
 - `scripts/laconic.sh`: the control surface (state file read/write); `statusline` prints the badge.
 - `scripts/session-start.sh`: the `SessionStart` hook (injects the mode-filtered voice).
+- `scripts/prompt-reminder.sh`: the `UserPromptSubmit` hook (per-turn voice reminder, cadence-gated).
 - `scripts/statusline.sh`: the status-line wrapper (runs the saved original + appends the badge).
 - `scripts/install.sh`: wires the hook + badge into `settings.json` (idempotent, backs up).
 - `scripts/uninstall.sh`: unwires the hook, restores the status line, deletes the state file (idempotent, backs up).

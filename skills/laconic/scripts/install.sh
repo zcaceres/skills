@@ -27,15 +27,20 @@
 set -euo pipefail
 
 SKILL_NAME="laconic"
-HOOK_EVENT="SessionStart"
-HOOK_MATCHER="startup|resume|clear|compact"
+# Two hooks: SessionStart injects the full voice; UserPromptSubmit restates it
+# each turn to counter mid-session drift. UserPromptSubmit takes no matcher.
+SESSION_EVENT="SessionStart"
+SESSION_MATCHER="startup|resume|clear|compact"
+REMINDER_EVENT="UserPromptSubmit"
+REMINDER_MATCHER=""
 
 CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-# Resolve HOOK_COMMAND from this script's own location so it points at the
-# correct hook whether the skill was installed at user scope, project scope,
+# Resolve hook commands from this script's own location so they point at the
+# correct hooks whether the skill was installed at user scope, project scope,
 # or under a custom CLAUDE_CONFIG_DIR.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HOOK_COMMAND="$SCRIPT_DIR/session-start.sh"
+SESSION_COMMAND="$SCRIPT_DIR/session-start.sh"
+REMINDER_COMMAND="$SCRIPT_DIR/prompt-reminder.sh"
 STATUSLINE_WRAPPER="$SCRIPT_DIR/statusline.sh"
 
 TARGET=""
@@ -55,11 +60,13 @@ while [ $# -gt 0 ]; do
 done
 TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
 
-[ -x "$HOOK_COMMAND" ] || {
-  echo "install.sh: hook not found or not executable at $HOOK_COMMAND" >&2
-  echo "Run install.sh from inside the unpacked skill's scripts/ directory." >&2
-  exit 1
-}
+for cmd in "$SESSION_COMMAND" "$REMINDER_COMMAND"; do
+  [ -x "$cmd" ] || {
+    echo "install.sh: hook not found or not executable at $cmd" >&2
+    echo "Run install.sh from inside the unpacked skill's scripts/ directory." >&2
+    exit 1
+  }
+done
 
 command -v jq >/dev/null || {
   echo "install.sh: requires jq. Install:" >&2
@@ -87,22 +94,34 @@ backup_once() {
 }
 
 # --- Hook wiring ------------------------------------------------------------
-if jq -e --arg event "$HOOK_EVENT" --arg cmd "$HOOK_COMMAND" \
-    '(.hooks[$event] // []) | map(.hooks[]?.command) | flatten | any(. == $cmd)' \
-    "$TARGET" > /dev/null 2>&1; then
-  echo "✓ $SKILL_NAME hook already wired at $TARGET."
-else
+# Wire one command under one event, idempotently. A blank matcher wires the
+# block with no matcher key (the form UserPromptSubmit expects).
+wire_hook() {
+  local event="$1" matcher="$2" cmd="$3"
+  if jq -e --arg event "$event" --arg cmd "$cmd" \
+      '(.hooks[$event] // []) | map(.hooks[]?.command) | flatten | any(. == $cmd)' \
+      "$TARGET" > /dev/null 2>&1; then
+    echo "✓ $SKILL_NAME $event hook already wired at $TARGET."
+    return 0
+  fi
   backup_once
-  jq --arg event "$HOOK_EVENT" \
-     --arg matcher "$HOOK_MATCHER" \
-     --arg cmd "$HOOK_COMMAND" \
-     '.hooks //= {} |
-      .hooks[$event] //= [] |
-      .hooks[$event] += [{matcher: $matcher, hooks: [{type: "command", command: $cmd}]}]' \
-     "$TARGET" > "$TARGET.tmp"
+  if [ -n "$matcher" ]; then
+    jq --arg event "$event" --arg matcher "$matcher" --arg cmd "$cmd" \
+       '.hooks //= {} | .hooks[$event] //= [] |
+        .hooks[$event] += [{matcher: $matcher, hooks: [{type: "command", command: $cmd}]}]' \
+       "$TARGET" > "$TARGET.tmp"
+  else
+    jq --arg event "$event" --arg cmd "$cmd" \
+       '.hooks //= {} | .hooks[$event] //= [] |
+        .hooks[$event] += [{hooks: [{type: "command", command: $cmd}]}]' \
+       "$TARGET" > "$TARGET.tmp"
+  fi
   mv "$TARGET.tmp" "$TARGET"
-  echo "✓ Wired $SKILL_NAME hook → $TARGET"
-fi
+  echo "✓ Wired $SKILL_NAME $event hook → $TARGET"
+}
+
+wire_hook "$SESSION_EVENT"  "$SESSION_MATCHER"  "$SESSION_COMMAND"
+wire_hook "$REMINDER_EVENT" "$REMINDER_MATCHER" "$REMINDER_COMMAND"
 
 # --- Status-line badge wiring ----------------------------------------------
 if [ "$WIRE_STATUSLINE" -eq 1 ]; then

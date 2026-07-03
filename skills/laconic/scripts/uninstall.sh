@@ -22,10 +22,13 @@
 set -euo pipefail
 
 SKILL_NAME="laconic"
-HOOK_EVENT="SessionStart"
-# Match the wired hook by its tail, not an absolute path, so uninstall works
-# regardless of the scope/CLAUDE_CONFIG_DIR the hook was installed under.
-HOOK_NEEDLE="laconic/scripts/session-start.sh"
+# Match wired hooks by their tail, not an absolute path, so uninstall works
+# regardless of the scope/CLAUDE_CONFIG_DIR they were installed under. Two
+# hooks: SessionStart (session-start.sh) and UserPromptSubmit (prompt-reminder.sh).
+SESSION_EVENT="SessionStart"
+SESSION_NEEDLE="laconic/scripts/session-start.sh"
+REMINDER_EVENT="UserPromptSubmit"
+REMINDER_NEEDLE="laconic/scripts/prompt-reminder.sh"
 
 CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
@@ -51,6 +54,7 @@ TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
 # The state file and saved original status line live alongside settings.json in
 # the same scope directory.
 STATE_FILE="$(dirname "$TARGET")/laconic.state"
+CADENCE_FILE="$(dirname "$TARGET")/laconic.cadence"
 STATUSLINE_ORIG="$(dirname "$TARGET")/laconic.statusline.orig.json"
 
 command -v jq >/dev/null || {
@@ -79,15 +83,16 @@ if [ -f "$TARGET" ]; then
   }
 
   # --- Hook unwire (skipped with --statusline-only) --------------------------
-  if [ "$STATUSLINE_ONLY" -eq 0 ]; then
-    if jq -e --arg event "$HOOK_EVENT" --arg needle "$HOOK_NEEDLE" \
+  # Drop the laconic command from every block of one event, then prune blocks,
+  # the event array, and the hooks object if they end up empty.
+  unwire_hook() {
+    local event="$1" needle="$2"
+    if jq -e --arg event "$event" --arg needle "$needle" \
         '(.hooks[$event] // []) | map(.hooks[]?.command) | flatten
          | any(type == "string" and contains($needle))' \
         "$TARGET" > /dev/null 2>&1; then
       backup_once
-      # Drop the laconic command from every SessionStart block, then prune
-      # blocks, the event array, and the hooks object if they end up empty.
-      jq --arg event "$HOOK_EVENT" --arg needle "$HOOK_NEEDLE" '
+      jq --arg event "$event" --arg needle "$needle" '
         if (.hooks[$event]?) then
           .hooks[$event] |= (
             map(.hooks |= map(select((.command // "" | contains($needle)) | not)))
@@ -98,11 +103,15 @@ if [ -f "$TARGET" ]; then
         else . end
       ' "$TARGET" > "$TARGET.tmp"
       mv "$TARGET.tmp" "$TARGET"
-      echo "✓ Unwired $SKILL_NAME hook from $TARGET"
+      echo "✓ Unwired $SKILL_NAME $event hook from $TARGET"
       changed=1
     else
-      echo "• No $SKILL_NAME hook wired at $TARGET."
+      echo "• No $SKILL_NAME $event hook wired at $TARGET."
     fi
+  }
+  if [ "$STATUSLINE_ONLY" -eq 0 ]; then
+    unwire_hook "$SESSION_EVENT"  "$SESSION_NEEDLE"
+    unwire_hook "$REMINDER_EVENT" "$REMINDER_NEEDLE"
   fi
 
   # --- Status-line restore ---------------------------------------------------
@@ -137,6 +146,12 @@ fi
 if [ "$STATUSLINE_ONLY" -eq 0 ] && [ "$KEEP_STATE" -eq 0 ] && [ -f "$STATE_FILE" ]; then
   rm -f "$STATE_FILE"
   echo "✓ Removed state file: $STATE_FILE"
+  changed=1
+fi
+
+if [ "$STATUSLINE_ONLY" -eq 0 ] && [ "$KEEP_STATE" -eq 0 ] && [ -f "$CADENCE_FILE" ]; then
+  rm -f "$CADENCE_FILE"
+  echo "✓ Removed cadence file: $CADENCE_FILE"
   changed=1
 fi
 

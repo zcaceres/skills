@@ -32,7 +32,7 @@ jobs:
 
       - name: Run Codex
         id: run_codex
-        uses: openai/codex-action@e0fdf01220eb9a88167c4898839d273e3f2609d1  # v1.8
+        uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56  # v1.11
         env:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
         with:

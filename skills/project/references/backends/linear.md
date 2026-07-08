@@ -28,7 +28,7 @@ model-invoked tool, so enforce it by hand:
 | `update_item_title(id,t)` | `update_issue(id, title)`. |
 | `update_item_body(id,b)` | `update_issue(id, description)`. |
 | `set_item_status(id,canonical)` | `update_issue(id, stateId = statusMap[canonical])`. |
-| `link_parent_child(parent,child)` | Prefer setting `parentId` at **create** time (`create_issue(..., parentId)`). Native sub-issues — no REST call, no body checklist. Re-parenting an existing child needs `update_issue(id, parentId)`; **verify this param exists on the connected MCP** before relying on it. Fallback: recreate the child with `parentId`, or note the relationship in the parent body. |
+| `link_parent_child(parent,child)` | Native sub-issues: create the child with `create_issue(..., parentId = <parent UUID>)`. One call, no REST, no body checklist. This skill only ever creates fresh children under a parent (`decompose`), so parenting is always set at create time — there is no re-parent step. |
 | `close_item(id,comment?)` | `update_issue(id, stateId = statusMap.done)`; optional `create_comment(id, comment)`. |
 | `unlink_item(id)` | Linear has no board-scoped unlink. Treat "remove from board" as **cancel/archive**: `update_issue(id, stateId = statusMap.cancelled)`. Hard delete is out of scope for the MCP. |
 

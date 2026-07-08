@@ -3,8 +3,8 @@
 A single Claude Code skill that bundles a full project-tracker kanban workflow
 over a **pluggable backend**. The workflow bodies are backend-neutral; which
 tracker they drive is chosen at `/project setup` and recorded as `"backend"` in
-`.project/config.json`. Today the only backend is **github** (GitHub Projects);
-a **linear** backend follows.
+`.project/config.json`. Two backends ship: **github** (GitHub Projects) and
+**linear** (via the official Linear MCP).
 
 Supersedes the standalone `gh-project` skill (GitHub becomes the `github`
 backend). A repo configured under `gh-project` keeps working: `.github/gh-project.json`
@@ -63,3 +63,5 @@ board, write the config, and (github) install the helper script.
 
 Requirements are backend-specific. The **github** backend needs the `gh` CLI
 authenticated with the `project` scope (`gh auth refresh -s project`) and `jq`.
+The **linear** backend needs the official Linear MCP connected; there is no
+script or `gh` dependency.

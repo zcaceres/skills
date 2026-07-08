@@ -21,6 +21,11 @@ This subcommand **stops at the context dump**. It does not create branches, edit
 The steps below assume the github backend; the `board.sh`/`gh` calls behind the
 adapter verbs are documented in [backends/github.md](backends/github.md).
 
+**Linear backend:** list via `list_issues` under the Completeness rule; rank by
+cycle → priority → estimate → age (no milestones or phase labels). The ranking
+judgment below is unchanged — only the signals differ. See
+[backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 ## Step 1 — List the Todo column
 
 Use the helper with a server-side filter so the agent only sees what it needs:

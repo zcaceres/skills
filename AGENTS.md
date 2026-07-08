@@ -9,7 +9,8 @@
 
 Work for this repo is tracked on the GitHub Project board at https://github.com/users/zcaceres/projects/4.
 
-The `project` skill is backend-neutral; this repo uses the **github** backend
+The `project` skill is backend-neutral (backends: **github** and **linear** via
+the official Linear MCP); this repo uses the **github** backend
 (`"backend": "github"` in the config). Its configuration — number, owner, project
 node ID, status field ID, status option IDs, and the canonical `statusMap` — is
 stored in `.project/config.json`. Agents managing this board should read that

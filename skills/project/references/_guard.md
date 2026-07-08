@@ -62,10 +62,20 @@ of use.
 
 ### linear
 
-Not available yet — the Linear backend ships in a later release. If `BACKEND` is
-`linear`, stop and tell the user their config selects a backend this version of
-the skill can't drive, and to update the `project` skill. (This branch is filled
-in when the Linear adapter lands; see [backends/linear.md](backends/linear.md).)
+The backend is the official Linear MCP. There is no board script. See
+[backends/linear.md](backends/linear.md) for the full verb → MCP mapping.
+
+1. **Confirm the MCP is reachable.** Call `list_teams`. If the tool isn't
+   available, stop and tell the user to connect the Linear MCP, then re-invoke.
+2. **Read the config** for the fields the body uses:
+   - `TEAM_ID` = `.teamId`, `TEAM_KEY` = `.teamKey`
+   - `PROJECT_ID` = `.projectId` (may be null)
+   - `statusMap` (canonical → workflow-state UUID) and `statusNames` (display labels)
+3. **Board reads obey the Completeness rule** (see
+   [backends/linear.md](backends/linear.md#completeness-rule-read-before-any-list-verb)):
+   page `list_issues` until exhausted; if you can't, say the board is truncated
+   and never rank or audit a partial board. This is the model-invoked stand-in for
+   github's fail-loud `board.sh`.
 
 ## Canonical status vocabulary
 

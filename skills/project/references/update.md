@@ -18,6 +18,10 @@ You are updating a single card on the GitHub Projects kanban board with new find
 The steps below assume the github backend; the `board.sh`/`gh` calls behind the
 adapter verbs are documented in [backends/github.md](backends/github.md).
 
+**Linear backend:** title/body/status via `update_issue`; "custom fields" map to
+Linear natives (priority/estimate/cycle/project), not GitHub single-selects. See
+[backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 (This subcommand only talks to `gh issue` directly — the board helper handles all `gh project` calls — so only `REPO_OWNER` is needed here.)
 
 ## Step 1 — Identify the target card

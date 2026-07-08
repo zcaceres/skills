@@ -74,3 +74,21 @@ path differs from github, keyed to the inline split in each subcommand reference
   natives (priority/estimate/cycle/project), not GitHub project single-selects.
 - **delete** — "delete" means cancel/archive (`unlink_item`), not removal. Spell
   this out: the issue moves to the Cancelled state and stays in the workspace.
+
+## Milestone verbs
+
+The canonical **milestone** maps to a Linear **project** under the configured
+team. It is the standalone analogue of a github milestone (name, target date, a
+set of issues, progress).
+
+| Verb | Linear implementation |
+|---|---|
+| `create_milestone(name, due?, description?)` | `create_project(teamId, name, targetDate?, description?)` → project id + url. `due` is the project's `targetDate`. |
+| `add_to_milestone(item, milestone)` | `update_issue(id, projectId = <project UUID>)`. |
+| `list_milestones()` | `list_projects(teamId)` → id, name, `targetDate`, and progress / issue counts. |
+| `list_milestone_items(milestone, open)` | `list_issues(projectId = <UUID>, state != done)` under the Completeness rule. |
+
+`teamId` comes from the config. A milestone selector resolves to a `projectId` via
+`list_projects`. This is distinct from the config's optional default `projectId`
+(the default container for `new-task`), though a team may use the same project for
+both.

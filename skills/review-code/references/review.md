@@ -30,14 +30,14 @@ Here are the general guidelines for determining whether something is a bug and s
 
 When flagging a bug, you will also provide an accompanying comment. Once again, these guidelines are not the final word on how to construct a comment — defer to any subsequent guidelines that you encounter.
 
-1. The comment should be clear about why the issue is a bug.
-2. The comment should appropriately communicate the severity of the issue. It should not claim that an issue is more severe than it actually is.
-3. The comment should be brief. The body should be at most 1 paragraph. It should not introduce line breaks within the natural language flow unless it is necessary for the code fragment.
-4. The comment should not include any chunks of code longer than 3 lines. Any code chunks should be wrapped in markdown inline code tags or a code block.
-5. The comment should clearly and explicitly communicate the scenarios, environments, or inputs that are necessary for the bug to arise. The comment should immediately indicate that the issue's severity depends on these factors.
-6. The comment's tone should be matter-of-fact and not accusatory or overly positive. It should read as a helpful AI assistant suggestion without sounding too much like a human reviewer.
-7. The comment should be written such that the original author can immediately grasp the idea without close reading.
-8. The comment should avoid excessive flattery and comments that are not helpful to the original author. The comment should avoid phrasing like "Great job ...", "Thanks for ...".
+Lead with the code. The author should grasp the bug from the snippet before reading a word of prose. Prose frames the snippet; it never substitutes for it.
+
+1. **Show the defect in code first.** Include the smallest snippet that makes the problem obvious — a before→after pair when there's a concrete fix, or the offending line annotated with a `// comment` when there isn't. Let the code carry the explanation.
+2. **Keep prose to one or two sentences.** State what breaks and why in the heading and a single follow-up sentence. Cut restatement of what the code already shows.
+3. **State the trigger explicitly.** Name the inputs, environment, or state required for the bug to fire, so severity is clear up front.
+4. **Match severity to reality.** Do not claim an issue is worse than it is.
+5. **Keep snippets minimal.** Only the lines that show the bug — never a large paste. Wrap inline code in backticks and multi-line snippets in a fenced block.
+6. **Matter-of-fact tone.** No flattery ("Great job ...", "Thanks for ..."), no accusation. A helpful assistant suggestion, not a human reviewer's voice.
 
 ## How Many Findings to Return
 
@@ -73,23 +73,28 @@ If the user passes a specific base branch (e.g., "review against develop"), subs
 
 ## Output Format
 
-Write out a numbered list of issues found, with the file location for each. Keep findings tight — one heading, a short paragraph, and the file reference. Include a ` ```suggestion ` block only when a concrete code replacement is appropriate.
+Write out a numbered list of issues found. Each finding is code-first: a bold one-line heading naming the defect, the minimal snippet that shows it, one or two sentences of framing (trigger + why), and the file reference. Show a before→after when there's a concrete fix; annotate the offending line when there isn't. Not every finding needs a snippet — dead code or a missing call reads fine as a one-liner. Include a ` ```suggestion ` block only when a concrete code replacement is appropriate.
 
 Example:
 
-```markdown
-### **#1 Empty input causes crash**
+````markdown
+### **#1 Empty input crashes on first render**
 
-If the input field is empty when the page loads, the component dereferences `value.trim()` before the null check and throws. Only triggers on first render when no default is provided.
+```tsx
+value.trim()            // throws: value is undefined
+if (value == null) ...  // null check runs too late
+```
+
+Fires on first render when no default is provided. Move the null check above the `.trim()`.
 
 File: src/client/frontends/desktop/ui/Input.tsx
 
-### **#2 Dead code**
+### **#2 Dead code: `getUserData`**
 
-The `getUserData` function is no longer referenced after the refactor and can be deleted.
+`getUserData` has no remaining callers after the refactor. Delete it.
 
 File: src/client/frontends/desktop/core/UserData.ts
-```
+````
 
 If there are no qualifying findings, say so directly — do not invent issues to fill the list.
 

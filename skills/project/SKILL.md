@@ -1,17 +1,25 @@
 ---
-name: gh-project
-description: Manage the repo's GitHub Projects kanban board as one skill. Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), and remove a card (delete). Use when the user says "/gh-project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", or "delete card N".
+name: project
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects today; Linear next). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), and remove a card (delete). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", or "delete card N".
 argument-hint: "[setup | next | new-task | update | review | decompose | delete] [args]"
 ---
 
-# GitHub Projects Kanban — One Skill
+# Project Tracker Kanban — One Skill
 
-Run the full GitHub Projects board workflow as `/gh-project <sub> [args]`.
+Run the full project-tracker board workflow as `/project <sub> [args]`.
 Bundles board bootstrap, card creation, picking, editing, auditing,
 decomposition, and deletion into a single skill with subcommands, so the
 install is one unit instead of seven sibling skills.
 
-**Usage:** `/gh-project [subcommand] [args]`
+The workflow bodies are **backend-neutral** — they call adapter verbs and speak
+a canonical status vocabulary. Which tracker they drive is chosen at
+`/project setup` and stored as `"backend"` in `.project/config.json`. Today the
+only backend is **github** (GitHub Projects, `references/backends/github.md`); a
+Linear backend follows. Every subcommand except `setup` opens with the shared
+[backend guard](references/_guard.md), which reads the config, picks the
+backend, and asserts its prerequisites.
+
+**Usage:** `/project [subcommand] [args]`
 
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched subcommand's
 reference file and follow it exactly.
@@ -20,7 +28,7 @@ reference file and follow it exactly.
 
 | Subcommand | Reference | What it does |
 |---|---|---|
-| `setup` | [references/setup.md](references/setup.md) | Bootstrap a GitHub Projects board for the repo: create + link the project, capture Status field IDs, write `.github/gh-project.json`, install the board helper script, update agent docs. |
+| `setup` | [references/setup.md](references/setup.md) | Bootstrap a GitHub Projects board for the repo: create + link the project, capture Status field IDs, write `.project/config.json`, install the board helper script, update agent docs. |
 | `next [--board-order] [--auto]` | [references/next.md](references/next.md) | Rank Todo cards by what's logically next, let the user pick one, move it to In Progress, and dump the full card context. Stops at the handoff — no branches, no edits. |
 | `new-task [title]` | [references/new-task.md](references/new-task.md) | Create a card (GitHub issue by default, draft on request) and END THE TURN — never start the work described in the card. |
 | `update [id\|number\|title]` | [references/update.md](references/update.md) | Update one card's title, body, or status, folding in context from the conversation. Infers the target card if invoked bare, but never writes without confirmation. |
@@ -46,7 +54,7 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    too different to guess.
 
 4. **First token is anything else** → do NOT guess. If the skill was
-   triggered by a natural-language request (no explicit `/gh-project`),
+   triggered by a natural-language request (no explicit `/project`),
    map the user's intent to a subcommand using the trigger phrases in
    each reference's "When to use" section (e.g. "what's next" → `next`,
    "add a card" → `new-task`, "audit the kanban" → `review`). If the
@@ -54,13 +62,19 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 ## Important — applies to every subcommand
 
-- Every subcommand except `setup` requires `.github/gh-project.json` and
-  the `.github/scripts/gh-project-board.sh` helper. If either is missing,
-  stop and route the user to `/gh-project setup` — never guess project
-  IDs.
-- Board access goes through the helper script, not hand-rolled
-  `gh project item-list` + `jq`. It asserts completeness against
-  `totalCount` and fails loudly on truncation.
+- Every subcommand except `setup` opens with the [backend guard](references/_guard.md).
+  It requires `.project/config.json` (a legacy `.github/gh-project.json` is
+  routed to `/project setup` for migration), determines the backend, and asserts
+  that backend's prerequisites. If config is missing, stop and route the user to
+  `/project setup` — never guess project IDs.
+- On the **github** backend, board access goes through the
+  `.project/scripts/board.sh` helper, not hand-rolled `gh project item-list` +
+  `jq`. It asserts completeness against `totalCount` and fails loudly on
+  truncation. The per-verb command mapping lives in
+  [references/backends/github.md](references/backends/github.md).
+- Subcommand bodies name **canonical** statuses (`backlog`, `todo`,
+  `in_progress`, `done`, `cancelled`); the active backend adapter translates
+  them to native values. Never hardcode a native status name in a body.
 - One card per invocation for `new-task`, `update`, `decompose`, and
   `delete`. Re-invoke for the next card.
 - When an item is finished, move it to `Done` — do not delete it.

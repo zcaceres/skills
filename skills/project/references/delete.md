@@ -1,40 +1,22 @@
-# `/gh-project delete` — Remove a Card
+# `/project delete` — Remove a Card
 
 You are removing a card from the GitHub Projects kanban board. **Confirmation is mandatory.** Deleting a draft destroys it; "deleting" an issue-backed card only unlinks the issue from the project (the issue itself persists unless the user separately closes/deletes it).
 
 ## When to use
 
-- "/gh-project delete [id|number|title]"
+- "/project delete [id|number|title]"
 - "delete card N" / "remove this task from the board"
 - "drop the X card"
 
 ## Prerequisites
 
-**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
-- If it does NOT exist, **log a prominent warning** to the user:
-  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
-- Do NOT proceed. Stop immediately.
-
-```bash
-if [ ! -f .github/gh-project.json ]; then
-  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project setup first to configure your project board."
-  exit 1
-fi
-
-HELPER=.github/scripts/gh-project-board.sh
-if [ ! -x "$HELPER" ]; then
-  echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project setup to regenerate the board helper script."
-  exit 1
-fi
-
-PROJECT_NUMBER=$(jq -r .projectNumber .github/gh-project.json)
-PROJECT_OWNER=$(jq -r .projectOwner .github/gh-project.json)
-REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
-REPO=$(jq -r .repo .github/gh-project.json)
-```
+**Run the [backend guard](_guard.md) first.** It locates `.project/config.json`
+(routing a legacy `.github/gh-project.json`, or an unconfigured repo, to
+`/project setup`), confirms the **github** backend, and exports `$HELPER`
+(`.project/scripts/board.sh`), `$PROJECT_NUMBER`, `$PROJECT_OWNER`, `$REPO_OWNER`,
+and `$REPO`. Stop if the guard did. The steps below assume the github backend;
+the `board.sh`/`gh` calls behind the adapter verbs are documented in
+[backends/github.md](backends/github.md).
 
 ## Step 1 — Resolve the target
 
@@ -160,8 +142,8 @@ If anything failed mid-sequence (unlink succeeded but issue close failed, etc.),
 
 ## Guidelines
 
-- **Confirm first, every time.** Even if the user typed `/gh-project delete 23` and seems decisive — the show-and-confirm step is the value-add of this subcommand.
-- **Don't infer the target from conversation context.** Require an explicit identifier. Unlike `/gh-project update` (where the worst case is overwriting recoverable text), a wrong delete here can destroy data.
+- **Confirm first, every time.** Even if the user typed `/project delete 23` and seems decisive — the show-and-confirm step is the value-add of this subcommand.
+- **Don't infer the target from conversation context.** Require an explicit identifier. Unlike `/project update` (where the worst case is overwriting recoverable text), a wrong delete here can destroy data.
 - **One card per invocation.** No bulk deletes. If the user wants to clear out five cards, do them sequentially with five confirmations.
 - **Respect the project tracker norms.** This repo's CLAUDE.md says "When an item is finished, move it to Done — do not delete it." If the user invokes delete on a Done-looking card, push back: would they rather move it to Done?
 - **Never `--no-verify`-equivalent shortcuts.** No silent flags to skip confirmation. The whole point of this subcommand is the confirmation gate.

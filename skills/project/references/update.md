@@ -1,39 +1,22 @@
-# `/gh-project update` — Update a Card
+# `/project update` — Update a Card
 
 You are updating a single card on the GitHub Projects kanban board with new findings, decisions, or context — usually drawn from the current conversation.
 
 ## When to use
 
-- "/gh-project update [id|number|title]"
+- "/project update [id|number|title]"
 - "update card N" / "update the X task with what we just learned"
 - "add what we figured out to the project board"
 - The user has been working with you and wants to record progress without breaking flow
 
 ## Prerequisites
 
-**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
-- If it does NOT exist, **log a prominent warning** to the user:
-  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
-- Do NOT proceed. Stop immediately.
-
-```bash
-if [ ! -f .github/gh-project.json ]; then
-  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project setup first to configure your project board."
-  exit 1
-fi
-
-HELPER=.github/scripts/gh-project-board.sh
-if [ ! -x "$HELPER" ]; then
-  echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project setup to regenerate the board helper script."
-  exit 1
-fi
-
-REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
-REPO=$(jq -r .repo .github/gh-project.json)
-```
+**Run the [backend guard](_guard.md) first.** It locates `.project/config.json`
+(routing a legacy `.github/gh-project.json`, or an unconfigured repo, to
+`/project setup`), confirms the **github** backend, and exports `$HELPER`
+(`.project/scripts/board.sh`), `$REPO_OWNER`, and `$REPO`. Stop if the guard did.
+The steps below assume the github backend; the `board.sh`/`gh` calls behind the
+adapter verbs are documented in [backends/github.md](backends/github.md).
 
 (This subcommand only talks to `gh issue` directly — the board helper handles all `gh project` calls — so only `REPO_OWNER` is needed here.)
 
@@ -136,14 +119,14 @@ gh issue edit <issue-number> --repo "$REPO_OWNER/$REPO" --body-file /tmp/new-bod
 $HELPER set-status "$ITEM_ID" "In Progress"
 ```
 
-The helper looks up the field id and option id from `.github/gh-project.json`. Pass the status name exactly as it appears under `statusField.options`. If you pass an unknown name, the helper prints the valid options.
+The helper looks up the field id and option id from `.project/config.json`. Pass the status name exactly as it appears under `statusField.options`. If you pass an unknown name, the helper prints the valid options.
 
 ### Custom fields (e.g. a "Notes" text field)
 
 The helper only knows about Status. For other fields, drop to raw `gh`:
 
 ```bash
-PROJECT_ID=$(jq -r .projectId .github/gh-project.json)
+PROJECT_ID=$(jq -r .projectId .project/config.json)
 
 gh project item-edit \
   --id "$ITEM_ID" \
@@ -168,9 +151,9 @@ If you ran multiple `item-edit` calls (e.g. body + status), report each result a
 
 ## Edge cases
 
-- **Card not found.** Print the candidates you considered and ask the user to clarify. Don't create a new card from a `update` invocation — that's `/gh-project new-task`.
+- **Card not found.** Print the candidates you considered and ask the user to clarify. Don't create a new card from a `update` invocation — that's `/project new-task`.
 - **Ambiguous match.** Two cards titled similarly is common. List, don't guess.
-- **User asks to change milestone or labels on a draft.** Drafts don't support those — explain and offer to convert to an issue (this requires deleting the draft and creating an issue, which is `/gh-project delete` + `/gh-project new-task`; surface that path rather than doing it implicitly).
+- **User asks to change milestone or labels on a draft.** Drafts don't support those — explain and offer to convert to an issue (this requires deleting the draft and creating an issue, which is `/project delete` + `/project new-task`; surface that path rather than doing it implicitly).
 - **Body would be huge.** Project item bodies are markdown. Be careful with code blocks that contain backticks — fence with `~~~` if needed. Trim noisy context (tool output, stack traces) to the load-bearing parts.
 - **Conversation context contains private/sensitive info.** Before writing it into a public repo's project board, flag it: "This includes <env vars / tokens / customer names> — strip before posting?"
 

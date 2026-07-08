@@ -1,4 +1,6 @@
 {
+  "backend": "github",
+  "version": 3,
   "projectNumber": 4,
   "projectId": "PVT_kwHOAJkXU84BZADT",
   "projectOwner": "zcaceres",
@@ -15,5 +17,11 @@
       "Done": "98236657"
     }
   },
-  "version": 2
+  "statusMap": {
+    "backlog": null,
+    "todo": "Todo",
+    "in_progress": "In Progress",
+    "done": "Done",
+    "cancelled": null
+  }
 }

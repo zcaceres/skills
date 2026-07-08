@@ -1,8 +1,7 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice: `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [args]"
-disable-model-invocation: true
 hooks:
   PostToolUse:
     - matcher: "Edit|Write|MultiEdit|NotebookEdit"
@@ -169,5 +168,11 @@ acting. Don't guess at workflow-changing inputs.
 - NEVER commit files you didn't modify in this conversation.
 - NEVER use `git add .` or `git add -A`. Stage explicitly.
 - Report the PR URL when done.
+- **When an agent invokes this itself** (not a direct `/pr` from the
+  user): `checkpoint`, `commit`, `update`, and `submit` are fair game at a
+  logical seam — that's the point of being agent-callable. But `merge`
+  lands PRs into trunk and is irreversible; run it only when the user
+  explicitly asks. Never invoke `setup` (it flips the user's mode) on your
+  own.
 - If `git stack` is installed and the branch is stacked, prefer its
   primitives over hand-rolled `gh` loops.

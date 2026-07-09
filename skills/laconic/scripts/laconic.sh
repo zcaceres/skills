@@ -11,7 +11,7 @@
 #   laconic.sh mode    <prose-only|prose+code|laconic-code> [--project|--user]
 #   laconic.sh cadence <N> [--project|--user]   # remind every Nth turn (1 = every turn)
 #   laconic.sh status
-#   laconic.sh statusline   # compact badge for a status line ("◆ laconic" when on, else nothing)
+#   laconic.sh statusline   # compact badge for a status line ("◆ laconic-code" in code mode, "◆ laconic" otherwise, else nothing)
 #   laconic.sh uninstall [--project|--user]   # unwire the hooks + delete this scope's state
 #
 # Defaults: scope = user; mode = prose+code; cadence = 1 (every turn).
@@ -144,7 +144,9 @@ EOF
     read -r src state smode <<EOF
 $(resolve)
 EOF
-    [ "$state" = "on" ] && printf '◆ laconic' || true
+    if [ "$state" = "on" ]; then
+      [ "$smode" = "laconic-code" ] && printf '◆ laconic-code' || printf '◆ laconic'
+    fi
     ;;
   uninstall)
     # Delegate to uninstall.sh (needs jq) for the same scope. It unwires the

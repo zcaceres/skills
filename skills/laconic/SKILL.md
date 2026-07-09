@@ -45,7 +45,7 @@ user `on`.
 | `mode <prose-only\|prose+code\|laconic-code> [scope]` | Change the mode, keeping on/off as-is. |
 | `cadence <N> [scope]` | Fire the per-turn reminder every Nth turn. `1` = every turn (default). |
 | `status` | Print the resolved state, mode, and reminder cadence (project vs user). |
-| `statusline` | For a status line: print a compact badge (`◆ laconic`) when on, nothing when off. |
+| `statusline` | For a status line: print a compact badge when on (`◆ laconic-code` in code mode, `◆ laconic` otherwise), nothing when off. |
 | `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook, restore the status line, and delete its `laconic.state`. Idempotent. |
 
 ### What to do for each command
@@ -148,8 +148,9 @@ exactly your original. The wrapper is invisible until you turn laconic on.
 restores it without touching the hook or state. Wiring is idempotent: a re-run
 detects the wrapper and never re-saves it as the "original".
 
-The primitive underneath is `laconic.sh statusline`, which prints `◆ laconic`
-when on and nothing when off. Call it directly if you prefer to compose the
+The primitive underneath is `laconic.sh statusline`, which prints `◆ laconic-code`
+in code mode, `◆ laconic` in the prose modes, and nothing when off. Call it
+directly if you prefer to compose the
 badge into a status line by hand instead of using the wrapper.
 
 ## Directory layout

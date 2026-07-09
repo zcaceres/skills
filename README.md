@@ -122,6 +122,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `quality-perf-review` | Analyze a full-stack web app for evidence-based performance bottlenecks, interactively. |
 | `copywriting` | Refine and edit text into clear, concise copy — Anglo-Saxon swaps, banned AI-tells, worked examples. |
 | `decompose` | Break stuck problems into tractable pieces using diagnostic lenses. |
+| `eli5` | **Slash command.** Explain a concept like the listener is five — short words, everyday analogies, one idea at a time, no jargon. |
 | `code-tour` | **Slash command.** Walk an unfamiliar codebase and write a concise `CODE_TOUR.md` onboarding guide — key components, a Mermaid diagram of how they connect, and the areas worth a closer look to understand it. |
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |

@@ -42,6 +42,10 @@
       "name": "@zcaceres/skill-decompose",
       "version": "2.0.0",
     },
+    "skills/eli5": {
+      "name": "@zcaceres/skill-eli5",
+      "version": "0.0.0",
+    },
     "skills/find-docs": {
       "name": "@zcaceres/skill-find-docs",
       "version": "0.0.0",
@@ -64,7 +68,7 @@
     },
     "skills/memory-insights": {
       "name": "@zcaceres/skill-memory-insights",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/nano-banana-generator": {
       "name": "@zcaceres/skill-nano-banana-generator",
@@ -250,6 +254,8 @@
     "@zcaceres/skill-copywriting": ["@zcaceres/skill-copywriting@workspace:skills/copywriting"],
 
     "@zcaceres/skill-decompose": ["@zcaceres/skill-decompose@workspace:skills/decompose"],
+
+    "@zcaceres/skill-eli5": ["@zcaceres/skill-eli5@workspace:skills/eli5"],
 
     "@zcaceres/skill-find-docs": ["@zcaceres/skill-find-docs@workspace:skills/find-docs"],
 

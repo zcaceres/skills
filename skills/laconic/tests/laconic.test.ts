@@ -87,7 +87,9 @@ test("statusline emits a badge when on, nothing when off/unset", () => {
   laconic(["on", "--user", "prose+code"], vars);
   expect(laconic(["statusline"], vars).out).toBe("◆ laconic");
   laconic(["mode", "prose-only", "--user"], vars);
-  expect(laconic(["statusline"], vars).out).toBe("◆ laconic"); // badge is mode-agnostic
+  expect(laconic(["statusline"], vars).out).toBe("◆ laconic"); // prose modes share the plain badge
+  laconic(["mode", "laconic-code", "--user"], vars);
+  expect(laconic(["statusline"], vars).out).toBe("◆ laconic-code"); // code mode is called out
   laconic(["off", "--user"], vars);
   expect(laconic(["statusline"], vars).out).toBe("");
 });

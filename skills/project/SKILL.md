@@ -1,7 +1,7 @@
 ---
 name: project
-description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), and remove a card (delete). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", or "delete card N".
-argument-hint: "[setup | next | new-task | update | review | decompose | delete] [args]"
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), and group work into a milestone (milestone). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", or "what's next in the milestone".
+argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone] [args]"
 ---
 
 # Project Tracker Kanban — One Skill
@@ -36,16 +36,18 @@ reference file and follow it exactly.
 | `review` | [references/review.md](references/review.md) | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
 | `decompose [id\|number\|title]` | [references/decompose.md](references/decompose.md) | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. Wires children via the sub-issues API plus a parent body checklist. |
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
+| `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`setup`, `next`,
-   `new-task`, `update`, `review`, `decompose`, `delete`) → read
+   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`) → read
    `references/<keyword>.md`, then follow its workflow with the remaining
    `$ARGUMENTS` (everything after the first token) as that subcommand's
-   arguments.
+   arguments. (`milestone` then dispatches again on its own action token —
+   `create` / `add` / `next` / `list`.)
 
 2. **First token starts with `-`** (e.g. `--help`, `-h`) → print the
    subcommand table above and stop.

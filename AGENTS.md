@@ -34,6 +34,7 @@ Card workflow (all via the `/project` skill):
 - Decompose: `/project decompose [id|number|title]` (split a big card into linked subtasks)
 - Audit:     `/project review` (board vs codebase)
 - Delete:    `/project delete [id|number|title]`
+- Milestone: `/project milestone create|add|next|list` (group work toward a milestone — a github milestone / a linear project milestone)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

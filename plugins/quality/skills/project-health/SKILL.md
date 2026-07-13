@@ -33,8 +33,9 @@ explicitly asks for follow-up work.
    repo. Examples: `bun run check`, `npm test`, `pytest`, `cargo test`,
    `go test ./...`. If validation would be expensive or destructive, skip it
    and say why.
-5. If `.github/gh-project.json` and `.github/scripts/gh-project-board.sh`
-   exist, use the helper for a read-only board snapshot:
+5. If `.project/config.json` and `.project/scripts/board.sh` exist (or the
+   legacy `.github/gh-project.json` + `.github/scripts/gh-project-board.sh`),
+   use the helper for a read-only board snapshot:
    - list all items and count by status
    - list current `In Progress` cards
    - mention the next few `Todo` cards only if it helps orient the user

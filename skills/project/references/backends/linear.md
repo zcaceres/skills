@@ -74,3 +74,24 @@ path differs from github, keyed to the inline split in each subcommand reference
   natives (priority/estimate/cycle/project), not GitHub project single-selects.
 - **delete** — "delete" means cancel/archive (`unlink_item`), not removal. Spell
   this out: the issue moves to the Cancelled state and stays in the workspace.
+
+## Milestone verbs
+
+The canonical **milestone** maps to Linear's native **project milestone** — a
+dated checkpoint inside a project. An issue joins a milestone via its
+`projectMilestoneId`. Use the official Linear MCP's project-milestone tools (the
+2026-02 MCP release added create/edit for them).
+
+Project milestones live in a project, so these verbs need a **project context**:
+use the config's `projectId`; if it's null, ask which Linear project to use (or
+create one with `create_project`) before creating milestones.
+
+| Verb | Linear implementation |
+|---|---|
+| `create_milestone(name, due?, description?)` | Create a project milestone in the target project: `name`, `targetDate` (from `due`), `description`, `projectId`. → milestone id + url. |
+| `add_to_milestone(item, milestone)` | Set the issue's `projectMilestoneId` to the milestone id via `update_issue`. The issue joins the milestone's project. |
+| `list_milestones()` | List the target project's milestones (its `projectMilestones`): id, name, `targetDate`, progress. Resolve a selector by name. |
+| `list_milestone_items(milestone, open)` | List the milestone's project issues and keep those whose `projectMilestone` is this milestone and whose state is not `done`, under the Completeness rule. |
+
+`teamId` and the default `projectId` come from the config. A milestone selector
+resolves to a milestone id via `list_milestones` within the project context.

@@ -54,3 +54,16 @@ status:
 
 `setup` records the `statusMap` and surfaces any canonical status it couldn't map
 so the user can add the column on github.com if they want it.
+
+## Milestone verbs
+
+The canonical **milestone** maps to a GitHub repo milestone. These use `gh
+issue` / `gh api` directly (milestones are a repo/issue concept, not a project-
+board one), so they don't go through `board.sh`.
+
+| Verb | GitHub implementation |
+|---|---|
+| `create_milestone(name, due?, description?)` | `gh api repos/$REPO_OWNER/$REPO/milestones -f title="<name>" [-f due_on="<ISO8601, e.g. 2026-08-01T00:00:00Z>"] [-f description="…"]` → `.number`, `.html_url`. |
+| `add_to_milestone(item, milestone)` | `gh issue edit <n> --repo "$REPO_OWNER/$REPO" --milestone "<name>"`. Issues only — a board-only draft has no milestone field. |
+| `list_milestones()` | `gh api repos/$REPO_OWNER/$REPO/milestones --jq '.[] | {number, title, due_on, open_issues, closed_issues, url: .html_url}'`. |
+| `list_milestone_items(milestone, open)` | `gh issue list --repo "$REPO_OWNER/$REPO" --milestone "<name>" --state open --json number,title,labels,assignees,createdAt,url`. |

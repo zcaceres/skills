@@ -1,14 +1,27 @@
-# `/gh-project setup` — Bootstrap the Board
+# `/project setup` — Bootstrap the Board
 
-You are bootstrapping a GitHub Projects (v2) kanban board for the current repository and persisting the configuration so the other `/gh-project` subcommands can find it.
+You are bootstrapping a GitHub Projects (v2) kanban board for the current repository and persisting the configuration so the other `/project` subcommands can find it.
 
 ## When to use
 
 - "set up a project board" / "create a kanban for this repo"
 - "init gh project" / "scaffold github project"
-- "/gh-project setup"
+- "/project setup"
 
-If the repo already has a `.github/gh-project.json` (see [Config file](#config-file) below), do NOT silently recreate the project — read it, surface the existing project, and ask whether the user wants to re-link, reconfigure, or abort.
+If the repo already has a `.project/config.json` (see [Config file](#config-file) below), do NOT silently recreate the project — read it, surface the existing project, and ask whether the user wants to re-link, reconfigure, or abort.
+
+**Backend.** `project` is backend-neutral; this subcommand configures the
+**github** backend (GitHub Projects). The config records `"backend": "github"`
+so the other subcommands and [`_guard.md`](_guard.md) know which adapter to use.
+(The Linear backend ships later; when it does, setup asks GitHub vs Linear here.)
+
+**Migrating a pre-rename repo.** If `.github/gh-project.json` exists but
+`.project/config.json` does not, this repo was set up under the old `gh-project`
+skill. Offer to migrate: read the legacy file, carry its values forward, add
+`"backend": "github"`, `"version": 3`, and a `statusMap` (Step 6), write the
+result to `.project/config.json`, install the helper at `.project/scripts/board.sh`,
+and leave the legacy file in place (the user can delete it once satisfied). No new
+project is created — you're re-homing existing config. Skip Steps 1–5 in that case.
 
 ## Required auth scope
 
@@ -93,12 +106,28 @@ If the user wants additional columns (e.g. `Backlog`, `Review`, `Blocked`), GH C
 2. Offer to open `$PROJECT_URL/settings/fields/<id>` so they can add options manually.
 3. After they add them, re-run `field-list` and update the config.
 
+**Build the `statusMap`.** The subcommand bodies speak a canonical status
+vocabulary — `backlog`, `todo`, `in_progress`, `done`, `cancelled` — and the
+github adapter translates each to a native option name via the config's
+`statusMap` (see [backends/github.md](backends/github.md#status-translation)).
+Map the canonical names to whatever native columns this board has; a default
+board only has three, so `backlog` and `cancelled` map to `null`:
+
+```json
+{ "backlog": null, "todo": "Todo", "in_progress": "In Progress", "done": "Done", "cancelled": null }
+```
+
+If the user added a `Backlog` / `Cancelled` (or similar) column above, point the
+matching canonical key at that native name instead of `null`.
+
 ### 6. Write the config file
 
-Write to `.github/gh-project.json` (create `.github/` if missing). This is what every other `/gh-project` subcommand reads — write it carefully.
+Write to `.project/config.json` (create `.project/` if missing). This is what every other `/project` subcommand reads — write it carefully.
 
 ```json
 {
+  "backend": "github",
+  "version": 3,
   "projectNumber": 4,
   "projectId": "PVT_kwHOAJkXU84BZADT",
   "projectOwner": "zcaceres",
@@ -115,61 +144,74 @@ Write to `.github/gh-project.json` (create `.github/` if missing). This is what 
       "Done": "98236657"
     }
   },
-  "version": 2
+  "statusMap": {
+    "backlog": null,
+    "todo": "Todo",
+    "in_progress": "In Progress",
+    "done": "Done",
+    "cancelled": null
+  }
 }
 ```
 
 Notes:
 - Substitute the captured values, not the literal example IDs above.
+- `backend` is `"github"` for this subcommand. Other subcommands read it via
+  [`_guard.md`](_guard.md) to pick the adapter; a config missing the field is
+  treated as github for back-compat.
+- `statusField.options` maps native option **names** → 8-char option ids (used by
+  `board.sh set-status`). `statusMap` maps **canonical** status names → native
+  option names (used by the subcommand bodies). Keep them consistent: every
+  non-`null` value in `statusMap` must be a key in `statusField.options`.
 - `projectOwner` is the GitHub login that owns the **project** (passed to every `gh project --owner` call). `repoOwner` is the GitHub login that owns the **repo** (used in `gh issue --repo "$repoOwner/$repo"`). They are equal in the common case; they diverge when a user runs a personal project against an org repo.
 - If the user picked `draft` mode, set `"defaultMode": "draft"`.
-- Add any extra status options the user created to `statusField.options`.
+- Add any extra status options the user created to `statusField.options`, and point the matching `statusMap` canonical key at that native name.
 
 ### 7. Install the shared board helper script
 
-The other `/gh-project` subcommands delegate board access to a small bash helper so they don't each re-invent (and get wrong) the `gh project item-list` + `jq` recipe. The big wins:
+The other `/project` subcommands delegate board access to a small bash helper so they don't each re-invent (and get wrong) the `gh project item-list` + `jq` recipe. The big wins:
 
 - **Truncation safety** — asserts `fetched == totalCount`; exits non-zero if the limit was hit. Silent truncation is the #1 reason an agent "misses" a card.
 - **Compact JSONL output** — projects to `{id, title, status, type, number, url, bodyPreview}`. Each row is ~80 bytes instead of ~300, so the agent can scan 200+ items without context bloat.
-- **Single source of truth for IDs** — reads `.github/gh-project.json`; no hard-coded IDs in any subcommand.
+- **Single source of truth for IDs** — reads `.project/config.json`; no hard-coded IDs in any subcommand.
 
 Install the script alongside the config:
 
 ```bash
-mkdir -p .github/scripts
+mkdir -p .project/scripts
 
 # The canonical script ships with this skill. When this skill is installed
 # globally, find it under ~/.claude/skills; for repo-local installs it's
-# under node_modules/@zcaceres/skill-gh-project/scripts.
+# under node_modules/@zcaceres/skill-project/scripts.
 SOURCE=$(command -v claude-skill-find 2>/dev/null \
-  && claude-skill-find gh-project scripts/gh-project-board.sh)
+  && claude-skill-find project scripts/board.sh)
 
 # Fallback: search the usual install locations.
 if [[ -z "$SOURCE" || ! -f "$SOURCE" ]]; then
   for candidate in \
-    "$HOME/.claude/skills/gh-project/scripts/gh-project-board.sh" \
-    "./node_modules/@zcaceres/skill-gh-project/scripts/gh-project-board.sh" \
-    "./skills/gh-project/scripts/gh-project-board.sh"; do
+    "$HOME/.claude/skills/project/scripts/board.sh" \
+    "./node_modules/@zcaceres/skill-project/scripts/board.sh" \
+    "./skills/project/scripts/board.sh"; do
     [[ -f "$candidate" ]] && SOURCE="$candidate" && break
   done
 fi
 
-[[ -f "$SOURCE" ]] || { echo "Could not find gh-project-board.sh; paste it manually into .github/scripts/"; exit 1; }
+[[ -f "$SOURCE" ]] || { echo "Could not find board.sh; paste it manually into .project/scripts/"; exit 1; }
 
-cp "$SOURCE" .github/scripts/gh-project-board.sh
-chmod +x .github/scripts/gh-project-board.sh
+cp "$SOURCE" .project/scripts/board.sh
+chmod +x .project/scripts/board.sh
 ```
 
-If the file copy fails (e.g. the skill is loaded from an unusual location), the agent should fall back to writing the script body inline from its own context. The script's source lives in `gh-project/scripts/gh-project-board.sh` in this repo.
+If the file copy fails (e.g. the skill is loaded from an unusual location), the agent should fall back to writing the script body inline from its own context. The script's source lives in `project/scripts/board.sh` in this repo.
 
 After install, smoke-test it:
 
 ```bash
-.github/scripts/gh-project-board.sh --help
-.github/scripts/gh-project-board.sh list | head -3
+.project/scripts/board.sh --help
+.project/scripts/board.sh list | head -3
 ```
 
-The first call should print usage. The second should emit JSONL rows (or nothing if the board is empty). If it errors with `missing .github/gh-project.json`, step 6 didn't write the config — back up and fix.
+The first call should print usage. The second should emit JSONL rows (or nothing if the board is empty). If it errors with `missing .project/config.json`, step 6 didn't write the config — back up and fix.
 
 **Subcommands** (record in the summary so the user knows what's available):
 
@@ -178,11 +220,11 @@ The first call should print usage. The second should emit JSONL rows (or nothing
 - `get <item-id>` — full row including body
 - `set-status <item-id> <status-name>` — move a card to a status column
 
-Commit `.github/scripts/gh-project-board.sh` alongside `.github/gh-project.json`. Both belong to the user's repo from here on — they're versioned, auditable, and modifiable.
+Commit `.project/scripts/board.sh` alongside `.project/config.json`. Both belong to the user's repo from here on — they're versioned, auditable, and modifiable.
 
 ### 8. Update agent docs to point at the config
 
-Agents won't discover `.github/gh-project.json` on their own. Surface it in whatever agent-facing docs this repo already uses, so future invocations of the `/gh-project` subcommands (and other agents like Codex, Cursor) know where to look.
+Agents won't discover `.project/config.json` on their own. Surface it in whatever agent-facing docs this repo already uses, so future invocations of the `/project` subcommands (and other agents like Codex, Cursor) know where to look.
 
 Detect which files exist and consider all of them:
 
@@ -205,11 +247,11 @@ Canonical block (substitute the captured values):
 Work for this repo is tracked on the GitHub Project board at $PROJECT_URL.
 
 The project's configuration — number, owner, project node ID, status field ID,
-and status option IDs — is stored in `.github/gh-project.json`. Agents managing
+and status option IDs — is stored in `.project/config.json`. Agents managing
 this board should read that file rather than hard-coding IDs (IDs change if the
 project is recreated).
 
-Board access goes through `.github/scripts/gh-project-board.sh`:
+Board access goes through `.project/scripts/board.sh`:
 
 - `list [--query <q>] [--include-body]` — compact JSONL of all items
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector
@@ -221,12 +263,12 @@ truncation, so an agent that "doesn't see" a card will fail loudly instead
 of silently missing it.
 
 Card workflow:
-- Create:    `/gh-project new-task` (creates a linked GitHub issue by default)
-- Pick:      `/gh-project next` (shows top Todo cards, moves pick to In Progress, dumps context)
-- Edit:      `/gh-project update [id|number|title]`
-- Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
-- Audit:     `/gh-project review` (board vs codebase)
-- Delete:    `/gh-project delete [id|number|title]`
+- Create:    `/project new-task` (creates a linked GitHub issue by default)
+- Pick:      `/project next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:      `/project update [id|number|title]`
+- Decompose: `/project decompose [id|number|title]` (split a big card into linked subtasks)
+- Audit:     `/project review` (board vs codebase)
+- Delete:    `/project delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.
@@ -244,9 +286,9 @@ Deleted draft items lose their history.
 
 Don't pretend the board view exists if you didn't see the user confirm they made one.
 
-### 10. Offer to allowlist the `gh-project` command surface
+### 10. Offer to allowlist the `project` command surface
 
-Without a permission allowlist, every subcommand (`/gh-project next`, `/gh-project new-task`, etc.) prompts the user to approve each `gh` call. After the first few approvals it's just noise — the same commands fire on every invocation. Offer to write a Claude Code permission allowlist so the subcommands run uninterrupted.
+Without a permission allowlist, every subcommand (`/project next`, `/project new-task`, etc.) prompts the user to approve each `gh` call. After the first few approvals it's just noise — the same commands fire on every invocation. Offer to write a Claude Code permission allowlist so the subcommands run uninterrupted.
 
 **Ask the user two things:**
 
@@ -273,7 +315,7 @@ Without a permission allowlist, every subcommand (`/gh-project next`, `/gh-proje
       "Bash(gh project field-list:*)",
       "Bash(gh project item-add:*)",
       "Bash(gh project item-edit:*)",
-      "Bash(.github/scripts/gh-project-board.sh:*)"
+      "Bash(.project/scripts/board.sh:*)"
     ]
   }
 }
@@ -302,30 +344,30 @@ Created project #<n> "<title>" at <url>
 Linked to <owner>/<repo>
 Default card mode: issue|draft
 Status columns: Todo, In Progress, Done
-Config written to .github/gh-project.json
-Helper installed: .github/scripts/gh-project-board.sh
+Config written to .project/config.json
+Helper installed: .project/scripts/board.sh
 Agent docs updated: CLAUDE.md, AGENTS.md  (or "skipped — user declined")
 Permissions allowlisted in .claude/settings.json  (or "skipped — user declined")
 
 Next: open <url> and add a Board view grouped by Status.
 Subcommands:
-  /gh-project new-task   — create a card
-  /gh-project next       — pick the next Todo card and start
-  /gh-project review     — audit board vs codebase
-  /gh-project update     — edit a card
-  /gh-project decompose  — split a big card into linked subtasks
-  /gh-project delete     — remove a card
+  /project new-task   — create a card
+  /project next       — pick the next Todo card and start
+  /project review     — audit board vs codebase
+  /project update     — edit a card
+  /project decompose  — split a big card into linked subtasks
+  /project delete     — remove a card
 ```
 
 ## Edge cases
 
-- **Project already exists for this repo.** If `.github/gh-project.json` is present, read it and ask before creating a second project. Two projects for one repo is rarely what the user wants.
+- **Project already exists for this repo.** If `.project/config.json` is present, read it and ask before creating a second project. Two projects for one repo is rarely what the user wants.
 - **`gh project create` fails with "scope" or 403.** The token is missing `project` scope — fall back to the auth instructions above.
 - **Org-owned repo.** `gh repo view --json owner` returns the org login; that's what `--owner` should be. Confirm with the user — they may want a personal project instead.
 - **Token has no Issues permission on the repo.** Linking and item-add for issues will fail later. Surface this immediately rather than letting a downstream subcommand blow up.
 
 ## Guidelines
 
-- Do not invent IDs. Every ID written into `.github/gh-project.json` must come from a real `gh` command output you ran in this session.
+- Do not invent IDs. Every ID written into `.project/config.json` must come from a real `gh` command output you ran in this session.
 - Do not commit the config file silently. Surface that you wrote it; let the user decide when to commit.
 - Keep the workflow conversational at decision points (title, default mode, extra columns) — these are sticky choices the user lives with.

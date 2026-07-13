@@ -1,4 +1,4 @@
-# `/gh-project review` — Audit the Board
+# `/project review` — Audit the Board
 
 You are auditing the repository's GitHub Projects kanban against the actual state of the codebase. The output is a structured conversation: for each card whose status looks wrong, you present **evidence from the code** and the user **approves or rejects each update individually**.
 
@@ -8,33 +8,16 @@ Treat this like a code review with verdicts. False positives are expensive — m
 
 - "review the board" / "audit the kanban" / "what's stale on the project"
 - "check the project tasks"
-- "/gh-project review"
+- "/project review"
 
 ## Prerequisites
 
-**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
-- If it does NOT exist, **log a prominent warning** to the user:
-  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
-- Do NOT proceed. Stop immediately.
-
-```bash
-if [ ! -f .github/gh-project.json ]; then
-  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project setup first to configure your project board."
-  exit 1
-fi
-
-HELPER=.github/scripts/gh-project-board.sh
-if [ ! -x "$HELPER" ]; then
-  echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project setup to regenerate the board helper script."
-  exit 1
-fi
-
-REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
-REPO=$(jq -r .repo .github/gh-project.json)
-```
+**Run the [backend guard](_guard.md) first.** It locates `.project/config.json`
+(routing a legacy `.github/gh-project.json`, or an unconfigured repo, to
+`/project setup`), confirms the **github** backend, and exports `$HELPER`
+(`.project/scripts/board.sh`), `$REPO_OWNER`, and `$REPO`. Stop if the guard did.
+The steps below assume the github backend; the `board.sh`/`gh` calls behind the
+adapter verbs are documented in [backends/github.md](backends/github.md).
 
 ## Workflow
 
@@ -123,7 +106,7 @@ Use the helper — it looks up the field id and option id from the config so you
 $HELPER set-status "$ITEM_ID" "Done"          # or "Todo", "In Progress"
 ```
 
-`$ITEM_ID` is the `.id` from the board JSONL row. The status name must match a key in `.statusField.options` in `.github/gh-project.json` — the helper will list the valid options if you pass an unknown one.
+`$ITEM_ID` is the `.id` from the board JSONL row. The status name must match a key in `.statusField.options` in `.project/config.json` — the helper will list the valid options if you pass an unknown one.
 
 If the card is an Issue (`content.type=="Issue"`) AND the verdict is `Looks Done` AND the issue is still open, also ask the user whether to close the underlying issue:
 

@@ -9,12 +9,13 @@
 
 Work for this repo is tracked on the GitHub Project board at https://github.com/users/zcaceres/projects/4.
 
-The project's configuration — number, owner, project node ID, status field ID,
-and status option IDs — is stored in `.github/gh-project.json`. Agents managing
-this board should read that file rather than hard-coding IDs (IDs change if the
-project is recreated).
+The `project` skill is backend-neutral; this repo uses the **github** backend
+(`"backend": "github"` in the config). Its configuration — number, owner, project
+node ID, status field ID, status option IDs, and the canonical `statusMap` — is
+stored in `.project/config.json`. Agents managing this board should read that
+file rather than hard-coding IDs (IDs change if the project is recreated).
 
-Board access goes through `.github/scripts/gh-project-board.sh`:
+Board access goes through `.project/scripts/board.sh`:
 
 - `list [--query <q>] [--include-body]` — compact JSONL of all items
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector
@@ -25,13 +26,13 @@ The helper asserts completeness against `totalCount` and exits non-zero on
 truncation, so an agent that "doesn't see" a card will fail loudly instead
 of silently missing it.
 
-Card workflow (all via the `/gh-project` skill):
-- Create:    `/gh-project new-task` (creates a linked GitHub issue by default)
-- Pick:      `/gh-project next` (shows top Todo cards, moves pick to In Progress, dumps context)
-- Edit:      `/gh-project update [id|number|title]`
-- Decompose: `/gh-project decompose [id|number|title]` (split a big card into linked subtasks)
-- Audit:     `/gh-project review` (board vs codebase)
-- Delete:    `/gh-project delete [id|number|title]`
+Card workflow (all via the `/project` skill):
+- Create:    `/project new-task` (creates a linked GitHub issue by default)
+- Pick:      `/project next` (shows top Todo cards, moves pick to In Progress, dumps context)
+- Edit:      `/project update [id|number|title]`
+- Decompose: `/project decompose [id|number|title]` (split a big card into linked subtasks)
+- Audit:     `/project review` (board vs codebase)
+- Delete:    `/project delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

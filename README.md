@@ -41,12 +41,12 @@ npx skills add zcaceres/skills -s code-tour
 npx skills add zcaceres/skills -s quality-docs-update
 npx skills add zcaceres/skills -s find-docs
 npx skills add zcaceres/skills -s gemini-deep-research
-npx skills add zcaceres/skills -s gh-project
 npx skills add zcaceres/skills -s investigate-repo
 npx skills add zcaceres/skills -s laconic
 npx skills add zcaceres/skills -s optimize-permissions
 npx skills add zcaceres/skills -s optimize-skill-activation
 npx skills add zcaceres/skills -s pr
+npx skills add zcaceres/skills -s project
 npx skills add zcaceres/skills -s quality-project-health
 npx skills add zcaceres/skills -s record-gif
 npx skills add zcaceres/skills -s nano-banana-generator
@@ -127,12 +127,12 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `quality-docs-update` | Audit project docs against the codebase via parallel Explore agents, produce a per-file revision plan, and apply approved fixes. |
 | `find-docs` | Retrieve current docs, API references, and code examples for any library via the Context7 CLI. |
 | `gemini-deep-research` | Run Google Gemini Deep Research reports — submit a topic, background-poll, save the markdown report. Needs `GEMINI_API_KEY`. |
-| `gh-project` | **Slash command.** Manage the repo's GitHub Projects kanban board with one skill — `setup`, `next`, `new-task`, `update`, `review`, `decompose`, `delete` subcommands. |
 | `investigate-repo` | Audit an unfamiliar repository for malicious patterns and supply-chain risk. |
 | `laconic` | **Hook + slash command.** Answer in a spare, plain register — economical full sentences, not fragments. Toggle per project or per user with `/laconic on\|off`, in `prose-only` or `prose+code` mode; a SessionStart hook injects it each session. Governs presentation, not reasoning. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `optimize-skill-activation` | Right-size each installed skill's activation mode — slash-only, model-invocable, or eager-loaded — then rewrite its `SKILL.md` frontmatter. |
 | `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Open any PR as a draft with `--draft` (`-d`), or make drafts the default via `/pr setup`. Also bundles the diff-size nudge hook. Runs under both Claude Code and Gemini CLI (`install.sh --agent gemini`). |
+| `project` | **Slash command.** Manage a repo's project-tracker kanban board with one skill over a pluggable backend (GitHub Projects today; Linear next) — `setup`, `next`, `new-task`, `update`, `review`, `decompose`, `delete` subcommands. |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |
 | `nano-banana-generator` | Generate one-off graphic assets (logos, icons, illustrations, UI elements) via Google's Nano Banana / Gemini image generation. |

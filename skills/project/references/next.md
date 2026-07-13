@@ -1,4 +1,4 @@
-# `/gh-project next` — Pick the Next Card
+# `/project next` — Pick the Next Card
 
 You are picking the next card for the user to work on from the repository's GitHub Projects kanban board, moving it to `In Progress`, and handing off the full context so the user (or you) can begin work.
 
@@ -10,33 +10,16 @@ This subcommand **stops at the context dump**. It does not create branches, edit
 
 - "what's next" / "what should I work on"
 - "pick next ticket" / "get next task" / "next card"
-- "/gh-project next"
+- "/project next"
 
 ## Prerequisites
 
-**CRITICAL:** Before doing anything, check if `.github/gh-project.json` exists.
-- If it does NOT exist, **log a prominent warning** to the user:
-  > "WARNING: GitHub Project configuration is missing. The gh-project skill suite cannot function without a linked project board."
-- Prompt the user to run `/gh-project setup` first to bootstrap the configuration.
-- Do NOT proceed. Stop immediately.
-
-```bash
-if [ ! -f .github/gh-project.json ]; then
-  echo "WARNING: No GitHub Project configuration file found at .github/gh-project.json."
-  echo "Please run /gh-project setup first to configure your project board."
-  exit 1
-fi
-
-HELPER=.github/scripts/gh-project-board.sh
-if [ ! -x "$HELPER" ]; then
-  echo "WARNING: Missing or non-executable helper script at $HELPER."
-  echo "Please run /gh-project setup to regenerate the board helper script."
-  exit 1
-fi
-
-REPO_OWNER=$(jq -r .repoOwner .github/gh-project.json)
-REPO=$(jq -r .repo .github/gh-project.json)
-```
+**Run the [backend guard](_guard.md) first.** It locates `.project/config.json`
+(routing a legacy `.github/gh-project.json`, or an unconfigured repo, to
+`/project setup`), confirms the **github** backend, and exports `$HELPER`
+(`.project/scripts/board.sh`), `$REPO_OWNER`, and `$REPO`. Stop if the guard did.
+The steps below assume the github backend; the `board.sh`/`gh` calls behind the
+adapter verbs are documented in [backends/github.md](backends/github.md).
 
 ## Step 1 — List the Todo column
 
@@ -49,7 +32,7 @@ TODO_COUNT=$(wc -l < /tmp/todos.jsonl)
 
 If `TODO_COUNT` is 0:
 
-> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/gh-project review` to audit?"
+> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/project review` to audit?"
 
 Stop. Don't try to fall back to `In Progress` or `Done` — those imply different things.
 
@@ -210,7 +193,7 @@ If the card has linked PRs (suggesting work is already underway), instead say:
 - **`--auto` flag.** Skip Step 4's pick and Step 5's confirmation; take the rank-#1 card from the chosen scheme (or the first card in board order if `--board-order` was also passed), move it, dump. Useful for `/loop` style automation. Before the context dump, emit a single auditable log line so a later reviewer (or the next `/loop` tick) can see why this card was chosen:
 
   ```
-  [gh-project next --auto] picked #51 "Fix flaky retry test" — scheme: milestone due date → priority → age — why: only p0 in v0.4 (due in 6d) (2 candidates demoted: #38 wontfix, #44 blocked)
+  [project next --auto] picked #51 "Fix flaky retry test" — scheme: milestone due date → priority → age — why: only p0 in v0.4 (due in 6d) (2 candidates demoted: #38 wontfix, #44 blocked)
   ```
 
   The line names: the issue/draft, the ranking scheme that was applied, the one-line "why" for this card, and a short note for any cards that were demoted or skipped. If `--board-order` was passed, the scheme is just `board order` and there's no "why" — the log still records the pick and any skipped cards (e.g. `wontfix`).

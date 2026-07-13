@@ -54,10 +54,6 @@
       "name": "@zcaceres/skill-gemini-deep-research",
       "version": "1.0.0",
     },
-    "skills/gh-project": {
-      "name": "@zcaceres/skill-gh-project",
-      "version": "0.1.0",
-    },
     "skills/investigate-repo": {
       "name": "@zcaceres/skill-investigate-repo",
       "version": "1.0.0",
@@ -88,6 +84,10 @@
       "dependencies": {
         "zod": "^4.4.3",
       },
+    },
+    "skills/project": {
+      "name": "@zcaceres/skill-project",
+      "version": "0.0.0",
     },
     "skills/quality-chaos-monkey": {
       "name": "@zcaceres/skill-quality-chaos-monkey",
@@ -301,8 +301,6 @@
 
     "@zcaceres/skill-gemini-deep-research": ["@zcaceres/skill-gemini-deep-research@workspace:skills/gemini-deep-research"],
 
-    "@zcaceres/skill-gh-project": ["@zcaceres/skill-gh-project@workspace:skills/gh-project"],
-
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
     "@zcaceres/skill-laconic": ["@zcaceres/skill-laconic@workspace:skills/laconic"],
@@ -316,6 +314,8 @@
     "@zcaceres/skill-optimize-skill-activation": ["@zcaceres/skill-optimize-skill-activation@workspace:skills/optimize-skill-activation"],
 
     "@zcaceres/skill-pr": ["@zcaceres/skill-pr@workspace:skills/pr"],
+
+    "@zcaceres/skill-project": ["@zcaceres/skill-project@workspace:skills/project"],
 
     "@zcaceres/skill-quality-chaos-monkey": ["@zcaceres/skill-quality-chaos-monkey@workspace:skills/quality-chaos-monkey"],
 

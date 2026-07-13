@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-# gh-project-board.sh
+# board.sh
 #
-# Shared helper for the gh-project Claude Code skill. Lives at
-# .github/scripts/gh-project-board.sh in the user's repo (installed by
-# /gh-project setup). The skill's subcommands call this script so board
+# Shared helper for the project Claude Code skill. Lives at
+# .project/scripts/board.sh in the user's repo (installed by
+# /project setup). The skill's subcommands call this script so board
 # access is deterministic and avoids the truncation/context-bloat failure
 # modes of raw `gh project item-list`.
 #
-# Reads .github/gh-project.json (written by /gh-project setup).
+# Reads .project/config.json (written by /project setup). Transparently falls
+# back to the legacy .github/gh-project.json path so repos configured before the
+# gh-project → project rename keep working until they migrate.
+#
+# This is the GitHub Projects backend adapter. The config's `backend` field is
+# assumed "github" here; a Linear-backed repo has no board script (it drives the
+# Linear MCP directly), so this script is never invoked for it.
 #
 # Subcommands:
 #   list [--query <q>] [--include-body]   Compact JSONL of all items.
@@ -22,13 +28,19 @@
 
 set -euo pipefail
 
-CONFIG_FILE=".github/gh-project.json"
+CONFIG_FILE=".project/config.json"
+LEGACY_CONFIG_FILE=".github/gh-project.json"
 ITEM_LIMIT=500
 
-die() { printf 'gh-project-board: %s\n' "$*" >&2; exit 1; }
+die() { printf 'project-board: %s\n' "$*" >&2; exit 1; }
 
 require_config() {
-  [[ -f "$CONFIG_FILE" ]] || die "missing $CONFIG_FILE — run /gh-project setup"
+  # Prefer the new path; fall back to the pre-rename location so existing repos
+  # keep working. Reassigns the global so cfg()/set-status read the same file.
+  if [[ ! -f "$CONFIG_FILE" && -f "$LEGACY_CONFIG_FILE" ]]; then
+    CONFIG_FILE="$LEGACY_CONFIG_FILE"
+  fi
+  [[ -f "$CONFIG_FILE" ]] || die "missing $CONFIG_FILE — run /project setup"
 }
 
 cfg() { jq -r "$1" "$CONFIG_FILE"; }
@@ -134,12 +146,12 @@ cmd_set_status() {
 usage() {
   cat <<EOF
 Usage:
-  gh-project-board.sh list [--query <q>] [--include-body]
-  gh-project-board.sh find <PVTI_… | issue-number | title-substring>
-  gh-project-board.sh get  <item-id>
-  gh-project-board.sh set-status <item-id> <status-name>
+  board.sh list [--query <q>] [--include-body]
+  board.sh find <PVTI_… | issue-number | title-substring>
+  board.sh get  <item-id>
+  board.sh set-status <item-id> <status-name>
 
-Reads .github/gh-project.json for project number, owner, status field id,
+Reads .project/config.json for project number, owner, status field id,
 and status option ids. All output is compact JSONL on stdout; errors and
 truncation warnings go to stderr with non-zero exit.
 EOF

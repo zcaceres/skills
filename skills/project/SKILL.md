@@ -36,7 +36,7 @@ reference file and follow it exactly.
 | `review` | [references/review.md](references/review.md) | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
 | `decompose [id\|number\|title]` | [references/decompose.md](references/decompose.md) | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. Wires children via the sub-issues API plus a parent body checklist. |
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
-| `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
+| `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 
 ## Dispatcher
 

@@ -6,10 +6,10 @@ its own native concept:
 
 - **github** → a GitHub repo **milestone** (`gh api …/milestones`, `gh issue edit
   --milestone`).
-- **linear** → a Linear **project** (`create_project`, `update_issue(projectId)`,
-  `list_issues` by project). It is the standalone analogue of a github milestone:
-  a name, a target date, a set of issues, and progress. (Linear also has finer
-  "project milestones" *inside* a project; this skill uses the project itself.)
+- **linear** → a Linear native **project milestone** — a dated checkpoint inside a
+  project; issues attach via `projectMilestoneId`. Because milestones live in a
+  project, the Linear path needs a project context (the config's `projectId`, else
+  it asks which project). See [backends/linear.md](backends/linear.md#milestone-verbs).
 
 The per-backend command mapping for each verb below lives in
 [backends/github.md](backends/github.md#milestone-verbs) and
@@ -52,8 +52,8 @@ it matches more than one, list the matches and ask.
 3. Report the created milestone (name, url/number or id, due date). End the turn.
 
 > **github:** the milestone is created open on the repo.
-> **linear:** a Linear project is created under the configured team; the due date
-> is the project's target date.
+> **linear:** a project milestone is created inside the target project (config
+> `projectId`, else ask which project); the due date is its `targetDate`.
 
 ## `add`
 
@@ -65,7 +65,8 @@ it matches more than one, list the matches and ask.
 > **github:** only issue-backed cards take a milestone — a board-only draft has no
 > milestone field. If the card is a draft, say so and offer to convert it to an
 > issue first (or skip).
-> **linear:** every item is an issue; `add` sets its project.
+> **linear:** every item is an issue; `add` sets its `projectMilestoneId` (the
+> issue joins the milestone's project).
 
 ## `next`
 

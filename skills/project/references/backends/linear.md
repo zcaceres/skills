@@ -77,18 +77,21 @@ path differs from github, keyed to the inline split in each subcommand reference
 
 ## Milestone verbs
 
-The canonical **milestone** maps to a Linear **project** under the configured
-team. It is the standalone analogue of a github milestone (name, target date, a
-set of issues, progress).
+The canonical **milestone** maps to Linear's native **project milestone** — a
+dated checkpoint inside a project. An issue joins a milestone via its
+`projectMilestoneId`. Use the official Linear MCP's project-milestone tools (the
+2026-02 MCP release added create/edit for them).
+
+Project milestones live in a project, so these verbs need a **project context**:
+use the config's `projectId`; if it's null, ask which Linear project to use (or
+create one with `create_project`) before creating milestones.
 
 | Verb | Linear implementation |
 |---|---|
-| `create_milestone(name, due?, description?)` | `create_project(teamId, name, targetDate?, description?)` → project id + url. `due` is the project's `targetDate`. |
-| `add_to_milestone(item, milestone)` | `update_issue(id, projectId = <project UUID>)`. |
-| `list_milestones()` | `list_projects(teamId)` → id, name, `targetDate`, and progress / issue counts. |
-| `list_milestone_items(milestone, open)` | `list_issues(projectId = <UUID>, state != done)` under the Completeness rule. |
+| `create_milestone(name, due?, description?)` | Create a project milestone in the target project: `name`, `targetDate` (from `due`), `description`, `projectId`. → milestone id + url. |
+| `add_to_milestone(item, milestone)` | Set the issue's `projectMilestoneId` to the milestone id via `update_issue`. The issue joins the milestone's project. |
+| `list_milestones()` | List the target project's milestones (its `projectMilestones`): id, name, `targetDate`, progress. Resolve a selector by name. |
+| `list_milestone_items(milestone, open)` | List the milestone's project issues and keep those whose `projectMilestone` is this milestone and whose state is not `done`, under the Completeness rule. |
 
-`teamId` comes from the config. A milestone selector resolves to a `projectId` via
-`list_projects`. This is distinct from the config's optional default `projectId`
-(the default container for `new-task`), though a team may use the same project for
-both.
+`teamId` and the default `projectId` come from the config. A milestone selector
+resolves to a milestone id via `list_milestones` within the project context.

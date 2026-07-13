@@ -4,7 +4,7 @@
 
 Add a `milestone` subcommand — a canonical way to group work and execute toward
 it, over either backend. A "milestone" maps to a GitHub repo milestone on the
-github backend and to a Linear project on the linear backend.
+github backend and to a Linear native project milestone on the linear backend.
 
 Actions: `create` a milestone, `add` a card to one, `next` (rank a milestone's
 open items and hand off the top one for execution, like `/project next` scoped to

@@ -33,6 +33,11 @@ TITLE_FIELD=$(jq -r '.title' "$CFG")   # project title, for `gh issue create --p
 The github sub-issue wiring and the `board.sh`/`gh` calls behind the adapter
 verbs are documented in [backends/github.md](backends/github.md).
 
+**Linear backend:** children are native sub-issues — pass `parentId` to
+`create_issue` at create time and skip the sub-issues REST call and the parent
+body checklist entirely. See
+[backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 ## Step 1 — Resolve the parent card
 
 Same identifier rules as `/project update`. Three input shapes, in priority order:

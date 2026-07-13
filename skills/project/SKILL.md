@@ -1,6 +1,6 @@
 ---
 name: project
-description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects today; Linear next). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), and remove a card (delete). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", or "delete card N".
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), and remove a card (delete). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", or "delete card N".
 argument-hint: "[setup | next | new-task | update | review | decompose | delete] [args]"
 ---
 
@@ -13,9 +13,10 @@ install is one unit instead of seven sibling skills.
 
 The workflow bodies are **backend-neutral** — they call adapter verbs and speak
 a canonical status vocabulary. Which tracker they drive is chosen at
-`/project setup` and stored as `"backend"` in `.project/config.json`. Today the
-only backend is **github** (GitHub Projects, `references/backends/github.md`); a
-Linear backend follows. Every subcommand except `setup` opens with the shared
+`/project setup` and stored as `"backend"` in `.project/config.json`. Two
+backends ship: **github** (GitHub Projects, `references/backends/github.md`) and
+**linear** (the official Linear MCP, `references/backends/linear.md`). Every
+subcommand except `setup` opens with the shared
 [backend guard](references/_guard.md), which reads the config, picks the
 backend, and asserts its prerequisites.
 

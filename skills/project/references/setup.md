@@ -1,19 +1,73 @@
 # `/project setup` — Bootstrap the Board
 
-You are bootstrapping a GitHub Projects (v2) kanban board for the current repository and persisting the configuration so the other `/project` subcommands can find it.
+You are bootstrapping a project-tracker kanban board for the current repository and persisting the configuration so the other `/project` subcommands can find it. `project` supports multiple backends; pick one, then run that backend's flow.
 
 ## When to use
 
 - "set up a project board" / "create a kanban for this repo"
-- "init gh project" / "scaffold github project"
+- "init the project tracker" / "scaffold github project" / "connect Linear"
 - "/project setup"
 
 If the repo already has a `.project/config.json` (see [Config file](#config-file) below), do NOT silently recreate the project — read it, surface the existing project, and ask whether the user wants to re-link, reconfigure, or abort.
 
-**Backend.** `project` is backend-neutral; this subcommand configures the
-**github** backend (GitHub Projects). The config records `"backend": "github"`
-so the other subcommands and [`_guard.md`](_guard.md) know which adapter to use.
-(The Linear backend ships later; when it does, setup asks GitHub vs Linear here.)
+## Choose the backend
+
+`project` drives one tracker backend per repo, recorded as `"backend"` in
+`.project/config.json`. Ask which one (default **github**):
+
+- **github** — GitHub Projects. Needs the `gh` CLI with the `project` scope.
+  Follow [**GitHub backend**](#github-backend) below.
+- **linear** — Linear via the official Linear MCP. Needs that MCP connected.
+  Follow [**Linear backend**](#linear-backend) below, then skip the GitHub sections.
+
+## Linear backend
+
+No project is created and no script is installed — Linear issues live in the
+workspace and the [Linear adapter](backends/linear.md) drives the MCP directly.
+
+1. **Confirm the MCP.** Call `list_teams`. If it's unavailable, tell the user to
+   connect the Linear MCP, then stop.
+2. **Pick the team.** From `list_teams`, let the user choose; capture `teamId`
+   and `teamKey` (e.g. `SKL`).
+3. **Capture the status map.** Call `list_issue_statuses(teamId)` and map each
+   canonical status to a workflow-state UUID plus its display name. Confirm any
+   non-obvious mapping with the user.
+4. **Optional defaults.** Offer `list_projects` / `list_cycles` to set a default
+   `projectId`. Note that cycles, priority, and estimate are the ranking signals
+   `/project next` uses on Linear.
+5. **Write `.project/config.json`:**
+
+   ```json
+   {
+     "backend": "linear",
+     "version": 3,
+     "title": "Skills",
+     "teamId": "TEAM_uuid",
+     "teamKey": "SKL",
+     "projectId": null,
+     "statusMap": {
+       "backlog": "STATE_uuid",
+       "todo": "STATE_uuid",
+       "in_progress": "STATE_uuid",
+       "done": "STATE_uuid",
+       "cancelled": "STATE_uuid"
+     },
+     "statusNames": {
+       "backlog": "Backlog", "todo": "Todo", "in_progress": "In Progress",
+       "done": "Done", "cancelled": "Cancelled"
+     }
+   }
+   ```
+
+6. **Update agent docs** (same as [GitHub Step 8](#8-update-agent-docs-to-point-at-the-config))
+   with a Linear-flavored tracker block. Then stop — no helper script, no `gh`
+   auth, no allowlist.
+
+## GitHub backend
+
+The rest of this file is the github flow. Skip it entirely for linear. The config
+records `"backend": "github"` so the other subcommands and [`_guard.md`](_guard.md)
+select the github adapter (a config missing the field is treated as github).
 
 **Migrating a pre-rename repo.** If `.github/gh-project.json` exists but
 `.project/config.json` does not, this repo was set up under the old `gh-project`

@@ -40,6 +40,11 @@ DEFAULT_MODE=$(jq -r '.defaultMode' "$CFG")  # issue | draft
 The steps below assume the github backend; the `board.sh`/`gh` calls behind the
 adapter verbs are documented in [backends/github.md](backends/github.md).
 
+**Linear backend:** no draft type — every item is a first-class issue; ignore
+`--draft`/`defaultMode` (say so once). Optional fields are
+priority/estimate/cycle/project, not milestone/labels/assignees. Create with
+`create_issue`. See [backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 `PROJECT_OWNER` is for every `gh project ... --owner` call. `REPO_OWNER` is for every `gh issue ... --repo "$REPO_OWNER/$REPO"` and `gh api repos/$REPO_OWNER/$REPO/...` call. They are the same in the common case and diverge when the project owner was overridden during `/project setup`.
 
 ## Mode A — Real GitHub issue (default)

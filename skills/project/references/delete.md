@@ -18,6 +18,11 @@ and `$REPO`. Stop if the guard did. The steps below assume the github backend;
 the `board.sh`/`gh` calls behind the adapter verbs are documented in
 [backends/github.md](backends/github.md).
 
+**Linear backend:** there is no unlink — "delete" means cancel/archive (move the
+issue to the Cancelled state via `update_issue`); the issue stays in the
+workspace. State that plainly before confirming. See
+[backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 ## Step 1 — Resolve the target
 
 Use the helper's `find` subcommand:

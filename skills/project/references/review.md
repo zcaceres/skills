@@ -19,6 +19,11 @@ Treat this like a code review with verdicts. False positives are expensive — m
 The steps below assume the github backend; the `board.sh`/`gh` calls behind the
 adapter verbs are documented in [backends/github.md](backends/github.md).
 
+**Linear backend:** list via `list_issues` under the Completeness rule (no
+`board.sh`). "Linked PR" evidence comes from the issue's GitHub attachments if the
+workspace integrates GitHub, else branch/identifier matches in git history. See
+[backends/linear.md](backends/linear.md#per-subcommand-divergences).
+
 ## Workflow
 
 ### 1. Pull the current board

@@ -26,6 +26,7 @@ Bare `/project` prints the subcommand list — there is no default subcommand.
 | `decompose [id\|number\|title]` | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. |
 | `delete [id\|number\|title]` | Remove a card from the board with mandatory show-and-confirm. |
 | `milestone <create\|add\|next\|list>` | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card, run a `next`-style pick scoped to it, or list milestones. |
+| `batch <create\|update\|delete>` | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. An envelope over new-task / update / delete that preserves every per-card safety rule. |
 
 See [SKILL.md](./SKILL.md) for the dispatcher and the per-subcommand references
 for the full workflows.

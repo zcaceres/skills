@@ -20,6 +20,7 @@ Board access goes through `.project/scripts/board.sh`:
 
 - `list [--query <q>] [--include-body]` — compact JSONL of all items
 - `find <PVTI_… | issue# | title-substring>` — resolve a selector
+- `find-many <selector> [<selector> …]` — resolve many selectors against one board fetch (for batch)
 - `get <item-id>` — full row with body
 - `set-status <item-id> <status-name>` — move card between columns
 
@@ -35,6 +36,7 @@ Card workflow (all via the `/project` skill):
 - Audit:     `/project review` (board vs codebase)
 - Delete:    `/project delete [id|number|title]`
 - Milestone: `/project milestone create|add|next|list` (group work toward a milestone — a github milestone / a linear project milestone)
+- Batch:     `/project batch create|update|delete ...` (apply one operation across many cards — single preview, one confirmation, continue-on-error apply loop, per-item tally)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

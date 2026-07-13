@@ -1,7 +1,7 @@
 ---
 name: project
-description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), and group work into a milestone (milestone). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", or "what's next in the milestone".
-argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone] [args]"
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), and apply one operation across many cards at once (batch). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", or "/project batch".
+argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone | batch] [args]"
 ---
 
 # Project Tracker Kanban — One Skill
@@ -37,17 +37,19 @@ reference file and follow it exactly.
 | `decompose [id\|number\|title]` | [references/decompose.md](references/decompose.md) | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. Wires children via the sub-issues API plus a parent body checklist. |
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
 | `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
+| `batch <create\|update\|delete>` | [references/batch.md](references/batch.md) | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. Envelope over new-task/update/delete; per-card safety preserved. |
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`setup`, `next`,
-   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`) → read
-   `references/<keyword>.md`, then follow its workflow with the remaining
+   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`, `batch`)
+   → read `references/<keyword>.md`, then follow its workflow with the remaining
    `$ARGUMENTS` (everything after the first token) as that subcommand's
-   arguments. (`milestone` then dispatches again on its own action token —
-   `create` / `add` / `next` / `list`.)
+   arguments. (`milestone` and `batch` then dispatch again on their own mode
+   token — `create` / `add` / `next` / `list` for `milestone`, `create` /
+   `update` / `delete` for `batch`.)
 
 2. **First token starts with `-`** (e.g. `--help`, `-h`) → print the
    subcommand table above and stop.
@@ -79,5 +81,9 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
   `in_progress`, `done`, `cancelled`); the active backend adapter translates
   them to native values. Never hardcode a native status name in a body.
 - One card per invocation for `new-task`, `update`, `decompose`, and
-  `delete`. Re-invoke for the next card.
-- When an item is finished, move it to `Done` — do not delete it.
+  `delete`. Re-invoke for the next card — **unless** the user wants the same
+  operation across many cards, which is exactly what `batch` is for. `batch`
+  previews the whole set and takes a single confirmation; it does not loosen any
+  single-card safety rule (delete still requires a typed `yes`).
+- When an item is finished, move it to `Done` — do not delete it (this applies
+  to `batch delete` too — push back before bulk-deleting finished cards).

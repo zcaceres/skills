@@ -21,6 +21,13 @@ after the `checkpoint` keyword, or — when invoked without a keyword —
 the full `$ARGUMENTS`. Used as both the commit message and the source
 for the auto-derived branch name. If empty, infer from the diff.
 
+**Draft:** resolve draft intent (**draft** or **ready**) per
+[SKILL.md → Determine draft intent](../SKILL.md). The `gh` fallback path
+publishes eagerly, so it opens the PR with `--draft` when the answer is
+draft. The `git stack` path doesn't publish here at all — drafts are
+applied when you publish the stack with [`/pr submit`](submit.md) (see its
+draft-intent step).
+
 ## Workflow
 
 ### 1. Identify Your Changes
@@ -116,7 +123,8 @@ EOF
 )"
 ```
 
-Push and create a PR targeting the parent branch (not main):
+Push and create a PR targeting the parent branch (not main). Add
+`--draft` when draft intent is **draft**:
 
 ```bash
 git push -u origin HEAD

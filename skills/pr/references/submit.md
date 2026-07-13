@@ -19,7 +19,10 @@ is the single-branch path.
   to `git stack submit`, so every PR this run *creates* starts in draft
   state. Existing PRs are left as-is (matches `git stack` / `gh pr create`
   semantics — `--draft` only affects newly-created PRs; it will not convert
-  an already-open PR back to draft).
+  an already-open PR back to draft). This is also implied when
+  `git config pr.draft true` is configured (see
+  [SKILL.md → Determine draft intent](../SKILL.md#determine-draft-intent)),
+  unless overridden by `--ready`/`--no-draft` on the invocation.
 
 ## Workflow
 
@@ -72,11 +75,16 @@ how to reconcile before force-with-lease overwrites their work.
 
 ### 4. Submit
 
-Forward `--draft` only if the user supplied it — never add it on your own:
+Resolve draft intent (**draft** or **ready**) per
+[SKILL.md → Determine draft intent](../SKILL.md#determine-draft-intent) —
+that resolves an explicit `--draft`/`-d` or `--ready`/`--no-draft` on the
+invocation, falling back to the `pr.draft` default. Pass `--draft` to
+`git stack submit` whenever the intent is **draft** (which includes the
+configured default); use plain `git stack submit` otherwise:
 
 ```bash
-git stack submit            # default
-git stack submit --draft    # only when the user passed --draft
+git stack submit            # draft intent is ready
+git stack submit --draft    # draft intent is draft (flag or pr.draft default)
 ```
 
 This:
@@ -85,7 +93,8 @@ This:
 - Creates a PR for any branch that doesn't have one, with `--base`
   set to the parent branch — as a **draft** when `--draft` was passed.
 - Updates the title/body of existing PRs (per `git stack` defaults).
-  `--draft` does not change PRs that already exist.
+  `--draft` only affects newly-created PRs; it does not convert an
+  already-open PR back to draft.
 
 ### 5. Renumber Stack Title Markers
 

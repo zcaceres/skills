@@ -77,11 +77,8 @@ and `pr.vcs` itself:
 
 Carry the resolved VCS (`git` or `jj`) into every step below: the mode
 and draft reads use its store, and the dispatcher reads
-`references/<vcs>/<cmd>.md`.
-
-> **jj recipes ship in `references/jj/`.** Until those files are present,
-> a `jj` result falls back to **git** with a one-line note ("jj support
-> isn't installed in this build yet — using git").
+`references/<vcs>/<cmd>.md` — both the `git/` and `jj/` recipe sets ship
+with this skill.
 
 ## Determine the mode first
 

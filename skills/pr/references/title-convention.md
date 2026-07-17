@@ -64,6 +64,20 @@ survive git-stack's own title handling.
 Self-contained. Run it verbatim (or adapt the `gh` lookups to run in
 parallel — correctness matters more than speed here).
 
+The routine below is the **git** path. Only three commands are
+VCS-specific — the stack walk (step 1), trunk detection (step 2), and the
+bottom slice's subject (step 4). On the **jj** path, substitute these; the
+rest (the `gh pr edit` marker pass) is identical:
+
+```bash
+# jj step 1 — bottom -> top bookmarks (replaces the git config walk):
+STACK=(); while IFS= read -r b; do [ -n "$b" ] && STACK+=("$b"); done \
+  < <(jj log -r "${TRUNK}..@" --no-graph --reversed -T 'bookmarks ++ "\n"')
+# jj step 2 — trunk: [ -n "$(jj bookmark list main 2>/dev/null)" ] && TRUNK=main (else master)
+# jj step 4 — bottom subject (no stack-label config on jj):
+#   SUBJECT=$(jj log -r "$BOTTOM" --no-graph -T 'description.first_line()')
+```
+
 ```bash
 strip_marker() {
   # Drop a leading "[<anything> N/M] " marker, if present. Leaves other

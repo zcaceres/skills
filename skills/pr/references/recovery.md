@@ -6,9 +6,17 @@ branch no longer exists. The fix is to recreate the deleted base
 branch, reopen the child, retarget it to `main`, then delete the
 temporary recreated branch.
 
-This document is referenced from
-[`merge.md`](git/merge.md). It's not exposed as its own subcommand — call
-it manually only when the failure has already happened.
+This document is referenced from merge ([git](git/merge.md) /
+[jj](jj/merge.md)). It's not exposed as its own subcommand — call it
+manually only when the failure has already happened.
+
+> **jj path.** The `gh` steps (reopen, retarget, verify) are identical.
+> The git branch-plumbing below assumes a git repo (native jj still has a
+> git remote, so in a colocated repo the plain `git push` commands work as
+> written). The only substitution is the final rebase in step 6: instead
+> of `git rebase --onto`, run `jj rebase -b <child-bookmark> -d main` then
+> `jj git push --bookmark <child-bookmark>` — jj re-parents the child onto
+> the recreated base and drops the already-merged commits automatically.
 
 ## Workflow
 

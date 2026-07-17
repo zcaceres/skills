@@ -35,9 +35,6 @@ Named subcommands (`update`, `log`, `merge`, `checkpoint`, `submit`,
 default affects PR creation only; a per-invocation `--draft`/`-d` or
 `--ready`/`--no-draft` always overrides it for that run.
 
-> **jj recipes ship in `references/jj/`.** Until they're present, setting
-> `pr.vcs jj` resolves but falls back to the git recipes with a note.
-
 ## What the user asked to change
 
 `/pr setup` manages all three settings. Figure out which the invocation

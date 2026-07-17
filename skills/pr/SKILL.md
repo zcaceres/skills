@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Drives git or jj (jujutsu) — pick with /pr setup jj; git is the default, and colocated repos default to git. On git it uses git stack when installed and falls back to gh + git; on jj the commit graph is the stack, no extra tooling. Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [--draft] [args]"
 hooks:
   PostToolUse:
@@ -40,12 +40,58 @@ in both normal and stacked flows.
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched
 subcommand's reference file and follow it exactly.
 
-## Determine the mode first
+## Determine the VCS first
 
-Before dispatching, read the active mode:
+This resolves **before** the mode and draft settings, because it decides
+which config store those settings live in. It picks whether this run
+drives **git** or **jj** (jujutsu), and every workflow reference has a
+git and a jj copy under `references/<vcs>/`.
+
+**Detection is structural; config is only a tiebreaker.** Probe the
+filesystem first, then consult `pr.vcs` only when the answer is genuinely
+ambiguous (a colocated repo):
 
 ```bash
-git config pr.mode 2>/dev/null   # resolves local, then global; empty = unset
+git rev-parse --show-toplevel >/dev/null 2>&1 && HAS_GIT=1 || HAS_GIT=0
+jj root                       >/dev/null 2>&1 && HAS_JJ=1  || HAS_JJ=0
+```
+
+| `HAS_GIT` | `HAS_JJ` | Resolved VCS |
+|---|---|---|
+| 1 | 0 | **git** |
+| 1 | 1 | colocated → read `pr.vcs`; **git** unless it says `jj` |
+| 0 | 1 | **jj** (native) |
+| 0 | 0 | not a repo → stop, tell the user |
+
+Only the colocated row reads config, and there `.git` exists, so
+`git config pr.vcs` is always readable — no bootstrap problem.
+
+**The resolved VCS selects the config store** for `pr.mode`, `pr.draft`,
+and `pr.vcs` itself:
+
+- **git** (or colocated) → `git config` (local overrides global) —
+  unchanged from before.
+- **native jj** → `jj config get <key>` (repo overrides user); `get`
+  exits non-zero when a key is unset, so wrap reads in
+  `|| echo` and treat a failure as unset.
+
+Carry the resolved VCS (`git` or `jj`) into every step below: the mode
+and draft reads use its store, and the dispatcher reads
+`references/<vcs>/<cmd>.md`.
+
+> **jj recipes ship in `references/jj/`.** Until those files are present,
+> a `jj` result falls back to **git** with a one-line note ("jj support
+> isn't installed in this build yet — using git").
+
+## Determine the mode first
+
+Before dispatching, read the active mode from the resolved VCS's config
+store (see above):
+
+```bash
+git config pr.mode 2>/dev/null              # git / colocated
+jj config get pr.mode 2>/dev/null || true   # native jj
+# resolves repo/local, then user/global; empty = unset
 ```
 
 - Output `stacked` → **stacked mode**.
@@ -64,10 +110,12 @@ Per-invocation flags always win over the configured default:
    subcommand (see below). If `--ready`/`--no-draft` was present →
    **ready**. Else if `--draft`/`-d` was present → **draft**. If both
    appear, the **last** one on the line wins.
-2. No per-invocation flag → read the default:
+2. No per-invocation flag → read the default from the resolved VCS's
+   config store (see "Determine the VCS first"):
 
    ```bash
-   git config pr.draft 2>/dev/null   # resolves local, then global
+   git config pr.draft 2>/dev/null              # git / colocated
+   jj config get pr.draft 2>/dev/null || true   # native jj
    ```
 
    Output `true` → **draft**. Anything else (including empty) → **ready**.
@@ -84,13 +132,16 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | Subcommand | Reference | What it does |
 |---|---|---|
 | `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
-| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`) and the draft default (`pr.draft`). Global by default. |
-| `update [base-branch]` | [references/git/update.md](references/git/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
-| `log` | [references/git/log.md](references/git/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/git/merge.md](references/git/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
-| `checkpoint [slice description]` | [references/git/checkpoint.md](references/git/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
-| `submit [--draft]` | [references/git/submit.md](references/git/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack`. |
-| `sync [--no-push]` | [references/git/sync.md](references/git/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
+| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the VCS (`git` ↔ `jj`, `pr.vcs`), the mode (`normal` ↔ `stacked`, `pr.mode`) and the draft default (`pr.draft`). Global by default. |
+| `update [base-branch]` | `references/<vcs>/update.md` | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
+| `log` | `references/<vcs>/log.md` | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | `references/<vcs>/merge.md` | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
+| `checkpoint [slice description]` | `references/<vcs>/checkpoint.md` | Cut the current uncommitted diff as the next branch in a stack. Local only on the git-stack and jj paths — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
+| `submit [--draft]` | `references/<vcs>/submit.md` | **Publish point.** Push the whole stack, open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. The git path requires `git stack`; the jj path needs no extra tooling. |
+| `sync [--no-push]` | `references/<vcs>/sync.md` | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
+
+Where a Reference cell shows `references/<vcs>/…`, substitute the VCS
+resolved in "Determine the VCS first" (`git` or `jj`).
 
 ## Stacked-PR title markers
 
@@ -147,7 +198,9 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 
 ## Dispatcher
 
-First read the mode (see "Determine the mode first" above).
+First resolve the VCS (see "Determine the VCS first"), then read the mode
+(see "Determine the mode first"). The VCS picks which
+`references/<vcs>/` directory the workflow subcommands read from.
 
 **`setup` is exempt from the next step.** If the first non-flag token of
 `$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
@@ -171,13 +224,13 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
    and follow it. This is how the user switches modes.
 
 2. **First token is `update`, `log`, or `merge`** → read
-   `references/<keyword>.md`, then follow its workflow with the remaining
-   `$ARGUMENTS` as that subcommand's arguments. These work in both modes;
-   each reference has a mode-specific path.
+   `references/<vcs>/<keyword>.md`, then follow its workflow with the
+   remaining `$ARGUMENTS` as that subcommand's arguments. These work in
+   both modes; each reference has a mode-specific path.
 
 3. **First token is `checkpoint`, `submit`, or `sync`** (stacked
-   operations) → read `references/<keyword>.md` and follow it with the
-   remaining `$ARGUMENTS`. These run regardless of mode — an explicit
+   operations) → read `references/<vcs>/<keyword>.md` and follow it with
+   the remaining `$ARGUMENTS`. These run regardless of mode — an explicit
    keyword is explicit intent. If the mode is not `stacked`, add a
    one-line note: "(You're in normal mode — `/pr setup` makes `/pr`
    default to stacked operations.)"
@@ -189,12 +242,12 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
 5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
    this is the **default action**, which depends on the mode:
 
-   - **normal mode** → read [references/git/update.md](references/git/update.md)
-     and follow it. This commits your conversation changes, pushes, and
-     opens (or updates) a single PR against the trunk.
+   - **normal mode** → read `references/<vcs>/update.md` and follow it.
+     This commits your conversation changes, pushes, and opens (or
+     updates) a single PR against the trunk.
 
-   - **stacked mode** → read [references/git/checkpoint.md](references/git/checkpoint.md)
-     and follow it, using the message as the slice description.
+   - **stacked mode** → read `references/<vcs>/checkpoint.md` and follow
+     it, using the message as the slice description.
 
    `commit` is an explicit, mode-aware alias for this default action — it
    is **not** hard-wired to `checkpoint`, so it never forces stacked
@@ -214,7 +267,11 @@ acting. Don't guess at workflow-changing inputs.
 ## Important — applies to every subcommand
 
 - NEVER commit files you didn't modify in this conversation.
-- NEVER use `git add .` or `git add -A`. Stage explicitly.
+- NEVER let a file you didn't touch ride along in a slice. On **git**,
+  stage explicitly — never `git add .` / `git add -A`. On **jj**
+  (which auto-tracks the whole working copy into `@`), carve the slice
+  with `jj split <explicit paths>`, never a bare `jj commit` that sweeps
+  everything.
 - Report the PR URL when done.
 - **When an agent invokes this itself** (not a direct `/pr` from the
   user): `checkpoint`, `commit`, `update`, and `submit` are fair game at a
@@ -222,5 +279,7 @@ acting. Don't guess at workflow-changing inputs.
   lands PRs into trunk and is irreversible; run it only when the user
   explicitly asks. Never invoke `setup` (it flips the user's mode) on your
   own.
-- If `git stack` is installed and the branch is stacked, prefer its
-  primitives over hand-rolled `gh` loops.
+- Prefer the VCS's native stack primitives over hand-rolled `gh` loops:
+  on **git**, `git stack` when it's installed and the branch is stacked;
+  on **jj**, the commit graph itself (`jj log`/`jj rebase`) — no external
+  tool needed.

@@ -74,7 +74,12 @@ Map the request to a candidate set:
 - **A milestone** ("walk the v0.4 milestone", "the milestone cards") → the
   milestone's open items via `list_milestone_items(<sel>, open)` (resolve the
   selector with `list_milestones`; see [milestone.md](milestone.md)). Milestone is
-  a first-class named scope.
+  a first-class named scope. On **github**, that verb returns repository issue
+  rows, not project-item rows. Fetch the board once with `$HELPER list`, join the
+  milestone issues to board cards by issue number, and preserve milestone order;
+  exclude unmatched issues because they are not cards on this board, and report
+  how many were excluded. On **linear**, milestone items already carry the issue
+  ids used by the action verbs, so no join is needed.
 - **A subset of the board** ("the Todo column", "everything labeled `stale`", "the
   blocked cards", "open bugs") → translate to the underlying filter:
   `$HELPER list --query "<q>"` on github (build the `status:` / `label:` /
@@ -210,9 +215,11 @@ Accept the single letter, the full word, or an inline argument form (e.g. `s don
 
 Rules for the loop:
 
-- **Apply non-destructive actions on the keystroke** (status, comment, milestone,
-  edit). Confirming each would defeat the concision walk exists for. **Delete is
-  the exception** — it keeps the typed-`yes` gate from `delete.md`.
+- **Apply direct non-destructive actions on the keystroke** (status, comment,
+  milestone) once any required target or text is known; don't add another
+  confirmation afterward. Selecting **edit** enters `update.md`'s per-card recipe
+  and keeps its preview-and-explicit-approval gate. **Delete** likewise keeps the
+  typed-`yes` gate from `delete.md`.
 - **One card visible at a time.** Print the next block only after the current
   card's action resolves. Don't pre-render the whole scope.
 - **Echo each decision as one line** so the walk leaves an auditable trail, e.g.

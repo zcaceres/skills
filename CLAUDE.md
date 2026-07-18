@@ -37,7 +37,7 @@ Card workflow (all via the `/project` skill):
 - Delete:    `/project delete [id|number|title]`
 - Milestone: `/project milestone create|add|next|list` (group work toward a milestone — a github milestone / a linear project milestone)
 - Batch:     `/project batch create|update|delete ...` (apply one operation across many cards — single preview, one confirmation, continue-on-error apply loop, per-item tally)
-- Walk:      `/project walk [milestone|--query|--label|--status] [--ranked] [--no-context]` (triage a scope one card at a time — concise block + per-card decision menu, applied as you go; each card carries a light codebase-context signal for done-elsewhere / premise-drift, `dig` for a deep read)
+- Walk:      `/project walk [scope]` (triage a set of cards one at a time — scope described in words, e.g. a milestone / "the Todo column" / "the stale cards" / nothing for everything not-Done; concise block + per-card decision menu applied as you go; each card carries a light codebase-context signal for done-elsewhere / premise-drift, `dig` for a deep read)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

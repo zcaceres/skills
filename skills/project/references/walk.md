@@ -29,7 +29,8 @@ requires a typed `yes`).
 - "walk me through the milestone" / "walk the v0.4 cards" / "triage this milestone"
 - "go through the Todo column one by one" / "groom the backlog"
 - "walk me through the `stale` cards so I can decide on each"
-- "/project walk <milestone | --query … | --label … | --status …>"
+- "walk the Todo column" / "walk everything labeled `stale`" / "walk the open bugs"
+- "/project walk" (bare → everything not-Done)
 
 ## When NOT to use
 
@@ -60,17 +61,31 @@ references already do. "Delete" means cancel/archive, not unlink. See
 
 ## Step 1 — Resolve the scope
 
-Walk operates on a **candidate set** derived from the argument. Parse the
-subcommand arguments and resolve in this order:
+Walk operates on a **candidate set**. The user describes the scope **in their own
+words** — there is no query flag to type. Read their intent and resolve it with
+the backend's underlying list/filter verbs. The board helper already supports
+server-side filtering (`$HELPER list --query "<q>"`, e.g. `"status:Todo"`,
+`"label:stale -status:Done"`); *you* construct that query from what the user
+asked. The query string is an implementation detail of how you fetch, never
+something the user supplies.
 
-| Argument form | Scope |
-|---|---|
-| `--query "<q>"` | board query, verbatim — `$HELPER list --query "<q>"` (github) / `list_items` filtered (linear). |
-| `--label <name>` | sugar for `--query "label:<name> -status:Done"`. |
-| `--status <col>` | sugar for `--query "status:<col>"` (walk a single column, e.g. `--status Todo`). |
-| `--milestone <sel>` or `milestone <sel>` | the milestone's open items — `list_milestone_items(<sel>, open)` (see [milestone.md](milestone.md)). |
-| a bare positional token (e.g. `walk v0.4`) | resolve heuristically: try it as a **milestone** name first (`list_milestones`), then a **label**, then a **status column**. If it cleanly matches exactly one interpretation, use it. If it matches more than one (a milestone *and* a label named `v0.4`), **list the interpretations and ask** — don't guess. |
-| **empty** (`walk` with no arg) | default triage scope: everything **not** Done — `$HELPER list --query "-status:Done"`. This can be large; Step 2 confirms the count before looping. |
+Map the request to a candidate set:
+
+- **A milestone** ("walk the v0.4 milestone", "the milestone cards") → the
+  milestone's open items via `list_milestone_items(<sel>, open)` (resolve the
+  selector with `list_milestones`; see [milestone.md](milestone.md)). Milestone is
+  a first-class named scope.
+- **A subset of the board** ("the Todo column", "everything labeled `stale`", "the
+  blocked cards", "open bugs") → translate to the underlying filter:
+  `$HELPER list --query "<q>"` on github (build the `status:` / `label:` /
+  `-status:` query yourself), or `list_items` with the matching state/label filter
+  on linear (under the Completeness rule).
+- **No scope given** ("walk the board", bare `walk`) → default triage scope:
+  everything **not** Done (`$HELPER list --query "-status:Done"`). This can be
+  large; Step 2 confirms the count before looping.
+- **Ambiguous** (a word that could name a milestone *or* a label, or a request you
+  can't confidently map to a filter) → **list the interpretations and ask.** Never
+  guess the scope — it changes every card you'll touch.
 
 Resolve to an ordered in-memory list of cards. Fetch only what the block needs
 (id, title, status, type, number, url, body preview, labels, milestone,
@@ -78,14 +93,15 @@ createdAt); pull the full body lazily on `more` via `get_item`, not up front for
 every card.
 
 **Ordering.** Default to the scope's natural order (board/column order, or
-milestone item order). Pass `--ranked` to order by "what's logically next" using
-the [next.md](next.md) ranking judgment (milestone due date → priority/phase
-labels → age) — useful when triaging a big backlog and you want the most-urgent
-decisions first.
+milestone item order). If the user asks for the most-urgent decisions first (e.g.
+"walk the backlog, worst first"), order by "what's logically next" using the
+[next.md](next.md) ranking judgment (milestone due date → priority/phase labels →
+age).
 
 **Codebase context.** By default walk enriches each card with a light read of the
-codebase (Step 3) so decisions are informed by what the code actually shows.
-Pass `--no-context` to skip that entirely for a fast, code-blind triage pass.
+codebase (Step 3) so decisions are informed by what the code actually shows. If
+the user wants a fast, code-blind pass (e.g. "just walk them, skip the code
+check"), skip Step 3 entirely.
 
 ## Step 2 — Announce the scope and confirm
 
@@ -93,21 +109,21 @@ Before looping, state what's about to be walked so the user can bail on a
 too-broad scope:
 
 ```markdown
-Walking **N cards** in <scope description> (order: <board | ranked>).
+Walking **N cards** in <scope description> (order: <natural | most-urgent-first>).
 Decisions apply as you go. Codebase context is gathered as you walk. `q` to stop anytime.
 ```
 
-If `--no-context` was passed, drop the "Codebase context…" clause.
+If the user asked to skip the codebase check, drop the "Codebase context…" clause.
 
 - If `N` is 0: "Nothing in `<scope>` to walk." Stop.
-- If `N` is large (say > 25) **and** the scope was the empty-arg default: offer to
-  narrow — "That's N cards. Narrow with `--status Todo`, `--label …`, or a
-  milestone, or reply `go` to walk all N." Don't force a walk through 100 cards
-  the user didn't scope.
+- If `N` is large (say > 25) **and** the scope was the no-scope default: offer to
+  narrow — "That's N cards. Want to narrow it (a column, a label, a milestone), or
+  reply `go` to walk all N?" Don't force a walk through 100 cards the user didn't
+  scope.
 
 ## Step 3 — Gather codebase context (as you walk)
 
-Unless `--no-context` was passed, each card is enriched with a **light** read of
+Unless the user asked to skip it, each card is enriched with a **light** read of
 the codebase so the user decides with the same evidence `review` would gather —
 but distilled to **one line**, not a verdict. Two things the user cares about:
 a card **already completed elsewhere** (the code reveals it shipped), and a card
@@ -156,7 +172,7 @@ body unless the user asks (`more`).
 ── [i/N] ────────────────────────────────────────────
 **"<title>"**   ·   <Issue #n | Draft>   ·   <Status>
 <age> old · milestone: <name or —> · labels: <csv or —> · linked PR: <#n or —>
-Context: ⚑ <tag> — <one strongest signal>       ← omit this line if tag is `unclear` or --no-context
+Context: ⚑ <tag> — <one strongest signal>       ← omit this line if tag is `unclear` or context is off
 
 > <body preview: first ~2 lines / ~200 chars, or "(no body)">
 
@@ -206,7 +222,7 @@ Rules for the loop:
   card so the user can retry or skip. A *systemic* failure (auth lost, board
   unreachable) stops the walk — every remaining card would fail the same way.
 - **The scope is a snapshot.** If an action changes a card's status such that it
-  would leave the scope (e.g. `--status Todo` walk and the user moves a card to
+  would leave the scope (e.g. a Todo-column walk and the user moves a card to
   Done), that's fine — the card was already loaded; just advance. Don't re-fetch
   the scope mid-walk.
 
@@ -248,8 +264,9 @@ cards by hand, or narrowing the scope, resumes triage.)
 - **Sensitive content when commenting/editing.** Before writing conversation
   context into a public board (github issues/comments are public), flag env vars /
   tokens / customer names and offer to strip them — same discipline as `update`.
-- **`--ranked` with no ranking signals.** Fall back to board order silently (as
-  [next.md](next.md) does) — note "(ranking signals unavailable — board order)".
+- **Most-urgent-first asked but no ranking signals exist.** Fall back to board
+  order silently (as [next.md](next.md) does) — note "(ranking signals unavailable
+  — board order)".
 - **User keeps hitting Enter.** Empty input = `skip`. A fast Enter-Enter-Enter run
   is a valid way to page through a scope read-only; that's fine.
 - **Context can't be gathered** (evidence tools fail, or the card body names no

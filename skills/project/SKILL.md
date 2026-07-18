@@ -38,7 +38,7 @@ reference file and follow it exactly.
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
 | `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 | `batch <create\|update\|delete>` | [references/batch.md](references/batch.md) | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. Envelope over new-task/update/delete; per-card safety preserved. |
-| `walk [<milestone> \| --query <q> \| --label <l> \| --status <col>] [--ranked] [--no-context]` | [references/walk.md](references/walk.md) | Walk a scoped set of cards one by one — concise block + decision menu (status/edit/comment/milestone/decompose/delete/dig/skip) applied per card as you go. Each card carries light codebase context (done-elsewhere / premise-drift signal); `dig` escalates one card to deep reasoning. Interactive triage/grooming; envelope over update/milestone/decompose/delete with per-card safety preserved. |
+| `walk [scope]` | [references/walk.md](references/walk.md) | Walk a set of cards one by one — concise block + decision menu (status/edit/comment/milestone/decompose/delete/dig/skip) applied per card as you go. `scope` is described in words (a milestone, "the Todo column", "the `stale` cards", or nothing → everything not-Done); the agent resolves it via the board's filtering. Each card carries light codebase context (done-elsewhere / premise-drift signal); `dig` escalates one card to deep reasoning. Interactive triage/grooming; envelope over update/milestone/decompose/delete with per-card safety preserved. |
 
 ## Dispatcher
 
@@ -51,8 +51,9 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    `$ARGUMENTS` (everything after the first token) as that subcommand's
    arguments. (`milestone` and `batch` then dispatch again on their own mode
    token — `create` / `add` / `next` / `list` for `milestone`, `create` /
-   `update` / `delete` for `batch`. `walk` reads its scope from a flag or a bare
-   selector — see [references/walk.md](references/walk.md).)
+   `update` / `delete` for `batch`. `walk` reads its scope from a
+   natural-language description or a milestone name — see
+   [references/walk.md](references/walk.md).)
 
 2. **First token starts with `-`** (e.g. `--help`, `-h`) → print the
    subcommand table above and stop.

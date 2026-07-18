@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-project",
   "version": "0.0.0",
-  "description": "Manage a repo's project-tracker board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap the board (setup), pick the next Todo card (next), create cards (new-task), edit cards (update), audit the board against the codebase (review), split big cards into subtasks (decompose), remove cards (delete), and group work into a milestone (milestone).",
+  "description": "Manage a repo's project-tracker board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap the board (setup), pick the next Todo card (next), create cards (new-task), edit cards (update), audit the board against the codebase (review), split big cards into subtasks (decompose), remove cards (delete), group work into a milestone (milestone), batch one operation across many cards (batch), and walk a scope of cards one by one for per-card decisions (walk).",
   "license": "MIT",
   "type": "module",
   "scripts": {

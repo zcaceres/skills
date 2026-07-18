@@ -1,7 +1,7 @@
 ---
 name: project
-description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), and apply one operation across many cards at once (batch). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", or "/project batch".
-argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone | batch] [args]"
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), apply one operation across many cards at once (batch), and walk a scope of cards one by one for per-card decisions informed by codebase context (walk). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", "/project batch", "walk me through the milestone", "triage these cards", "groom the backlog one by one", or "/project walk".
+argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone | batch | walk] [args]"
 ---
 
 # Project Tracker Kanban — One Skill
@@ -38,18 +38,22 @@ reference file and follow it exactly.
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
 | `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 | `batch <create\|update\|delete>` | [references/batch.md](references/batch.md) | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. Envelope over new-task/update/delete; per-card safety preserved. |
+| `walk [scope]` | [references/walk.md](references/walk.md) | Walk a set of cards one by one — concise block + decision menu (status/edit/comment/milestone/decompose/delete/dig/skip) applied per card as you go. `scope` is described in words (a milestone, "the Todo column", "the `stale` cards", or nothing → everything not-Done); the agent resolves it via the board's filtering. Each card carries light codebase context (done-elsewhere / premise-drift signal); `dig` escalates one card to deep reasoning. Interactive triage/grooming; envelope over update/milestone/decompose/delete with per-card safety preserved. |
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`setup`, `next`,
-   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`, `batch`)
+   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`, `batch`,
+   `walk`)
    → read `references/<keyword>.md`, then follow its workflow with the remaining
    `$ARGUMENTS` (everything after the first token) as that subcommand's
    arguments. (`milestone` and `batch` then dispatch again on their own mode
    token — `create` / `add` / `next` / `list` for `milestone`, `create` /
-   `update` / `delete` for `batch`.)
+   `update` / `delete` for `batch`. `walk` reads its scope from a
+   natural-language description or a milestone name — see
+   [references/walk.md](references/walk.md).)
 
 2. **First token starts with `-`** (e.g. `--help`, `-h`) → print the
    subcommand table above and stop.

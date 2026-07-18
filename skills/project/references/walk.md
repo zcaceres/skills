@@ -95,7 +95,13 @@ Map the request to a candidate set:
 Resolve to an ordered in-memory list of cards. Fetch only what the block needs
 (id, title, status, type, number, url, body preview, labels, milestone,
 createdAt); pull the full body lazily on `more` via `get_item`, not up front for
-every card.
+every card. On **github**, `list_items` (`$HELPER list`) returns only the core
+fields (`id,title,status,type,number,url,bodyPreview`) — pull `labels`,
+`milestone`, and `createdAt` for the header from a supplementary
+`gh issue list --repo "$REPO_OWNER/$REPO" --json number,labels,milestone,createdAt`
+joined by issue number (the same source [milestone.md](milestone.md) /
+[backends/github.md](backends/github.md) already use). On **linear**, `list_items`
+can carry these directly.
 
 **Ordering.** Default to the scope's natural order (board/column order, or
 milestone item order). If the user asks for the most-urgent decisions first (e.g.
@@ -191,7 +197,7 @@ it entirely when the tag is `unclear` or context is off. The full evidence lives
 behind `more` / `dig`, not here — if the block scrolls, you've shown too much.
 
 Show the menu once at the top of the loop in full; on later cards you may abbreviate
-it to a single hint line (`s/e/c/m/x/d/k/o/more/q`) to keep the walk scannable.
+it to a single hint line (`s/e/c/m/x/d/g/k/o/more/q`) to keep the walk scannable.
 
 ### Decision keys
 

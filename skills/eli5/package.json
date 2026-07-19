@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-eli5",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Explain a concept like the listener is five years old — short words, everyday analogies, zero jargon. Invoke via /eli5.",
   "license": "MIT",
   "type": "module",
@@ -9,5 +9,11 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ]
 }

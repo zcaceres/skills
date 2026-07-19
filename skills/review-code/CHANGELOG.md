@@ -1,5 +1,11 @@
 # @zcaceres/skill-review-code
 
+## 0.3.0
+
+### Minor Changes
+
+- 93fb4fe: review: make `review` findings code-first — lead each with a minimal before→after snippet, cap prose at one or two sentences, and drop the 3-line code cap that pushed explanations into prose.
+
 ## 0.2.0
 
 ### Minor Changes

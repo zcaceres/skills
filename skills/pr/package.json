@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-pr",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Commit your work and open PRs with /pr. Normal mode (default) commits conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns /pr into a stacked-PR workflow (checkpoint, submit, sync, bottom-up merge). Toggle with /pr setup. Open any PR as a draft with --draft, or make drafts the default via /pr setup. Bundles a PostToolUse diff-size nudge hook. Uses git stack when installed, falls back to gh + git.",
   "license": "MIT",
   "type": "module",

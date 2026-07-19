@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-storage-cleanup",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Find large files and directories safe to delete — node_modules, AI models, Docker artifacts, package caches, old downloads. Conservative: never auto-deletes.",
   "license": "MIT",
   "type": "module",

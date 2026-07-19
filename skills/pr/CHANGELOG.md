@@ -1,5 +1,21 @@
 # @zcaceres/skill-pr
 
+## 1.3.0
+
+### Minor Changes
+
+- f3759d6: Make `/pr` agent-callable. Dropped `disable-model-invocation: true` so an
+  agent working through a task can invoke the skill itself — the intended
+  use is checkpointing stacked PRs at each logical seam as work progresses,
+  not only responding to a user typing `/pr`. The description now tells the
+  model when to reach for it (`checkpoint`/`commit` to land a stacked slice,
+  `update` for a single PR) and an "applies to every subcommand" guardrail
+  keeps autonomous invocation safe: `merge` (lands PRs into trunk,
+  irreversible) and `setup` (flips the user's mode) run only when the user
+  explicitly asks.
+- 3725232: Add a per-invocation draft flag (`--draft`/`-d`, with `--ready`/`--no-draft` to force ready) on every `/pr` verb, plus a persistent `pr.draft` default managed by `/pr setup`. Builds on the native `git stack submit --draft` support: draft intent (explicit flag or the configured default) decides whether created PRs open as drafts. The default never re-drafts an already-open PR; only an explicit flag flips one.
+- ca8bba1: Add a `--draft` flag to `/pr submit`. It passes `--draft` through to `git stack submit`, so every PR the stack publishes is created as a draft. Existing PRs are left untouched.
+
 ## 1.2.0
 
 ### Minor Changes

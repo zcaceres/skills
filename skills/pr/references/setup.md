@@ -1,8 +1,16 @@
 # `/pr setup` — Persistent `/pr` Settings
 
-Show and change the two persistent `/pr` settings, both stored in git
-config (a local value always overrides a global one):
+Show and change the three persistent `/pr` settings. A repo-scoped value
+always overrides a user-scoped one, and **which config store holds them
+depends on the VCS** (see the store note below):
 
+- **vcs** (`pr.vcs`) — drive the workflow with **git** (default) or
+  **jj** (jujutsu). Usually you don't set this: detection is structural
+  (a git repo → git, a native jj repo → jj). It only matters in a
+  **colocated** repo where both `.git` and `.jj` exist — there git is the
+  default and `pr.vcs jj` opts into the jj recipes. The resolved VCS
+  decides which `references/<vcs>/` recipes run *and* which config store
+  the other two settings live in.
 - **mode** (`pr.mode`) — switch between **normal** (default) and
   **stacked**. Controls only what the bare `/pr` (default) action does:
   - **normal** → `/pr` commits your conversation changes, pushes, and
@@ -13,41 +21,72 @@ config (a local value always overrides a global one):
   **creates** is opened as a draft unless the invocation passes
   `--ready`/`--no-draft`. Orthogonal to the mode; applies to both flows.
 
+**Config store.** In a git or colocated repo the settings live in
+`git config` (`--local` / `--global`). In a **native jj** repo (no
+`.git`) they live in `jj config` (`--repo` / `--user`); `jj config get`
+exits non-zero when a key is unset, so treat a read failure as unset.
+Both stores put the repo scope over the user scope. **Split-brain
+caveat:** a `--global` default set in `git config` does **not** carry to
+`jj config` (they're different files) — someone who works in both
+native-jj and git repos sets their default in each.
+
 Named subcommands (`update`, `log`, `merge`, `checkpoint`, `submit`,
 `sync`) work in either mode regardless of these settings. The draft
 default affects PR creation only; a per-invocation `--draft`/`-d` or
 `--ready`/`--no-draft` always overrides it for that run.
 
+> **jj recipes ship in `references/jj/`.** Until they're present, setting
+> `pr.vcs jj` resolves but falls back to the git recipes with a note.
+
 ## What the user asked to change
 
-`/pr setup` manages both settings. Figure out which the invocation
+`/pr setup` manages all three settings. Figure out which the invocation
 targets, then only touch that one:
 
+- VCS words → `git`, `jj` (e.g. `/pr setup jj`).
 - Mode words → `normal`, `stacked` (e.g. `/pr setup stacked`).
 - Draft words → `draft`, `--draft`, `draft on` (turn on); `no-draft`,
   `--no-draft`, `ready`, `draft off` (turn off) (e.g. `/pr setup draft`).
-- Both in one go is fine: `/pr setup stacked draft`.
+- Combining is fine: `/pr setup jj stacked draft`.
 - No setting word → show everything (step 1) and ask which to change.
 
 A `--global` / `--local` token sets the scope for whatever is written
-(default **global**).
+(default **global**; the jj store calls these `--user` / `--repo`).
 
 ## Workflow
 
 ### 1. Show the current settings
 
+First resolve the VCS structurally, then report the detected repo type,
+any configured `pr.vcs` override, and the mode/draft settings from the
+matching store:
+
 ```bash
-echo "mode   local:  $(git config --local pr.mode  2>/dev/null || echo '(unset)')"
-echo "mode   global: $(git config --global pr.mode 2>/dev/null || echo '(unset)')"
-echo "mode   active: $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
-echo "draft  local:  $(git config --local pr.draft  2>/dev/null || echo '(unset)')"
-echo "draft  global: $(git config --global pr.draft 2>/dev/null || echo '(unset)')"
-echo "draft  active: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on (drafts by default)' || echo 'off (ready by default)')"
+git rev-parse --show-toplevel >/dev/null 2>&1 && HAS_GIT=1 || HAS_GIT=0
+jj root                       >/dev/null 2>&1 && HAS_JJ=1  || HAS_JJ=0
+
+if   [ "$HAS_GIT" = 1 ] && [ "$HAS_JJ" = 1 ]; then DETECTED="colocated (git + jj)"
+elif [ "$HAS_GIT" = 1 ];                      then DETECTED="git"
+elif [ "$HAS_JJ" = 1 ];                       then DETECTED="jj (native)"
+else DETECTED="(not a repo)"; fi
+echo "repo:  $DETECTED"
+
+# Read settings from the store that matches the repo. git/colocated -> git config;
+# native jj -> jj config (get exits non-zero when unset).
+if [ "$HAS_GIT" = 1 ]; then
+  echo "vcs    configured: $(git config pr.vcs 2>/dev/null || echo '(unset -> git)')"
+  echo "mode   active: $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
+  echo "draft  active: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
+else
+  echo "vcs    configured: $(jj config get pr.vcs 2>/dev/null || echo '(unset -> jj)')"
+  echo "mode   active: $(jj config get pr.mode 2>/dev/null || echo 'normal (default)')"
+  echo "draft  active: $([ "$(jj config get pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
+fi
 ```
 
-`git config <key>` resolves the local value first, then the global one.
-If `pr.mode` is unset the active mode is **normal**; if `pr.draft` is
-unset (or not `true`) new PRs default to **ready**.
+In a **colocated** repo the resolved VCS is **git** unless `pr.vcs` says
+`jj`. If `pr.mode` is unset the active mode is **normal**; if `pr.draft`
+is unset (or not `true`) new PRs default to **ready**.
 
 ### 2. Ask the user what they want
 
@@ -56,6 +95,7 @@ If the invocation already made it clear (e.g. `/pr setup stacked`,
 skip the question and go straight to step 3. Otherwise ask which
 setting(s) to change:
 
+- VCS? `git` or `jj` (only meaningful in a colocated repo).
 - Mode? `normal` or `stacked`.
 - Drafts by default? `on` or `off`.
 - Scope? **global** (applies to every repo on this machine — the right
@@ -69,41 +109,52 @@ want one consistent setup everywhere.
 Only write the keys the user is changing. Global is the recommended
 default; pass `--local` to scope to this repo.
 
-Mode:
+**Pick the store from the repo type** (step 1's `$HAS_GIT`): a git or
+colocated repo writes to `git config`; a native jj repo writes to
+`jj config`, where `--global`↔`--user` and `--local`↔`--repo`.
+
+git / colocated store:
 
 ```bash
+git config --global pr.vcs jj         # or: git  (colocated only; else leave unset)
 git config --global pr.mode stacked   # or: normal
-```
-
-Draft default:
-
-```bash
 git config --global pr.draft true     # drafts on by default
 git config --global --unset pr.draft  # drafts off (back to the default)
+git config --global --unset pr.mode   # clear -> fall back to default / other scope
 ```
 
-To clear a setting and fall back to the default / the other scope:
+native jj store:
 
 ```bash
-git config --global --unset pr.mode   # or --local; same for pr.draft
+jj config set --user pr.vcs jj        # or: --repo for this repo only
+jj config set --user pr.mode stacked
+jj config set --user pr.draft true
+jj config unset --user pr.draft       # clear a key
 ```
 
-> A local value always wins over a global one. If you set `stacked`
-> globally but want one repo to stay `normal`, set `git config --local
-> pr.mode normal` in that repo. The same precedence applies to
-> `pr.draft`.
+> A repo-scoped value always wins over a user-scoped one. If you set
+> `stacked` globally but want one repo to stay `normal`, set it at the
+> narrower scope in that repo (`git config --local pr.mode normal`, or
+> `jj config set --repo pr.mode normal`). The same precedence applies to
+> `pr.vcs` and `pr.draft`.
 
 ### 4. Confirm + point at stacked tooling
 
-Re-read and report the active settings:
+Re-read and report the active settings from the matching store (reuse
+`$HAS_GIT` from step 1):
 
 ```bash
-echo "mode:  $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
-echo "draft: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
+if [ "$HAS_GIT" = 1 ]; then
+  echo "mode:  $(git config pr.mode 2>/dev/null || echo 'normal (default)')"
+  echo "draft: $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
+else
+  echo "mode:  $(jj config get pr.mode 2>/dev/null || echo 'normal (default)')"
+  echo "draft: $([ "$(jj config get pr.draft 2>/dev/null)" = true ] && echo 'on' || echo 'off')"
+fi
 ```
 
-If the user switched **to stacked mode**, check for the `git stack` CLI
-and recommend it:
+If the user switched **to stacked mode** on the **git** path, check for
+the `git stack` CLI and recommend it:
 
 ```bash
 git stack --version 2>/dev/null && echo "git stack: installed" \
@@ -112,7 +163,9 @@ git stack --version 2>/dev/null && echo "git stack: installed" \
 
 If it's missing, tell them stacked mode still works via `gh` + `git`, but
 `submit` (whole-stack push) needs `git stack` — install it from
-<https://github.com/zcaceres/git-stack/releases>.
+<https://github.com/zcaceres/git-stack/releases>. The **jj** path needs
+no such tool: its commit graph is the stack, so `submit` works out of the
+box.
 
 If the user turned the **draft default on**, remind them it applies to
 PRs `/pr` creates from now on; an existing PR is unaffected until you
@@ -157,13 +210,16 @@ if you ever see a "binary not found" note in your hook logs.
 
 ## Important
 
-- This subcommand reads and writes `git config pr.mode` and
-  `git config pr.draft`, and wires + provisions the nudge hook (step 5, via
-  `install.sh` — which edits the host's `settings.json`, backing it up
-  first). It never commits, pushes, or opens PRs.
-- Both keys are plain git config — the user can also set them by hand
-  with `git config [--global] pr.mode <normal|stacked>` or
-  `git config [--global] pr.draft true`.
-- Any `pr.mode` other than `stacked` (including unset) is treated as
-  `normal`. Any `pr.draft` other than `true` (including unset) is treated
-  as **ready** (drafts off).
+- This subcommand reads and writes `pr.vcs`, `pr.mode`, and `pr.draft`,
+  and wires + provisions the nudge hook (step 5, via `install.sh` — which
+  edits the host's `settings.json`, backing it up first). It never
+  commits, pushes, or opens PRs.
+- The store depends on the repo: `git config` for git/colocated,
+  `jj config` for native jj. The user can also set the keys by hand —
+  `git config [--global] pr.vcs jj` / `pr.mode <normal|stacked>` /
+  `pr.draft true`, or the `jj config set [--user] pr.<key> <value>`
+  equivalent.
+- Any `pr.vcs` other than `jj` (including unset) resolves to **git** once
+  the structural probe allows it. Any `pr.mode` other than `stacked`
+  (including unset) is treated as `normal`. Any `pr.draft` other than
+  `true` (including unset) is treated as **ready** (drafts off).

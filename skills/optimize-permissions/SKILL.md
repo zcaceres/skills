@@ -5,28 +5,27 @@ description: Scan recent conversation transcripts for safe commands that could b
 
 # optimize-permissions
 
-Cut down on permission prompts by learning from what the user *already* approved
-in recent sessions — across whichever CLI agent they actually use. Inspired by
-Anthropic's bundled `fewer-permission-prompts` skill, but agent-agnostic.
+Reduce permission prompts by learning from commands the user already approved in
+recent sessions, across whichever CLI agent they use.
 
 ## Mental model
 
-Every CLI agent has some flavor of "ask before running" vs "auto-run". The names
-differ — Claude Code calls it `permissions.allow`, Codex calls it the trust
-policy, Cursor calls it terminal auto-run — but the shape is the same: a list
-of command patterns the agent will execute without stopping.
+Every CLI agent has an "ask before running" vs "auto-run" setting. The names
+differ (Claude Code: `permissions.allow`; Codex: trust policy; Cursor: terminal
+auto-run) but the shape is the same: a list of command patterns the agent runs
+without stopping.
 
-Read the user's recent transcripts → pick out commands they kept approving →
-generalize to a pattern → propose → confirm → write to the right config.
+Read recent transcripts, find commands the user kept approving, generalize each
+to the narrowest safe pattern, propose, confirm, write to the config.
 
 ## When to run
 
-Trigger phrases: *reduce permission prompts*, *auto-allow safe commands*, *tame
-approvals*, *fewer prompts*, *what should I always allow*, or
+Trigger phrases: "reduce permission prompts", "auto-allow safe commands", "tame
+approvals", "fewer prompts", "what should I always allow", or
 `/optimize-permissions`.
 
-If the user hasn't accumulated many transcripts yet, say so and stop — there's
-nothing to learn from.
+If the user has few transcripts, say so and stop. There is nothing to learn
+from.
 
 ## Step 1 — detect which agents are installed
 
@@ -40,15 +39,15 @@ Probe these markers in order; record every one that exists:
 | Aider       | `~/.aider*`        | `.aider.chat.history.md` per project               | n/a — Aider doesn't gate per command                                      |
 
 See `references/agents.md` for current paths, schemas, and write rules.
-**Verify paths before writing** — agents change layouts; don't assume the
-table above is still current.
+**Verify paths before writing.** Agents change layouts; don't assume the table
+above is still current.
 
-If only one agent is installed, target it silently. If multiple are installed,
-ask the user which to tune (multiSelect is fine).
+If only one agent is installed, target it. If multiple are installed, ask the
+user which to tune (multiSelect is fine).
 
 ## Step 2 — find the transcripts to read
 
-Default to the current working directory's transcripts. For Claude Code that's:
+Default to the current working directory's transcripts. For Claude Code:
 
 ```bash
 PROJECT_DIR="${HOME}/.claude/projects/$(pwd | sed 's|/|-|g')"
@@ -58,9 +57,8 @@ ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -20
 If the user says "across all my projects" or "look at everything", widen to all
 projects under the transcript root.
 
-Read up to the most recent **20 session files** (or whatever fits comfortably
-in context — these can be large). Older history is less representative of
-current habits.
+Read up to the most recent **20 session files**, or whatever fits in context.
+Older history is less representative of current habits.
 
 ## Step 3 — extract Bash invocations
 
@@ -71,25 +69,24 @@ sessions, the relevant lines look like:
 {"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash","input":{"command":"git status"}}]}}
 ```
 
-For each transcript, pull every Bash (or shell-equivalent) invocation along
-with what happened next:
+For each transcript, pull every Bash (or shell-equivalent) invocation and what
+happened next:
 
 - Did the user **approve** it via the permission dialog?
 - Did the user **reject** it?
-- Was it **already auto-allowed** (no prompt at all)?
+- Was it **already auto-allowed** (no prompt)?
 
-You want commands the user *had* to approve but always approved. Those are the
-candidates. A command they rejected even once is a strong signal *not* to
-propose it.
+Candidates are commands the user had to approve and always approved. A command
+they rejected even once is a strong signal not to propose it.
 
-`scripts/extract-commands.sh` is a thin grep helper if you want raw lines;
-parsing into structured data inline is usually fast enough.
+`scripts/extract-commands.sh` is a grep helper for raw lines; parsing inline is
+usually fast enough.
 
 ## Step 4 — filter for safety
 
-This is the load-bearing step. Be conservative: **a false negative (failing to
-propose something safe) costs the user one more prompt; a false positive
-(auto-allowing something destructive) costs them their afternoon.**
+Be conservative. A false negative (failing to propose something safe) costs one
+extra prompt. A false positive (auto-allowing something destructive) can cause
+real damage. Prefer false negatives.
 
 ### Allowlist these (read-only / observational)
 
@@ -137,37 +134,62 @@ propose something safe) costs the user one more prompt; a false positive
 - Anything reading absolute paths outside the current project
   (e.g. `cat /etc/...`)
 
-When in doubt, **don't propose it**. Better to ask one more time than to ship
-a silent shotgun.
+When in doubt, don't propose it.
 
-## Step 5 — generalize to patterns
+## Step 5 — generalize to the narrowest pattern
 
-Don't propose 50 identical `gh pr view 123`, `gh pr view 124` entries. Collapse
-to the agent's native wildcard:
+**Propose the minimally permissive pattern that covers what the user ran.** Keep
+the command literal up to the point where an argument genuinely varies; put the
+wildcard only there. Never widen a pattern past the behavior the transcripts
+show.
 
-| Agent       | Pattern syntax                                              |
-|-------------|-------------------------------------------------------------|
-| Claude Code | `Bash(gh pr view:*)` — the trailing `:*` matches any args   |
-| Codex       | TOML trust scopes; pattern matching is coarser, project-level |
-| Cursor      | shell glob (`gh pr view *`) in the JSON list                |
+### Default: keep the command specific
 
-For Claude Code specifically, group by the leading token(s) of the command:
-- `git status` → `Bash(git status:*)` (covers `git status`, `git status -s`)
-- `npm ls` → `Bash(npm ls:*)`
+If the user ran `uv run test_suite.py`, propose `Bash(uv run test_suite.py)` (or
+`Bash(uv run test_suite.py:*)` to also allow trailing flags on that same
+script). Do **not** propose `Bash(uv run:*)` — that allows `uv run` with any
+script, far beyond the observed behavior.
 
-Some commands can't be generalized by leading token. `cat` is the canonical
-example — `Bash(cat:*)` would match `cat .env`, `cat ~/.ssh/id_rsa`, etc., all
-of which `references/safe-commands.md` Tier 2 says to flag, not auto-allow.
-For these, either propose narrower patterns tied to specific safe paths
-(`Bash(cat README*)`) or drop the candidate entirely.
+| Observed                      | Propose                        | Not              |
+|-------------------------------|--------------------------------|------------------|
+| `git status`, `git status -s` | `Bash(git status:*)`           | `Bash(git:*)`    |
+| `npm ls`                      | `Bash(npm ls)`                 | `Bash(npm:*)`    |
+| `uv run test_suite.py`        | `Bash(uv run test_suite.py:*)` | `Bash(uv run:*)` |
 
-Don't over-broaden. `Bash(*)` is never a valid proposal. `Bash(git:*)` is too
-broad because it includes `git push` and `git reset`.
+### Exception: wildcard where the argument is inherently variable
+
+When the variable part directly follows a fixed command, can't be enumerated,
+and the command is safe for any value, the wildcard is the point:
+
+- `gh pr view 123`, `gh pr view 124`, … → `Bash(gh pr view:*)` (any PR number)
+- `gh issue view 5` → `Bash(gh issue view:*)`
+- `git show <sha>` → `Bash(git show:*)`
+
+Test: is enumerating every value impractical, and is the command safe across all
+of them? If yes, wildcard. If the argument is a fixed script or subcommand, keep
+it literal.
+
+### Pattern syntax per agent
+
+| Agent       | Syntax                                                     |
+|-------------|-----------------------------------------------------------|
+| Claude Code | `Bash(<cmd>)` exact; `Bash(<cmd>:*)` allows trailing args  |
+| Codex       | TOML trust scopes; matching is coarser, project-level     |
+| Cursor      | shell glob (`gh pr view *`) in the JSON list              |
+
+### Never over-broaden
+
+- `Bash(*)` is never a valid proposal.
+- `Bash(git:*)` includes `git push` and `git reset`.
+- `Bash(uv run:*)` allows arbitrary scripts.
+- `Bash(cat:*)` matches `cat .env`, `cat ~/.ssh/id_rsa`. For `cat` and similar,
+  scope to a safe path (`Bash(cat README*)`) or drop the candidate. See
+  `references/safe-commands.md` Tier 2.
 
 ## Step 6 — preview and confirm
 
-Render a clean preview before writing. Group by tier (Allow / Flag for review),
-show the pattern and a one-line "seen N times across M sessions" hint:
+Render a preview before writing. Group by tier (Allow / Flag for review), show
+the pattern and a "seen N times across M sessions" count:
 
 ```
 Proposed additions to ~/.claude/settings.json (user scope)
@@ -183,18 +205,18 @@ Flag for review (you'll be asked each time):
 ```
 
 Use **AskUserQuestion** with multiSelect for the final cut. Default the safe
-tier checked; default the "flag for review" tier unchecked. Always offer an
-"edit list manually" escape hatch.
+tier checked and the "flag for review" tier unchecked. Offer an "edit list
+manually" option.
 
-Confirm scope: **user-level** (applies to all projects, fewer prompts
-everywhere) vs **project-level** (only this repo, safer if patterns are
-project-specific like a custom CLI).
+Confirm scope: **user-level** (all projects, fewer prompts everywhere) vs
+**project-level** (this repo only, safer for project-specific patterns like a
+custom CLI).
 
 ## Step 7 — write the config
 
 Read the existing config, **merge** rather than overwrite, dedupe against
-existing entries, write atomically (temp file then rename). Back up first
-with a timestamp:
+existing entries, write atomically (temp file then rename). Back up first with a
+timestamp:
 
 ```bash
 cp ~/.claude/settings.json ~/.claude/settings.json.bak.$(date +%s)
@@ -222,8 +244,8 @@ namespaced JSON), follow `references/agents.md` for the exact write shape.
 ## Step 8 — report
 
 Print the final diff (added entries, target file, backup path). Tell the user
-they can revert by restoring the backup. Don't re-summarize what they already
-saw in the preview — keep it terse.
+they can revert by restoring the backup. Keep it terse; don't re-summarize the
+preview.
 
 ## Safety rails
 
@@ -235,11 +257,9 @@ saw in the preview — keep it terse.
   `Bash(git:*)`.
 - **Always** back up before writing.
 - If transcripts are sparse (< 3 sessions) or the candidate list is empty,
-  say so and stop. Don't manufacture proposals.
+  say so and stop.
 
 ## See also
 
 - `references/agents.md` — per-agent config paths, schemas, write rules
 - `references/safe-commands.md` — the full safe/unsafe taxonomy used in Step 4
-- Anthropic's bundled `fewer-permission-prompts` skill (Claude Code only) —
-  the inspiration; this one targets whichever agent the user actually has open.

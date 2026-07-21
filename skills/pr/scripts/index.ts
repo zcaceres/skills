@@ -107,8 +107,11 @@ async function canonicalize(p: string): Promise<string> {
 
 // === Subprocess with timeout ===
 
-async function runGit(args: string[], cwd: string): Promise<string | null> {
-  const proc = Bun.spawn(["git", "-C", cwd, ...args], {
+// Run a command in `cwd`, returning stdout on exit 0 or null on any failure
+// (nonzero exit, missing binary, timeout). Used for both git and jj.
+async function runCmd(argv: string[], cwd: string): Promise<string | null> {
+  const proc = Bun.spawn(argv, {
+    cwd,
     stdout: "pipe",
     stderr: "ignore",
   });
@@ -127,6 +130,9 @@ async function runGit(args: string[], cwd: string): Promise<string | null> {
     clearTimeout(timer);
   }
 }
+
+const runGit = (args: string[], cwd: string) => runCmd(["git", ...args], cwd);
+const runJj = (args: string[], cwd: string) => runCmd(["jj", ...args], cwd);
 
 // === Glob matching (gitignore-style) ===
 
@@ -159,12 +165,42 @@ export function isExcluded(path: string): boolean {
 
 // === Diff stats ===
 
+type Vcs = "git" | "jj";
+
 interface DiffStats {
   lines: number;
   files: number;
 }
 
-async function computeDiffStats(repoRoot: string): Promise<DiffStats> {
+// Parse `jj diff --git -r @` (a standard unified diff) into a git-numstat-style
+// stat: added+deleted hunk lines summed, one file per `diff --git` block, with
+// isExcluded applied per path. jj has no untracked concept — new files already
+// live in the working commit `@` and show up here as full-file additions — so
+// there is no separate untracked pass and no per-file line cap.
+export function parseJjDiffStat(gitDiff: string): DiffStats {
+  let lines = 0;
+  let files = 0;
+  let inCountedFile = false;
+
+  for (const line of gitDiff.split("\n")) {
+    if (line.startsWith("diff --git ")) {
+      // Header form: `diff --git a/<old> b/<new>`. Take the b/ path.
+      const m = line.match(/ b\/(.*)$/);
+      const path = m?.[1];
+      inCountedFile = path !== undefined && !isExcluded(path);
+      if (inCountedFile) files += 1;
+      continue;
+    }
+    if (!inCountedFile) continue;
+    // Skip the per-file `--- a/x` / `+++ b/x` headers; count real hunk lines.
+    if (line.startsWith("+++ ") || line.startsWith("--- ")) continue;
+    if (line.startsWith("+") || line.startsWith("-")) lines += 1;
+  }
+
+  return { lines, files };
+}
+
+async function computeGitDiffStats(repoRoot: string): Promise<DiffStats> {
   let lines = 0;
   let files = 0;
 
@@ -204,6 +240,16 @@ async function computeDiffStats(repoRoot: string): Promise<DiffStats> {
   }
 
   return { lines, files };
+}
+
+async function computeDiffStats(repoRoot: string, vcs: Vcs): Promise<DiffStats> {
+  if (vcs === "jj") {
+    // Working-copy commit @ vs its parent: everything uncommitted lives in @.
+    const gitDiff = await runJj(["diff", "--git", "-r", "@"], repoRoot);
+    if (gitDiff === null) return { lines: 0, files: 0 };
+    return parseJjDiffStat(gitDiff);
+  }
+  return computeGitDiffStats(repoRoot);
 }
 
 // === Dedup state ===
@@ -263,17 +309,28 @@ async function main(): Promise<void> {
     if (!input.trim()) return;
     const data = StdinSchema.parse(JSON.parse(input));
 
-    const topRaw = await runGit(["rev-parse", "--show-toplevel"], data.cwd);
-    if (topRaw === null) return;
-    const repoRoot = topRaw.trim();
-    if (!repoRoot) return;
+    // Resolve the repo root + VCS. Try git first so a colocated repo
+    // (both .git and .jj) is driven as git — matching the skill's default
+    // and keeping today's behavior unchanged. Fall back to native jj.
+    let repoRoot = "";
+    let vcs: Vcs = "git";
+    const gitTop = await runGit(["rev-parse", "--show-toplevel"], data.cwd);
+    if (gitTop !== null && gitTop.trim()) {
+      repoRoot = gitTop.trim();
+      vcs = "git";
+    } else {
+      const jjTop = await runJj(["root"], data.cwd);
+      if (jjTop === null || !jjTop.trim()) return;
+      repoRoot = jjTop.trim();
+      vcs = "jj";
+    }
 
     const canonicalHome = await canonicalize(HOME);
     if (repoRoot === canonicalHome) return;
     const canonicalSkips = await Promise.all(SKIP_ROOTS.map(canonicalize));
     if (canonicalSkips.includes(repoRoot)) return;
 
-    const stats = await computeDiffStats(repoRoot);
+    const stats = await computeDiffStats(repoRoot, vcs);
     if (stats.lines < THRESHOLD_LINES && stats.files < THRESHOLD_FILES) return;
 
     const stateFile = stateFileFor(data.hook_event_name);

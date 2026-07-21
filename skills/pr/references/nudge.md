@@ -3,9 +3,10 @@
 A hook that runs after every file-modifying tool call — `PostToolUse`
 (`Edit`, `Write`, `MultiEdit`, `NotebookEdit`) under Claude Code, and
 `AfterTool` (`replace`, `write_file`) under Gemini CLI. It opens the
-current repo, runs `git diff --numstat HEAD` plus a status-porcelain
-pass for untracked files, and — when the uncommitted diff is over the
-line/file thresholds — emits a soft reminder telling the agent to
+current repo, measures the uncommitted diff (on **git** via
+`git diff --numstat HEAD` plus a status-porcelain pass for untracked
+files; on **jj** via `jj diff --git -r @`), and — when the diff is over
+the line/file thresholds — emits a soft reminder telling the agent to
 consider `/pr` to land the slice as a focused PR (a stacked checkpoint
 in stacked mode). The same compiled binary serves both hosts: it reads
 the host's event name from the hook payload, echoes it back in the
@@ -30,7 +31,7 @@ wiring — see Install below) and has no user-facing command surface.
 | Re-fire on +files delta | 3 | (none) |
 | State sweep | 7 days | (none) |
 | Subprocess timeout | 300ms | (none) |
-| Untracked line cap | 2000 per file | (none) |
+| Untracked line cap (git only) | 2000 per file | (none) |
 
 The hook re-fires when either:
 
@@ -180,14 +181,21 @@ On Windows, point at `scripts\\run.cmd` instead.
    (`pr-nudge-{darwin-arm64,linux-x64,windows-x64.exe}`).
 3. The binary reads the JSON hook payload from stdin (`cwd`,
    `session_id`, and — from Gemini — `hook_event_name`).
-4. It resolves the repo root via `git -C <cwd> rev-parse
-   --show-toplevel`. If that fails (not in a repo), the hook exits
-   silently.
+4. It resolves the repo root and VCS: `git rev-parse --show-toplevel`
+   first, then `jj root`. A **colocated** repo (both `.git` and `.jj`)
+   resolves as **git**, so existing behavior is unchanged; a **native
+   jj** repo (no `.git`) resolves as **jj**. If neither answers (not in a
+   repo, or the VCS binary is missing), the hook exits silently.
 5. It skips the hook if `cwd` resolves to the user's home directory or
    to any path in `PR_NUDGE_SKIP_ROOTS`.
-6. It runs `git diff --numstat HEAD` and counts added+deleted lines
-   per file, then `git status --porcelain=v1` to fold in untracked
-   files (capped at 2000 lines per file).
+6. It measures the diff:
+   - **git** — `git diff --numstat HEAD` for added+deleted lines per
+     file, then `git status --porcelain=v1` to fold in untracked files
+     (capped at 2000 lines per file).
+   - **jj** — `jj diff --git -r @` (the working-copy commit vs its
+     parent), counting `+`/`-` hunk lines per file. jj has no untracked
+     state — new files already live in `@` — so there is no separate
+     untracked pass and no per-file line cap on new files.
 7. Files matching `PR_NUDGE_EXCLUDE` globs are dropped from
    both counts.
 8. If `lines < THRESHOLD_LINES` AND `files < THRESHOLD_FILES`, the

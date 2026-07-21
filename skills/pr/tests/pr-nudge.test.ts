@@ -5,6 +5,7 @@ import {
   buildNudgeMessage,
   globToRegex,
   isExcluded,
+  parseJjDiffStat,
   shouldFire,
   stateFileFor,
 } from "../scripts/index";
@@ -99,6 +100,79 @@ describe("shouldFire", () => {
       lastFireFiles: 9,
     };
     expect(shouldFire(recent, { lines: 410, files: 13 })).toBe(true);
+  });
+});
+
+describe("parseJjDiffStat", () => {
+  // Captured verbatim from `jj diff --git -r @` (jj 0.43.0): a modified file,
+  // two additions, plus a binary and a lockfile.
+  const FIXTURE = `diff --git a/blob.bin b/blob.bin
+new file mode 100644
+index 0000000000..4be6a1be2a
+--- /dev/null
++++ b/blob.bin
+@@ -0,0 +1,1 @@
++binarydata
+\\ No newline at end of file
+diff --git a/bun.lock b/bun.lock
+new file mode 100644
+index 0000000000..4b67b6a0d6
+--- /dev/null
++++ b/bun.lock
+@@ -0,0 +1,1 @@
++lock
+diff --git a/keep.txt b/keep.txt
+index f0f2307464..c1dddf2d8d 100644
+--- a/keep.txt
++++ b/keep.txt
+@@ -1,3 +1,4 @@
+ l1
+-l2
++CHANGED
+ l3
++l4
+diff --git a/src/added.ts b/src/added.ts
+new file mode 100644
+index 0000000000..80ce8d9d7d
+--- /dev/null
++++ b/src/added.ts
+@@ -0,0 +1,2 @@
++new1
++new2
+`;
+
+  test("counts +/- hunk lines and files, excluding diff headers", () => {
+    const { lines, files } = parseJjDiffStat(FIXTURE);
+    // keep.txt: -l2 +CHANGED +l4 = 3 lines; src/added.ts: +new1 +new2 = 2;
+    // blob.bin +1. bun.lock is excluded. => 6 lines across 3 files.
+    expect(lines).toBe(6);
+    expect(files).toBe(3);
+  });
+
+  test("does not count the +++/--- file headers as changed lines", () => {
+    const single = `diff --git a/a.txt b/a.txt
+--- a/a.txt
++++ b/a.txt
+@@ -1,1 +1,1 @@
+-old
++new
+`;
+    expect(parseJjDiffStat(single)).toEqual({ lines: 2, files: 1 });
+  });
+
+  test("excluded paths contribute neither lines nor files", () => {
+    const onlyLock = `diff --git a/bun.lock b/bun.lock
+--- a/bun.lock
++++ b/bun.lock
+@@ -1,1 +1,2 @@
+ a
++b
+`;
+    expect(parseJjDiffStat(onlyLock)).toEqual({ lines: 0, files: 0 });
+  });
+
+  test("empty diff is zero", () => {
+    expect(parseJjDiffStat("")).toEqual({ lines: 0, files: 0 });
   });
 });
 

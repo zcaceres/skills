@@ -22,7 +22,7 @@ the full `$ARGUMENTS`. Used as both the commit message and the source
 for the auto-derived branch name. If empty, infer from the diff.
 
 **Draft:** resolve draft intent (**draft** or **ready**) per
-[SKILL.md → Determine draft intent](../SKILL.md). The `gh` fallback path
+[SKILL.md → Determine draft intent](../../SKILL.md). The `gh` fallback path
 publishes eagerly, so it opens the PR with `--draft` when the answer is
 draft. The `git stack` path doesn't publish here at all — drafts are
 applied when you publish the stack with [`/pr submit`](submit.md) (see its
@@ -146,7 +146,7 @@ EOF
 ### 6C. Renumber Stack Title Markers (`gh`-fallback path only)
 
 The `gh`-fallback path (6B) just published a PR, so run the renumber
-routine from [references/title-convention.md](title-convention.md) to give
+routine from [references/title-convention.md](../title-convention.md) to give
 every PR in the stack an up-to-date `[<name> N/M]` marker — adding this
 checkpoint grew `M`, so the siblings' titles need rewriting too.
 

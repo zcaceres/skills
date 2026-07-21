@@ -7,7 +7,7 @@ branch, reopen the child, retarget it to `main`, then delete the
 temporary recreated branch.
 
 This document is referenced from
-[`merge.md`](merge.md). It's not exposed as its own subcommand — call
+[`merge.md`](git/merge.md). It's not exposed as its own subcommand — call
 it manually only when the failure has already happened.
 
 ## Workflow

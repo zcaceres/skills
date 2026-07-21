@@ -77,7 +77,7 @@ subcommand. It only affects PR **creation** — `gh pr create` gets
 `--draft` (or `git stack submit` gets `--draft`) when the answer is
 draft. An explicit per-invocation flag may also flip an *already-open* PR
 (`gh pr ready` / `gh pr ready --undo`); the configured default never does
-— see [update.md](references/update.md).
+— see [update.md](references/git/update.md).
 
 ## Subcommands
 
@@ -85,12 +85,12 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 |---|---|---|
 | `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
 | `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`) and the draft default (`pr.draft`). Global by default. |
-| `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
-| `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
-| `checkpoint [slice description]` | [references/checkpoint.md](references/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
-| `submit [--draft]` | [references/submit.md](references/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack`. |
-| `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
+| `update [base-branch]` | [references/git/update.md](references/git/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
+| `log` | [references/git/log.md](references/git/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/git/merge.md](references/git/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
+| `checkpoint [slice description]` | [references/git/checkpoint.md](references/git/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
+| `submit [--draft]` | [references/git/submit.md](references/git/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack`. |
+| `sync [--no-push]` | [references/git/sync.md](references/git/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
 
 ## Stacked-PR title markers
 
@@ -189,11 +189,11 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
 5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
    this is the **default action**, which depends on the mode:
 
-   - **normal mode** → read [references/update.md](references/update.md)
+   - **normal mode** → read [references/git/update.md](references/git/update.md)
      and follow it. This commits your conversation changes, pushes, and
      opens (or updates) a single PR against the trunk.
 
-   - **stacked mode** → read [references/checkpoint.md](references/checkpoint.md)
+   - **stacked mode** → read [references/git/checkpoint.md](references/git/checkpoint.md)
      and follow it, using the message as the slice description.
 
    `commit` is an explicit, mode-aware alias for this default action — it

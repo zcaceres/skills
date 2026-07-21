@@ -6,9 +6,9 @@ config (a local value always overrides a global one):
 - **mode** (`pr.mode`) — switch between **normal** (default) and
   **stacked**. Controls only what the bare `/pr` (default) action does:
   - **normal** → `/pr` commits your conversation changes, pushes, and
-    opens a single PR against the trunk (see [update.md](update.md)).
+    opens a single PR against the trunk (see [update.md](git/update.md)).
   - **stacked** → `/pr` cuts the current diff as the next branch in a
-    stack and opens a PR against its parent (see [checkpoint.md](checkpoint.md)).
+    stack and opens a PR against its parent (see [checkpoint.md](git/checkpoint.md)).
 - **draft default** (`pr.draft`) — when `true`, every PR this skill
   **creates** is opened as a draft unless the invocation passes
   `--ready`/`--no-draft`. Orthogonal to the mode; applies to both flows.

@@ -41,16 +41,16 @@ Only the bracket prefix is managed; **your real title text is preserved**.
 Markers are applied by the **renumber routine** below, which is run as a
 post-pass at the moment the stack is published or re-published:
 
-- [`/pr submit`](submit.md) — the publish point on the git-stack path.
+- [`/pr submit`](git/submit.md) — the publish point on the git-stack path.
   Checkpoints are built locally and unpublished, so this is where the whole
   stack first gets numbered, and re-numbered on every re-`submit`.
-- [`/pr update`](update.md) — on its stacked (git-stack) path, which
+- [`/pr update`](git/update.md) — on its stacked (git-stack) path, which
   re-publishes the stack.
-- [`/pr checkpoint`](checkpoint.md) — **only** on its `gh`-fallback path,
+- [`/pr checkpoint`](git/checkpoint.md) — **only** on its `gh`-fallback path,
   which still publishes eagerly. The git-stack `checkpoint` is local and
   publishes nothing, so it does not renumber.
 
-It is **not** run by [`/pr merge`](merge.md). As PRs land bottom-up, the
+It is **not** run by [`/pr merge`](git/merge.md). As PRs land bottom-up, the
 surviving labels read stale (`2/4` after the bottom merges) until the next
 `submit` renumbers them. That's a deliberate trade — `merge` stays focused
 on landing the stack, not rewriting titles.

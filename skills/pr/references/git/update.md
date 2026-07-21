@@ -20,7 +20,7 @@ existing base.
 > a new stacked branch rather than updating the current PR.
 
 **Draft:** resolve draft intent (**draft** or **ready**) per
-[SKILL.md → Determine draft intent](../SKILL.md). When **creating** a new
+[SKILL.md → Determine draft intent](../../SKILL.md). When **creating** a new
 PR and the answer is draft, add `--draft` to `gh pr create`. When a PR
 **already exists**, the configured `pr.draft` default leaves it alone —
 only an *explicit* `--draft`/`-d` or `--ready`/`--no-draft` on this
@@ -93,7 +93,7 @@ when draft intent is **draft** so newly created PRs open as drafts (see
 affects PRs it *creates*; already-open PRs are left as-is.
 
 This re-publishes the whole stack, so run the renumber routine from
-[references/title-convention.md](title-convention.md) afterward (the same
+[references/title-convention.md](../title-convention.md) afterward (the same
 post-pass `submit` runs) to keep each PR's `[<name> N/M]` marker current.
 Skip it on the plain `gh` single-PR path below; a lone PR isn't a stack
 and gets no marker.

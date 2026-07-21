@@ -110,7 +110,7 @@ If a branch is on the local stack but has no remote ref yet, mark it
 `(unpushed)` and skip the PR lookup.
 
 Published PR titles carry a `[<name> N/M]` stack marker (see
-[title-convention.md](title-convention.md)). Show it as part of the title
+[title-convention.md](../title-convention.md)). Show it as part of the title
 when you render titles. Locally-built, not-yet-submitted branches have no
 PR (mark them `(unpushed)`). If a title's `N/M` looks stale — e.g. it
 survived a `/pr merge` that didn't relabel — note that `/pr submit` will

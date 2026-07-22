@@ -1,11 +1,13 @@
 ---
 name: cleanup-computer
-description: Interactive file cleanup for Downloads, Desktop, and Documents. Goes file-by-file proposing delete, move, or keep. Use when user says "clean up my computer", "organize my downloads", "help me declutter", "what's in my Downloads", or "file cleanup".
+description: Interactive file cleanup for Downloads, Desktop, and Documents, plus stale git worktree cleanup. Goes item-by-item proposing delete, move, or keep. Use when user says "clean up my computer", "organize my downloads", "help me declutter", "what's in my Downloads", "file cleanup", or "clean up old worktrees".
 ---
 
 # Computer Cleanup Workflow
 
 This skill helps you systematically clean up and organize files in the user's Downloads, Desktop, and Documents folders. It processes files one-by-one, showing each file and proposing an appropriate action: **delete**, **move**, or **keep**.
+
+It also cleans up stale **git worktrees** across the user's repos — finding worktrees that are safe to remove (clean and fully merged) and proposing removal one-by-one. See [Git Worktree Cleanup](#git-worktree-cleanup).
 
 ## When to Use This Skill
 
@@ -150,6 +152,96 @@ When all folders are processed:
 - Provide a final summary of all actions
 - Mention if there are still files remaining (deeper in folders)
 
+## Git Worktree Cleanup
+
+After (or instead of) file cleanup, offer to sweep stale git worktrees. Trigger on "clean up old worktrees", "prune worktrees", or as a follow-up once folders are done: "Want me to also check for stale git worktrees?"
+
+A worktree is a **safe deletion candidate** only when ALL of these hold:
+- It is **not** the main worktree (never remove the primary checkout).
+- It is **not** locked (`locked` absent in porcelain output).
+- Its working tree is **clean** — no uncommitted or untracked changes.
+- Its branch is **fully merged** into the trunk (or its directory is already gone → prunable).
+
+Anything with uncommitted changes, unmerged/unpushed commits, or a lock is **kept** and flagged, not removed.
+
+### 1. Discover repos and worktrees
+
+Worktrees are registered per-repo, so find repos first, then list each one's worktrees. Ask the user for a search root, or default to common dev locations:
+
+```bash
+# Find git repos under common roots (adjust roots to the user's setup)
+for root in ~/projects ~/code ~/src ~/git ~/dev ~/work; do
+  [ -d "$root" ] && find "$root" -maxdepth 3 -type d -name .git -prune 2>/dev/null
+done | sed 's:/\.git$::' | sort -u
+```
+
+For each repo, list its worktrees in machine-readable form:
+
+```bash
+git -C "<repo>" worktree list --porcelain
+```
+
+Porcelain fields per worktree: `worktree <path>`, `HEAD <sha>`, `branch <ref>` (or `detached`), and optionally `bare`, `locked`, `prunable`. The first entry is the main worktree — skip it.
+
+### 2. Classify each linked worktree
+
+For every non-main worktree:
+
+```bash
+wt="<worktree-path>"
+# Clean? (empty output = clean)
+git -C "$wt" status --porcelain
+
+# Branch merged into trunk? (empty output = fully merged, safe)
+# Detect trunk: prefer origin/HEAD, else main, else master
+git -C "$wt" log --oneline <trunk>..HEAD
+```
+
+- `status` empty **and** `log <trunk>..HEAD` empty → **safe candidate**.
+- Marked `prunable` (directory missing) → **safe to prune**.
+- Otherwise → **keep** (report why: dirty, or has N unmerged commits).
+
+### 3. Propose per worktree
+
+Use AskUserQuestion, safe candidates first:
+
+**Safe candidate:**
+```
+Question: "Remove worktree [path]? (branch [name], clean, merged into [trunk])"
+Options:
+- "Remove" - Delete the worktree (branch is kept)
+- "Remove + delete branch" - Also delete the merged branch
+- "Keep" - Leave it in place
+```
+
+**Not safe (report, don't offer removal by default):**
+```
+"[path] has uncommitted changes / N unmerged commits — keeping it. Force-remove anyway?"
+```
+
+### 4. Execute
+
+```bash
+# Safe removal — refuses if dirty, so never pass --force
+git -C "<repo>" worktree remove "<worktree-path>"
+
+# Prune stale registrations (directory already gone)
+git -C "<repo>" worktree prune
+
+# Only if user chose "Remove + delete branch" and it is merged:
+git -C "<repo>" branch -d "<branch>"
+```
+
+Confirm: "Removed worktree [path]."
+
+**Never use `git worktree remove --force`** — it discards uncommitted work irrecoverably, and it is exactly what the "safe candidate" gate exists to prevent. If the user insists on removing a dirty worktree, surface the diff first and require explicit confirmation. `branch -d` (safe, refuses unmerged) not `-D`.
+
+### 5. Cautions specific to worktrees
+
+- The git **stash stack is shared** across all worktrees of a repo. A worktree with no local changes may still hold stashed work — mention this if the branch looks abandoned.
+- A worktree may be **another agent's or session's active workspace**. Prefer worktrees untouched for a while; when unsure, keep.
+- Removing a worktree does **not** delete its branch or commits — those live in the repo. That is why clean+merged removal loses nothing.
+
 ## File Type Decision Guide
 
 ### Usually Safe to Delete
@@ -211,7 +303,7 @@ Claude: Moved Quarterly-Report.pdf to ~/Documents/Reports.
 
 ## Notes
 
-- **ALWAYS use `trash` instead of `rm`, `rm -rf`, or `rm -r` for ALL deletions** — files, directories, caches, everything. This ensures recoverability. The only exceptions are commands that manage their own cleanup (e.g., `npm cache clean --force`, `brew cleanup`).
+- **ALWAYS use `trash` instead of `rm`, `rm -rf`, or `rm -r` for ALL deletions** — files, directories, caches, everything. This ensures recoverability. The only exceptions are commands that manage their own cleanup (e.g., `npm cache clean --force`, `brew cleanup`, and `git worktree remove` for clean+merged worktrees, whose branch and commits survive removal).
 - Always read/analyze file content before suggesting a destination
 - The suggested destination should be the first option presented
 - Include a brief reason why the destination was suggested

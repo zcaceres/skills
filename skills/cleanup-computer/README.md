@@ -1,6 +1,6 @@
 # cleanup-computer
 
-Interactive file cleanup for Downloads, Desktop, and Documents. Goes file-by-file proposing delete, move, or keep. Use when user says 'clean up my computer', 'organize my downloads', 'help me declutter', 'what's in my Downloads', or 'file cleanup'.
+Interactive file cleanup for Downloads, Desktop, and Documents, plus stale git worktree cleanup. Goes item-by-item proposing delete, move, or keep. Use when user says 'clean up my computer', 'organize my downloads', 'help me declutter', 'what's in my Downloads', 'file cleanup', or 'clean up old worktrees'.
 
 ## Layout
 

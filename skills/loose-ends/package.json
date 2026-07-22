@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-loose-ends",
+  "version": "0.0.0",
+  "description": "Surface unaddressed threads from the conversation — bugs mentioned but not fixed, deferred decisions, dropped nits, cross-workstream dependencies, unverified claims, and promised-but-not-done items — as a tight, skimmable report. Reports; never edits code.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

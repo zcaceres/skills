@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-cleanup-computer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Interactive file cleanup for Downloads, Desktop, and Documents, plus stale git worktree cleanup. Goes item-by-item proposing delete, move, or keep. Use when user says 'clean up my computer', 'organize my downloads', 'help me declutter', 'what's in my Downloads', 'file cleanup', or 'clean up old worktrees'.",
   "license": "MIT",
   "type": "module",
@@ -9,5 +9,11 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ]
 }

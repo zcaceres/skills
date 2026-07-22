@@ -28,7 +28,7 @@
     },
     "skills/cleanup-computer": {
       "name": "@zcaceres/skill-cleanup-computer",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/code-tour": {
       "name": "@zcaceres/skill-code-tour",
@@ -44,7 +44,7 @@
     },
     "skills/eli5": {
       "name": "@zcaceres/skill-eli5",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/find-docs": {
       "name": "@zcaceres/skill-find-docs",
@@ -60,7 +60,11 @@
     },
     "skills/laconic": {
       "name": "@zcaceres/skill-laconic",
-      "version": "0.6.0",
+      "version": "0.7.0",
+    },
+    "skills/loose-ends": {
+      "name": "@zcaceres/skill-loose-ends",
+      "version": "0.0.0",
     },
     "skills/memory-insights": {
       "name": "@zcaceres/skill-memory-insights",
@@ -72,7 +76,7 @@
     },
     "skills/optimize-permissions": {
       "name": "@zcaceres/skill-optimize-permissions",
-      "version": "0.0.0",
+      "version": "0.0.1",
     },
     "skills/optimize-skill-activation": {
       "name": "@zcaceres/skill-optimize-skill-activation",
@@ -80,14 +84,14 @@
     },
     "skills/pr": {
       "name": "@zcaceres/skill-pr",
-      "version": "1.2.0",
+      "version": "1.3.1",
       "dependencies": {
         "zod": "^4.4.3",
       },
     },
     "skills/project": {
       "name": "@zcaceres/skill-project",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "skills/quality-chaos-monkey": {
       "name": "@zcaceres/skill-quality-chaos-monkey",
@@ -107,7 +111,7 @@
     },
     "skills/quality-project-health": {
       "name": "@zcaceres/skill-quality-project-health",
-      "version": "0.1.0",
+      "version": "0.1.1",
     },
     "skills/quality-worktree-setup": {
       "name": "@zcaceres/skill-quality-worktree-setup",
@@ -123,7 +127,7 @@
     },
     "skills/review-code": {
       "name": "@zcaceres/skill-review-code",
-      "version": "0.2.0",
+      "version": "0.3.0",
     },
     "skills/safety-dotenv-guard": {
       "name": "@zcaceres/skill-safety-dotenv-guard",
@@ -167,7 +171,7 @@
     },
     "skills/storage-cleanup": {
       "name": "@zcaceres/skill-storage-cleanup",
-      "version": "1.0.0",
+      "version": "1.0.1",
     },
     "skills/test": {
       "name": "@zcaceres/skill-test",
@@ -304,6 +308,8 @@
     "@zcaceres/skill-investigate-repo": ["@zcaceres/skill-investigate-repo@workspace:skills/investigate-repo"],
 
     "@zcaceres/skill-laconic": ["@zcaceres/skill-laconic@workspace:skills/laconic"],
+
+    "@zcaceres/skill-loose-ends": ["@zcaceres/skill-loose-ends@workspace:skills/loose-ends"],
 
     "@zcaceres/skill-memory-insights": ["@zcaceres/skill-memory-insights@workspace:skills/memory-insights"],
 

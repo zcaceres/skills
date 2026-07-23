@@ -1,0 +1,13 @@
+{
+  "name": "@zcaceres/skill-bro",
+  "version": "0.0.0",
+  "description": "Restate the last message in plain human language, with no jargon.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+}

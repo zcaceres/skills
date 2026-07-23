@@ -29,6 +29,7 @@ Install one or more specific skills with `-s <name>`:
 npx skills add zcaceres/skills -s acid-trip
 npx skills add zcaceres/skills -s audit-aws-costs
 npx skills add zcaceres/skills -s audit-memories
+npx skills add zcaceres/skills -s bro
 npx skills add zcaceres/skills -s quality-chaos-monkey
 npx skills add zcaceres/skills -s cleanup-computer
 npx skills add zcaceres/skills -s clean-ai-slop
@@ -114,6 +115,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `acid-trip` | Generate frontend designs from random rolls (Wikipedia × document type × aesthetic lineage). |
 | `audit-aws-costs` | **Slash command.** Read-only audit of an AWS account — sweeps CloudTrail for recent write activity, inventories idle-billing resources, breaks down Cost Explorer spend by service/region, and prints a decision-ready keep/shutdown report. Never modifies anything. |
 | `audit-memories` | Audit an agent's saved memories — inventory by type/age, flag stale/contradictory/redundant/orphaned ones (verified against the repo), then walk keep/update/merge/delete decisions. Curates, never bulk-deletes. |
+| `bro` | **Slash command.** Restate the last message in plain human language — no jargon, simpler, shorter. Credit to [@dillon_mulroy](https://x.com/dillon_mulroy). |
 | `quality-chaos-monkey` | Trace code paths to find bugs, race conditions, and edge cases. |
 | `cleanup-computer` | Interactive file-by-file cleanup of Downloads/Desktop/Documents — delete, move, or keep. |
 | `clean-ai-slop` | Diff the current branch against `main` and strip AI-generated slop — superfluous comments, defensive `try/catch`, `any`-casts, style inconsistent with the file. |

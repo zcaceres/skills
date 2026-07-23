@@ -46,7 +46,7 @@ user `on`.
 | `cadence <N> [scope]` | Fire the per-turn reminder every Nth turn. `1` = every turn (default). |
 | `status` | Print the resolved state, mode, and reminder cadence (project vs user). |
 | `statusline` | For a status line: print a compact badge when on (`◆ laconic-code` in code mode, `◆ laconic` otherwise), nothing when off. |
-| `uninstall [scope]` | Reverse the install for that scope: unwire the `SessionStart` hook, restore the status line, and delete its `laconic.state`. Idempotent. |
+| `uninstall [scope]` | Reverse the install for that scope: unwire both hooks, restore the status line, and delete its `laconic.state` and `laconic.cadence`. Idempotent. |
 
 ### What to do for each command
 
@@ -67,9 +67,9 @@ user `on`.
   After `off`, return to your normal voice.
 - **`uninstall`**: run
   `~/.claude/skills/laconic/scripts/laconic.sh uninstall <--user|--project>` (needs
-  `jq`). It unwires the `SessionStart` hook (backing up `settings.json` first),
+  `jq`). It unwires **both hooks** (backing up `settings.json` first),
   **restores the status line the installer replaced** (from the saved original),
-  and deletes that scope's `laconic.state`. To drop just the badge and keep the
+  and deletes that scope's `laconic.state` and `laconic.cadence`. To drop just the badge and keep the
   voice, run `install.sh`'s counterpart `uninstall.sh --statusline-only`. If it
   warns about a *hand-added* `laconic` reference in a `statusLine` command (one the
   installer didn't manage), tell the user to remove that part by hand. The skill's
@@ -159,6 +159,6 @@ badge into a status line by hand instead of using the wrapper.
 - `scripts/session-start.sh`: the `SessionStart` hook (injects the mode-filtered voice).
 - `scripts/prompt-reminder.sh`: the `UserPromptSubmit` hook (per-turn voice reminder, cadence-gated).
 - `scripts/statusline.sh`: the status-line wrapper (runs the saved original + appends the badge).
-- `scripts/install.sh`: wires the hook + badge into `settings.json` (idempotent, backs up).
-- `scripts/uninstall.sh`: unwires the hook, restores the status line, deletes the state file (idempotent, backs up).
-- `assets/rules.md`: the voice the hook injects.
+- `scripts/install.sh`: wires both hooks + the badge into `settings.json` (idempotent, backs up).
+- `scripts/uninstall.sh`: unwires both hooks, restores the status line, deletes the state and cadence files (idempotent, backs up).
+- `assets/rules.md`: the voice the hooks inject.

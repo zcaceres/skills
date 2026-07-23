@@ -22,6 +22,10 @@
       "name": "@zcaceres/skill-audit-memories",
       "version": "0.1.0",
     },
+    "skills/bro": {
+      "name": "@zcaceres/skill-bro",
+      "version": "0.0.0",
+    },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
       "version": "2.0.0",
@@ -64,7 +68,7 @@
     },
     "skills/loose-ends": {
       "name": "@zcaceres/skill-loose-ends",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/memory-insights": {
       "name": "@zcaceres/skill-memory-insights",
@@ -288,6 +292,8 @@
     "@zcaceres/skill-audit-aws-costs": ["@zcaceres/skill-audit-aws-costs@workspace:skills/audit-aws-costs"],
 
     "@zcaceres/skill-audit-memories": ["@zcaceres/skill-audit-memories@workspace:skills/audit-memories"],
+
+    "@zcaceres/skill-bro": ["@zcaceres/skill-bro@workspace:skills/bro"],
 
     "@zcaceres/skill-clean-ai-slop": ["@zcaceres/skill-clean-ai-slop@workspace:skills/clean-ai-slop"],
 

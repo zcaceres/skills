@@ -1,5 +1,15 @@
 # @zcaceres/skill-laconic
 
+## 0.7.1
+
+### Patch Changes
+
+- 8b8c494: Docs: bring the README in line with the shipped hooks. It only described the
+  `SessionStart` hook, omitting the `UserPromptSubmit` per-turn reminder and the
+  `/laconic cadence <N>` command that have shipped since 0.6.0. Also correct the
+  uninstall description in both README and SKILL.md: it unwires both hooks and
+  deletes `laconic.cadence` alongside `laconic.state`.
+
 ## 0.7.0
 
 ### Minor Changes

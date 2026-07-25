@@ -152,8 +152,22 @@ EOF
 )"
 ```
 
-Existing PRs are left as-is — don't change their base or draft state
-here.
+For any bookmark that **already has** an open PR, verify its base
+matches the stack's current shape and retarget when it doesn't — a
+reordered or re-parented stack self-heals on re-submit, same as
+`git stack submit` does on the git path:
+
+```bash
+if [[ "$PR_BASE" != "$PREV" ]]; then
+  gh pr edit "$PR_NUMBER" --base "$PREV"
+  # Re-read to confirm before touching the next PR
+  gh pr view "$PR_NUMBER" --json baseRefName -q '.baseRefName'   # must print $PREV
+fi
+```
+
+Record every retarget performed — the report (step 7) lists them, so a
+base never moves silently under a reviewer. Draft state of existing PRs
+is never touched here.
 
 ### 6. Renumber Stack Title Markers
 
@@ -165,8 +179,10 @@ rest of the routine is plain `gh` and runs unchanged.
 
 ### 7. Report
 
-Print one line per PR with the title (marker included), URL, and base,
-e.g.:
+Print one line per PR with the title (marker included), URL, and base.
+If step 5 retargeted any existing PR, list each one explicitly
+(`#43 base: main → feat/layer-1`) — reviewers need to know a diff
+changed shape. E.g.:
 
 ```
 #42  [auth 1/3] Add token model        base: main          (bottom)  https://github.com/…/pull/42

@@ -10,6 +10,13 @@ This document is referenced from
 [`merge.md`](merge.md). It's not exposed as its own subcommand — call
 it manually only when the failure has already happened.
 
+> **jj backend:** on a colocated repo, steps 1–5 work verbatim — they're
+> pure remote plumbing. For step 6, don't run `git checkout` /
+> `git rebase` (raw git rewrites fight jj's working-copy model); use
+> `jj rebase -b <child-bookmark> -d 'trunk()'` followed by
+> `jj git push -b <child-bookmark>` instead — no original-parent SHA
+> needed.
+
 ## Workflow
 
 ### 1. Identify the closed child PR

@@ -204,6 +204,11 @@ On Windows, point at `scripts\\run.cmd` instead.
 
 11. Update state with the new fire timestamp/lines/files, then exit 0.
 
+> **jj backend:** a colocated jj repo works unmodified — jj parks git
+> `HEAD` at `@-`, so `git diff --numstat HEAD` sees the working-copy
+> change. A pure (non-colocated) jj repo has no `.git`, so step 4 fails
+> and the hook silently no-ops — by design.
+
 ## Why this exists
 
 Agent PRs are too big. With "accept all" and "auto mode," a single

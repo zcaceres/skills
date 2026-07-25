@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-laconic",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Answer in a spare, plain voice: lead with the point, complete sentences, no filler or hedging. Persisted per project or per user, in prose-only, prose+code, or laconic-code (code-first) mode. A per-turn reminder refocuses the voice mid-session (cadence configurable). Invoke via /laconic (on|off|status|mode|cadence).",
   "license": "MIT",
   "type": "module",

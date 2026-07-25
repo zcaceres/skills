@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [--draft] [args]"
 hooks:
   PostToolUse:
@@ -39,6 +39,30 @@ in both normal and stacked flows.
 
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched
 subcommand's reference file and follow it exactly.
+
+## Determine the backend first
+
+Before anything else, resolve which VCS backend drives the workflow:
+
+```bash
+git config pr.backend 2>/dev/null   # resolves local, then global; empty = unset
+```
+
+- Output `jj` → **jj backend**.
+- Empty AND `.jj/` exists at the repo root
+  (`[ -d "$(git rev-parse --show-toplevel)/.jj" ]`) → **jj backend**
+  (the user colocated by hand).
+- Anything else — including an explicit `git` — → **git backend** (the
+  default).
+
+The backend only changes *which reference file* a workflow subcommand
+reads: on the jj backend, `update`, `log`, `merge`, `checkpoint`,
+`submit`, `sync`, and the default action read `references/jj/<keyword>.md`
+instead of `references/<keyword>.md`, while `setup`,
+`title-convention.md`, and `recovery.md` are shared. Mode and draft
+semantics are identical in both backends. The jj backend is
+**colocated-only** (jj working alongside `.git` in the same checkout) —
+[`/pr setup`](references/setup.md) wires it with `/pr setup jj`.
 
 ## Determine the mode first
 
@@ -147,7 +171,10 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 
 ## Dispatcher
 
-First read the mode (see "Determine the mode first" above).
+First read the backend and the mode (see "Determine the backend first"
+and "Determine the mode first" above). When the backend is **jj**, every
+`references/<keyword>.md` below means `references/jj/<keyword>.md` —
+except `setup`, which is always shared.
 
 **`setup` is exempt from the next step.** If the first non-flag token of
 `$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
@@ -222,5 +249,8 @@ acting. Don't guess at workflow-changing inputs.
   lands PRs into trunk and is irreversible; run it only when the user
   explicitly asks. Never invoke `setup` (it flips the user's mode) on your
   own.
-- If `git stack` is installed and the branch is stacked, prefer its
-  primitives over hand-rolled `gh` loops.
+- (git backend) If `git stack` is installed and the branch is stacked,
+  prefer its primitives over hand-rolled `gh` loops.
+- (jj backend) No extra binary is needed — jj itself is the stack
+  primitive (ancestry replaces `stack-parent` config, one rebase
+  restacks everything).

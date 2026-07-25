@@ -76,10 +76,12 @@ trunk-adjacent base.
 Then for each branch (top down or bottom up, your choice — be
 consistent), gather:
 
-- Tip + parent SHA:
+- Tip + fork point from its parent (`$PARENT` = the previous `STACK`
+  entry, or the trunk for the bottom branch — never `origin/$BRANCH~1`,
+  which is mid-slice for a multi-commit branch):
   ```bash
   git log --oneline -1 "origin/$BRANCH" 2>/dev/null
-  git rev-parse --short "origin/$BRANCH~1" 2>/dev/null
+  git merge-base "origin/$BRANCH" "origin/$PARENT" 2>/dev/null | cut -c1-8
   ```
 - Open PR for the branch:
   ```bash

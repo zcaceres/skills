@@ -149,6 +149,17 @@ what jj last fetched (the `--force-with-lease` equivalent). `-b` also
 tracks a brand-new bookmark automatically; if an older jj (≤ 0.41)
 refuses to create the new remote branch, add `--allow-new`.
 
+Auto-tracking covers **brand-new** bookmarks only — fetched bookmarks
+are never auto-tracked. If `$BRANCH` adopts an existing remote branch
+(a local bookmark created on top of a fetched `<name>@origin`, e.g. a
+teammate's branch), this push fails with
+`Non-tracking remote bookmark <name>@origin exists`. Track the remote
+bookmark, then re-run the push:
+
+```bash
+jj bookmark track "${BRANCH}@origin"
+```
+
 Never push `@` (the working-copy commit) and never use `--change` — push
 the named bookmark only.
 

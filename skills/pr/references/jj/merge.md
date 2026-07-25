@@ -220,10 +220,14 @@ Print:
 - Which PRs merged (URLs)
 - Which child PRs were retargeted to trunk
 - For `--rebase`/`--squash`: that the surviving stack was restacked and
-  re-pushed, and which bookmarks were dropped as landed
-- A note that landed bookmarks are already cleaned up locally (jj
-  deletes a bookmark with its abandoned commit) — no `git branch -D`
-  chore
+  re-pushed, and which bookmarks were dropped as landed — those are
+  already cleaned up locally (jj deletes a bookmark with its abandoned
+  commit); no `git branch -D` chore
+- For `--merge`: nothing is abandoned, so each landed bookmark survives
+  locally unless the repo auto-deletes merged branches (in which case
+  `jj git fetch` already removed it). Check `jj bookmark list` and
+  suggest `jj bookmark delete <name>` for any landed bookmarks that
+  remain — local cleanup only; never push the deletion (see below)
 
 ## Important
 

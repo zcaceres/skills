@@ -13,9 +13,11 @@ it manually only when the failure has already happened.
 > **jj backend:** on a colocated repo, steps 1–5 work verbatim — they're
 > pure remote plumbing. For step 6, don't run `git checkout` /
 > `git rebase` (raw git rewrites fight jj's working-copy model); use
-> `jj rebase -b <child-bookmark> -d 'trunk()'` followed by
-> `jj git push -b <child-bookmark>` instead — no original-parent SHA
-> needed.
+> `jj rebase -b <child-bookmark> -d 'trunk()' --skip-emptied` followed
+> by `jj git push -b <child-bookmark>` instead — no original-parent SHA
+> needed. `--skip-emptied` abandons the child's copies of the landed
+> parent commits (empty after the rebase) so they don't reappear on the
+> reopened PR.
 
 ## Workflow
 

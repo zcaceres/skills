@@ -80,13 +80,17 @@ done
 
 `STACK` is ordered bottom (trunk-adjacent) → top.
 
-For each branch, record its tip + parent SHA (used later for the
-rebase-onto-main path):
+Record every branch's **pre-rebase tip** (used later for the
+rebase-onto-main path — a branch's rebase boundary is its *parent
+branch's* recorded tip, never `origin/$B~1`, which silently points
+mid-slice when a branch carries more than one commit):
 
 ```bash
+TIPS=""
 for B in "${STACK[@]}"; do
-  echo "$B: tip=$(git rev-parse --short "origin/$B") parent=$(git rev-parse --short "origin/$B~1")"
+  TIPS+="$B $(git rev-parse "origin/$B")"$'\n'
 done
+printf '%s' "$TIPS"
 ```
 
 ### 2. Detect `git stack`
@@ -219,23 +223,29 @@ gh pr merge "$PR_NUMBER" --rebase   # or --squash
 git fetch origin "$TRUNK"
 ```
 
-Then, for **each remaining branch** in `STACK[1..]` (top-down or
-bottom-up, but be consistent), retarget + rebase onto trunk + force-push:
+Then, for **each remaining branch** in `STACK[1..]` (bottom-up), retarget
++ rebase onto trunk + force-push. The rebase boundary is the **parent
+branch's pre-rebase tip** from the `TIPS` map recorded in step 1 — that's
+the last commit belonging to the PR below, correct even when a slice
+carries several commits:
 
 ```bash
+PREV="${STACK[0]}"   # the branch below NEXT, walking up
 for NEXT in "${STACK[@]:1}"; do
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
-  ORIG_PARENT_SHA=$(git rev-parse "origin/$NEXT~1")  # recorded pre-rebase
+  BOUNDARY=$(printf '%s' "$TIPS" | awk -v b="$PREV" '$1 == b { print $2 }')
 
   # 1. Retarget to trunk
   gh pr edit "$NEXT_PR" --base "$TRUNK"
 
   # 2. Rebase only this PR's unique commits onto the new trunk
   git fetch origin "$TRUNK"
-  git rebase --onto "origin/$TRUNK" "$ORIG_PARENT_SHA" "origin/$NEXT"
+  git rebase --onto "origin/$TRUNK" "$BOUNDARY" "origin/$NEXT"
 
   # 3. Force-push the rebased branch
   git push --force-with-lease origin "HEAD:refs/heads/$NEXT"
+
+  PREV="$NEXT"
 done
 ```
 
@@ -280,8 +290,11 @@ Print:
   survivors' labels read stale (`3/4` after the bottom merges) until the
   next `/pr submit` renumbers them — that's intentional, so merging stays
   focused on landing the stack.
-- For `--rebase`/`--squash`: keep the original (pre-rebase) parent
-  SHAs handy — they're the seed for `git rebase --onto`.
+- For `--rebase`/`--squash`: keep the original (pre-rebase) branch tips
+  (the step-1 `TIPS` map) handy — a branch's `git rebase --onto` boundary
+  is its parent branch's recorded tip. Never seed it from
+  `origin/$B~1`: that assumes one commit per branch and rebases the
+  wrong range otherwise.
 - If anything goes wrong, **stop**. The recovery path
   ([recovery.md](recovery.md)) covers the most common failure mode
   (`--delete-branch` auto-closing a child PR).

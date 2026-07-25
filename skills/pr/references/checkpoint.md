@@ -108,10 +108,15 @@ PARENT_BRANCH=$(git branch --show-current)
 
 Generate a branch name from the commit message or the slice description
 (slugified, e.g. `feat/add-user-repository`). Create and switch to the
-new branch:
+new branch, then record the parent relationship — this mirrors what
+`git stack create` writes, and it's what `log`/`sync`/`merge`/the
+renumber routine walk to see the stack (without it they all see a
+one-branch stack):
 
 ```bash
 git checkout -b <new-branch-name>
+git config "branch.<new-branch-name>.stack-parent" "$PARENT_BRANCH"
+git config "branch.<new-branch-name>.gh-merge-base" "$PARENT_BRANCH"
 ```
 
 Commit:

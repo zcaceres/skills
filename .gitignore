@@ -18,3 +18,6 @@ skills/*/*.tgz
 # Personal skill-install artifacts (from `npx skills add`) and settings backups
 skills-lock.json
 *.bak.*
+
+# Generated review/plan artifacts (e.g. /review writes per-bug docs here)
+artifacts/

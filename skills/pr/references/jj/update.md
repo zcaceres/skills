@@ -1,9 +1,10 @@
 # `/pr update` (jj) — Commit, Push, and Update Current PR
 
 Commit only the changes made in this conversation, push them, and open a
-PR if one doesn't exist. Stack-aware: hands off to [submit.md](submit.md)
-when the working copy sits on a stack. **Preserves the existing base
-branch** on PRs that are already open.
+PR if one doesn't exist. Stack-aware: commits first, then hands off to
+[submit.md](submit.md) for the push/PR half when the working copy sits
+on a stack. **Preserves the existing base branch** on PRs that are
+already open.
 
 > **This is the normal-mode default.** In normal mode, bare `/pr` (or
 > `/pr "a short description"`) runs this workflow — commit your work,
@@ -85,17 +86,6 @@ BRANCH=$(jj log -r 'heads(::@ & bookmarks())' --no-graph \
   bookmark yet; you'll create one in step 4.
 - Otherwise `$BRANCH` is the bookmark whose PR this run updates.
 
-**Stack check:** if the stack range holds two or more bookmarks —
-
-```bash
-jj log -r 'trunk()..@ & bookmarks()' --no-graph \
-  -T 'local_bookmarks.map(|b| b.name()).join(" ") ++ "\n"'
-```
-
-— the working copy sits on a stack. Don't update a single PR; follow
-[submit.md](submit.md) instead (push the whole stack, then renumber),
-exactly like the git path hands off to `git stack submit`.
-
 ### 4. Commit
 
 Generate a concise commit message based on what you accomplished. Commit
@@ -114,10 +104,13 @@ EOF
 Then put the bookmark on the new commit (`@-`):
 
 - **No feature bookmark yet** (from step 3) — create one, named from the
-  commit message (slugified, e.g. `feat/add-user-repository`):
+  commit message (slugified, e.g. `feat/add-user-repository`), and
+  reassign `$BRANCH` to it so steps 5–6 push and open the PR against the
+  new bookmark, not the trunk:
 
   ```bash
   jj bookmark create <bookmark-name> -r @-
+  BRANCH=<bookmark-name>
   ```
 
 - **Bookmark exists** — advance it. Bookmarks never auto-advance in jj:
@@ -129,7 +122,23 @@ Then put the bookmark on the new commit (`@-`):
   Always pass `--to` — its default is `@`, the (usually empty)
   working-copy commit.
 
-### 5. Push
+### 5. Push — Stack-Aware
+
+**Stack check:** if the stack range holds two or more bookmarks —
+
+```bash
+jj log -r 'trunk()..@ & bookmarks()' --no-graph \
+  -T 'local_bookmarks.map(|b| b.name()).join(" ") ++ "\n"'
+```
+
+— the working copy sits on a stack. Step 4 has already folded this
+conversation's changes into `$BRANCH` (the top slice); don't push and
+update a single PR from here. Follow [submit.md](submit.md) for the
+rest (push the whole stack, then renumber) instead of this step and
+step 6 — exactly like the git path commits first, then hands off to
+`git stack submit`.
+
+**Otherwise** — push the single bookmark:
 
 ```bash
 jj git push -b "$BRANCH"

@@ -108,12 +108,12 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | Subcommand | Reference | What it does |
 |---|---|---|
 | `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
-| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`) and the draft default (`pr.draft`). Global by default. |
+| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`), the draft default (`pr.draft`), and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
 | `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
 | `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
 | `checkpoint [slice description]` | [references/checkpoint.md](references/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
-| `submit [--draft]` | [references/submit.md](references/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack`. |
+| `submit [--draft]` | [references/submit.md](references/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
 | `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
 
 ## Stacked-PR title markers

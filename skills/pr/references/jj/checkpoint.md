@@ -86,6 +86,11 @@ jj diff -r @  --summary    # what stayed behind in the working copy
 If the split is wrong, `jj undo` reverses it — cheap now, expensive
 after the next checkpoint stacks on top.
 
+This verify is **mandatory**, not optional: `jj commit` with a path
+that matches no file only warns and still exits 0, committing an
+**empty** change and leaving the real diff behind in the working copy
+— an empty `jj diff -r @- --summary` is that failure, not success.
+
 ### 4. Bookmark the Slice
 
 The bookmark is the branch GitHub will see — one bookmark per PR:

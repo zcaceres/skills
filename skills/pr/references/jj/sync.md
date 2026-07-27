@@ -31,7 +31,10 @@ jj bookmark list --conflicted
 
 If either prints anything, surface it and stop (`jj resolve` for
 conflicts; `jj bookmark move <name> --to <rev>`, with `-B` if backwards,
-for divergence).
+for divergence). After resolving a divergence, check for a leftover
+**divergent change id** (two visible commits sharing one id, rendered
+`<id>/0`, `<id>/1`): `jj abandon` the stale twin, or revsets naming
+that change id start erroring with "Change ID is divergent".
 
 ### 2. Fetch + Restack
 
@@ -65,7 +68,11 @@ jj bookmark delete <landed-name>   # local cleanup only
 `--delete-branch` in disguise and can auto-close child PRs (see
 [recovery.md](../recovery.md)). The step-4 push (`-r 'trunk()..@'`)
 excludes the trunk tip, so the stale bookmark is never pushed by
-accident.
+accident. Note that jj itself advertises the banned command: after a
+local delete of a tracked bookmark, `jj bookmark list` prints a hint
+suggesting `jj git push --deleted`. Ignore it; to clear the lingering
+`(deleted)` tracking entries locally, use `jj bookmark forget <name>`
+— it drops the tracking state without touching the remote branch.
 
 ### 3. Conflict Check
 
@@ -80,6 +87,14 @@ If this prints anything, report exactly which changes conflict, point
 the user at `jj st` on the conflicted change and `jj resolve`, and stop
 **before pushing** (push refuses conflicted commits anyway). Never
 auto-resolve.
+
+**After the user resolves, re-anchor the working copy.** The resolve
+flow jj's own hint prescribes (`jj new <conflicted>` → fix →
+`jj squash`) leaves `@` parked mid-stack, and a mid-stack `@` silently
+truncates every `trunk()..@` derivation — higher slices vanish from the
+stack, the guards, and the title renumbering. Abandon the leftover
+empty working-copy commit if needed and run `jj new <top-bookmark>`
+before re-running any workflow step.
 
 ### 4. Push (unless `--no-push`)
 

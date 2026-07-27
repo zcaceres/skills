@@ -147,6 +147,22 @@ else
 fi
 ```
 
+### jj backend
+
+On the jj backend there is no `stack-parent` config — the stack is
+ancestry. Replace steps 1–2 of the routine with:
+
+```bash
+# Stack bottom -> top; trunk()..@ already excludes the trunk itself.
+STACK=($(jj log -r 'trunk()..@ & bookmarks()' --no-graph --reversed \
+  -T 'local_bookmarks.map(|b| b.name()).join(" ") ++ "\n"'))
+```
+
+Steps 3–5 are plain `gh` + git config and run unchanged: colocated repos
+expose bookmarks as git branches, so `git log -1 --format=%s "$BOTTOM"`
+and the `branch.<bottom>.stack-label` lookup both work as written — the
+"bottom branch" is `${STACK[0]}`.
+
 ## Naming the stack
 
 The name is resolved in this order:

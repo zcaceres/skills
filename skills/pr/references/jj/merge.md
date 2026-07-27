@@ -1,40 +1,13 @@
 # `/pr merge` (jj) — Land the PR(s)
 
-This is the jj-backend variant of [merge.md](../merge.md). The GitHub
+This is the jj-backend variant of [merge.md](../git/merge.md). The GitHub
 side — bottom-up merging, retarget verification, the strategy table — is
 identical; what disappears is the local SHA bookkeeping (change IDs are
 stable across rewrites) and the per-branch rebase dance.
 
-## Mode
-
-- **normal mode** → merge the current bookmark's single PR. No stack
-  bookkeeping needed. Resolve the bookmark (colocated git `HEAD` is
-  detached, so `gh` can't infer the branch):
-
-  ```bash
-  BRANCH=$(jj log -r 'heads(::@ & bookmarks())' --no-graph \
-    -T 'local_bookmarks.map(|b| b.name()).join(" ")')
-  PR=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number')
-  ```
-
-  If there's no open PR, tell the user and stop. Otherwise merge with the
-  user's chosen strategy (default `--merge`; `--rebase`/`--squash` if they
-  asked):
-
-  ```bash
-  gh pr merge "$PR" --merge   # or --rebase / --squash
-  ```
-
-  Do **not** pass `--delete-branch` unless the user explicitly asks. Report
-  the merged PR URL, then stop — the rest of this file is the stacked-mode
-  workflow.
-
-- **stacked mode** → land the whole stack bottom-up (continue below).
-
-## Stacked-mode workflow
-
 Merge the stack bottom-up, one PR at a time, with retarget verification
-between each step.
+between each step. A single change on top of trunk is just a one-item
+stack — the same workflow lands its lone PR with no retargeting to do.
 
 **Strategy matters.** Each one has different implications for stacked
 PRs:
@@ -54,6 +27,8 @@ PRs:
 - `--all` — keep merging until the stack is empty. Without this,
   merges one PR (the bottom of the stack) and stops.
 - `--dry-run` — print the plan without merging anything.
+
+## Workflow
 
 ### 1. Pre-flight
 

@@ -6,12 +6,12 @@ PR if one doesn't exist. Stack-aware: commits first, then hands off to
 on a stack. **Preserves the existing base branch** on PRs that are
 already open.
 
-> **This is the normal-mode default.** In normal mode, bare `/pr` (or
-> `/pr "a short description"`) runs this workflow — commit your work,
-> push, and open/update a single PR against the trunk. A description
-> passed with no subcommand seeds the commit message / PR title.
+> **This is the single-branch flow.** Bare `/pr` checkpoints a new
+> stacked change instead — use `update` when the work belongs on the
+> *current* bookmark's PR (amending a slice, follow-up commits, or a
+> repo where you're not stacking).
 
-This is the jj-backend variant of [update.md](../update.md). The "branch"
+This is the jj-backend variant of [update.md](../git/update.md). The "branch"
 is a jj **bookmark**; there is no staging area — explicit paths passed to
 `jj commit` are the staging discipline.
 

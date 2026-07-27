@@ -4,7 +4,7 @@ Fetch the trunk (`main` / `master`) and rebase the whole stack onto the
 updated tip. Use after the trunk has moved (a sibling PR merged) and you
 need the stack to absorb those changes before continuing.
 
-This is the jj-backend variant of [sync.md](../sync.md), and it's where
+This is the jj-backend variant of [sync.md](../git/sync.md), and it's where
 jj collapses the most work: one `jj rebase` moves the entire stack, every
 bookmark follows its rewritten commit automatically, and there is no
 per-branch checkout/rebase/push loop.

@@ -119,6 +119,17 @@ create a new remote branch, add `--allow-new`. Push safety is built in —
 jj updates each remote branch only if it still matches what jj last
 fetched.
 
+Auto-tracking covers **brand-new** bookmarks only — fetched bookmarks
+are never auto-tracked. If any slice adopts an existing remote branch
+(a local bookmark created on top of a fetched `<name>@origin`, e.g. a
+teammate's branch), the push — and the dry-run — fail with
+`Non-tracking remote bookmark <name>@origin exists`. Track that
+bookmark, then re-run:
+
+```bash
+jj bookmark track "<name>@origin"
+```
+
 ### 5. Open PRs Bottom-Up
 
 Resolve draft intent (**draft** or **ready**) per

@@ -24,7 +24,7 @@ default affects PR creation only; a per-invocation `--draft`/`-d` or
 
 ## What the user asked to change
 
-`/pr setup` manages both settings. Figure out which the invocation
+`/pr setup` manages three settings. Figure out which the invocation
 targets, then only touch that one:
 
 - Mode words → `normal`, `stacked` (e.g. `/pr setup stacked`).

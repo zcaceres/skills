@@ -1,5 +1,5 @@
 ---
-"pr": patch
+"@zcaceres/skill-pr": patch
 ---
 
 Harden the jj backend references against 11 failure modes surfaced by live

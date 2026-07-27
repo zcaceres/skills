@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs. Two modes — normal (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked turns the same command into a stacked-PR workflow (checkpoint slices, submit, sync, bottom-up merge). Toggle with /pr setup. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and open/refresh a single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [--draft] [args]"
 hooks:
   PostToolUse:
@@ -15,25 +15,17 @@ hooks:
 
 # PR — One Skill
 
-Commit your work and open a pull request with `/pr`. The skill has two
-modes:
+Commit your work and ship it as stacked PRs with `/pr`. Each bare `/pr`
+slices the current diff onto a new branch stacked on the last one;
+subcommands push the whole stack (`submit`), rebase it onto trunk
+(`sync`), and merge it bottom-up (`merge`). `/pr update` covers the
+single-branch case — commit and refresh the current branch's PR.
 
-- **normal** (default) — commit the changes you made in this conversation,
-  push, and open a single PR against the trunk (`main`/`master`). This is
-  the everyday "ship my work" flow.
-- **stacked** — the same command becomes a stacked-PR workflow: each `/pr`
-  slices the current diff onto a new branch stacked on the last one, plus
-  subcommands to push the whole stack, rebase onto trunk, and merge
-  bottom-up.
-
-Normal mode is the default. Stacked mode is opt-in — see
-[`/pr setup`](references/setup.md).
-
-Independently of the mode, any PR this skill **creates** can be a
-**draft**: pass `--draft` (or `-d`) on the invocation, or make drafts the
-default everywhere with [`/pr setup`](references/setup.md) (writes
-`git config pr.draft true`). Draft and mode are orthogonal — drafts work
-in both normal and stacked flows.
+Any PR this skill **creates** can be a **draft**: pass `--draft` (or
+`-d`) on the invocation, or make drafts the default everywhere with
+[`/pr setup`](references/setup.md) (writes `git config pr.draft true`).
+Draft is orthogonal to everything else — it works on every subcommand
+that creates a PR.
 
 **Usage:** `/pr [subcommand] [args]`
 
@@ -56,28 +48,13 @@ git config pr.backend 2>/dev/null   # resolves local, then global; empty = unset
   default).
 
 The backend only changes *which reference file* a workflow subcommand
-reads: on the jj backend, `update`, `log`, `merge`, `checkpoint`,
-`submit`, `sync`, and the default action read `references/jj/<keyword>.md`
-instead of `references/<keyword>.md`, while `setup`,
-`title-convention.md`, and `recovery.md` are shared. Mode and draft
-semantics are identical in both backends. The jj backend is
-**colocated-only** (jj working alongside `.git` in the same checkout) —
+reads: `update`, `log`, `merge`, `checkpoint`, `submit`, `sync`, and the
+default action read `references/git/<keyword>.md` on the git backend and
+`references/jj/<keyword>.md` on the jj backend, while `setup`,
+`title-convention.md`, and `recovery.md` are shared. Draft semantics are
+identical in both backends. The jj backend is **colocated-only** (jj
+working alongside `.git` in the same checkout) —
 [`/pr setup`](references/setup.md) wires it with `/pr setup jj`.
-
-## Determine the mode first
-
-Before dispatching, read the active mode:
-
-```bash
-git config pr.mode 2>/dev/null   # resolves local, then global; empty = unset
-```
-
-- Output `stacked` → **stacked mode**.
-- Output `normal`, empty, or anything else → **normal mode** (the default).
-
-Mode only changes what the **default** action (bare `/pr` or a
-description with no subcommand) does. Every *named* subcommand works in
-either mode — the user asked for it by name, so honor it.
 
 ## Determine draft intent
 
@@ -101,20 +78,20 @@ subcommand. It only affects PR **creation** — `gh pr create` gets
 `--draft` (or `git stack submit` gets `--draft`) when the answer is
 draft. An explicit per-invocation flag may also flip an *already-open* PR
 (`gh pr ready` / `gh pr ready --undo`); the configured default never does
-— see [update.md](references/update.md).
+— see [update.md](references/git/update.md).
 
 ## Subcommands
 
 | Subcommand | Reference | What it does |
 |---|---|---|
-| `commit [message]` | (alias) | Run the **default action** for the active mode — `update` in normal mode, `checkpoint` in stacked mode. The everyday "ship my work" verb; identical to bare `/pr`. |
-| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the mode (`normal` ↔ `stacked`, `git config pr.mode`), the draft default (`pr.draft`), and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
-| `update [base-branch]` | [references/update.md](references/update.md) | Commit + push + update the current branch's PR (or open one if missing). Doesn't change an existing PR's base. **This is the normal-mode default.** |
-| `log` | [references/log.md](references/log.md) | Read-only. In stacked mode print the stack tree; in normal mode list the current branch's PR (falls back to `gh pr list`). |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/merge.md](references/merge.md) | In normal mode merge the current branch's single PR. In stacked mode land the stack bottom-up with retarget verification. |
-| `checkpoint [slice description]` | [references/checkpoint.md](references/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the stacked-mode default.** |
-| `submit [--draft]` | [references/submit.md](references/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
-| `sync [--no-push]` | [references/sync.md](references/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. Stacked workflow. |
+| `commit [message]` | (alias) | Alias for the **default action** — `checkpoint`, with the message as the slice description. The everyday "ship my work" verb; identical to bare `/pr`. |
+| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
+| `update [base-branch]` | [references/git/update.md](references/git/update.md) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
+| `log` | [references/git/log.md](references/git/log.md) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/git/merge.md](references/git/merge.md) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
+| `checkpoint [slice description]` | [references/git/checkpoint.md](references/git/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
+| `submit [--draft]` | [references/git/submit.md](references/git/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
+| `sync [--no-push]` | [references/git/sync.md](references/git/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. |
 
 ## Stacked-PR title markers
 
@@ -134,7 +111,7 @@ format and the renumber routine.
 A diff-size nudge hook is shipped with this skill. It fires after every
 file-modifying tool call and nudges toward `/pr` when the uncommitted
 diff crosses size/file thresholds — so you land a focused PR (a stacked
-checkpoint in stacked mode) before the diff grows unwieldy. The same hook
+checkpoint) before the diff grows unwieldy. The same hook
 binary runs under **Claude Code** (`PostToolUse`;
 `Edit`/`Write`/`MultiEdit`/`NotebookEdit`) and **Gemini CLI**
 (`AfterTool`; `replace`/`write_file`) — it reads the host's event name
@@ -171,10 +148,11 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 
 ## Dispatcher
 
-First read the backend and the mode (see "Determine the backend first"
-and "Determine the mode first" above). When the backend is **jj**, every
-`references/<keyword>.md` below means `references/jj/<keyword>.md` —
-except `setup`, which is always shared.
+First read the backend (see "Determine the backend first" above). Every
+`references/<backend>/<keyword>.md` below means
+`references/git/<keyword>.md` on the git backend and
+`references/jj/<keyword>.md` on the jj backend — `setup` is always
+shared.
 
 **`setup` is exempt from the next step.** If the first non-flag token of
 `$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
@@ -195,47 +173,31 @@ to the default/named action with draft intent set. After stripping them,
 parse the first remaining whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is `setup`** → read [references/setup.md](references/setup.md)
-   and follow it. This is how the user switches modes.
+   and follow it. This is how the user changes the persistent settings.
 
-2. **First token is `update`, `log`, or `merge`** → read
-   `references/<keyword>.md`, then follow its workflow with the remaining
-   `$ARGUMENTS` as that subcommand's arguments. These work in both modes;
-   each reference has a mode-specific path.
+2. **First token is `update`, `log`, `merge`, `checkpoint`, `submit`, or
+   `sync`** → read `references/<backend>/<keyword>.md`, then follow its
+   workflow with the remaining `$ARGUMENTS` as that subcommand's
+   arguments.
 
-3. **First token is `checkpoint`, `submit`, or `sync`** (stacked
-   operations) → read `references/<keyword>.md` and follow it with the
-   remaining `$ARGUMENTS`. These run regardless of mode — an explicit
-   keyword is explicit intent. If the mode is not `stacked`, add a
-   one-line note: "(You're in normal mode — `/pr setup` makes `/pr`
-   default to stacked operations.)"
-
-4. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
+3. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
    print this subcommand list and stop. (Draft flags were already
    stripped in the pre-parse step, so they never land here.)
 
-5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
-   this is the **default action**, which depends on the mode:
+4. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
+   the **default action**: read `references/<backend>/checkpoint.md` and
+   follow it, using the message as the slice description.
 
-   - **normal mode** → read [references/update.md](references/update.md)
-     and follow it. This commits your conversation changes, pushes, and
-     opens (or updates) a single PR against the trunk.
+   When the first token is literally `commit`, strip it and pass the
+   *remaining* `$ARGUMENTS` as the slice description. For any other
+   non-keyword first token, the *full* `$ARGUMENTS` string seeds the
+   slice description.
 
-   - **stacked mode** → read [references/checkpoint.md](references/checkpoint.md)
-     and follow it, using the message as the slice description.
-
-   `commit` is an explicit, mode-aware alias for this default action — it
-   is **not** hard-wired to `checkpoint`, so it never forces stacked
-   behavior on a normal-mode user. When the first token is literally
-   `commit`, strip it and pass the *remaining* `$ARGUMENTS` as the commit
-   message / slice description. For any other non-keyword first token, the
-   *full* `$ARGUMENTS` string seeds the commit message / PR title.
-
-   So in normal mode `/pr` ≡ `/pr commit` ≡ `/pr update`, and in stacked
-   mode `/pr` ≡ `/pr commit` ≡ `/pr checkpoint` — no need to type the
+   So `/pr` ≡ `/pr commit` ≡ `/pr checkpoint` — no need to type the
    keyword for the everyday action.
 
-If the agent is unsure which mode the user wants — e.g. the first token
-is ambiguous between a subcommand and a description — ask the user before
+If the agent is unsure what the user wants — e.g. the first token is
+ambiguous between a subcommand and a description — ask the user before
 acting. Don't guess at workflow-changing inputs.
 
 ## Important — applies to every subcommand
@@ -247,8 +209,8 @@ acting. Don't guess at workflow-changing inputs.
   user): `checkpoint`, `commit`, `update`, and `submit` are fair game at a
   logical seam — that's the point of being agent-callable. But `merge`
   lands PRs into trunk and is irreversible; run it only when the user
-  explicitly asks. Never invoke `setup` (it flips the user's mode) on your
-  own.
+  explicitly asks. Never invoke `setup` (it flips the user's persistent
+  settings) on your own.
 - (git backend) If `git stack` is installed and the branch is stacked,
   prefer its primitives over hand-rolled `gh` loops.
 - (jj backend) No extra binary is needed — jj itself is the stack

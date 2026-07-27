@@ -2,36 +2,16 @@
 
 Read-only. Show the open PR(s) for your current work.
 
-This is the jj-backend variant of [log.md](../log.md). The stack is
+This is the jj-backend variant of [log.md](../git/log.md). The stack is
 derived from ancestry (`trunk()..@`), not from
 `branch.<name>.stack-parent` config, and `jj log` renders the tree
 natively.
 
-## Mode
-
-- **normal mode** → just the current bookmark's PR. Resolve the bookmark
-  first — the colocated git `HEAD` is detached, so `gh` can't infer the
-  branch:
-
-  ```bash
-  BRANCH=$(jj log -r 'heads(::@ & bookmarks())' --no-graph \
-    -T 'local_bookmarks.map(|b| b.name()).join(" ")')
-  gh pr list --head "$BRANCH" --state all \
-    --json number,state,baseRefName,url,title -q '.[0]'
-  ```
-
-  (`gh pr status` works as a broader fallback when `$BRANCH` is empty.)
-
-  Print the PR number, state, base, title, and URL. If there's no PR for
-  the bookmark yet, say so and suggest `/pr` to open one. Stop here — the
-  rest of this file is the stacked-mode view.
-
-- **stacked mode** → the full stack tree (continue below).
-
-## Stacked-mode workflow
+## Workflow
 
 Print the current stack's structure, each bookmark's PR (if open), each
-PR's base, and each PR's state (open/merged/closed).
+PR's base, and each PR's state (open/merged/closed). A single change on
+top of trunk is just a one-item stack — the same view shows its lone PR.
 
 ### 1. Render the Local Tree
 

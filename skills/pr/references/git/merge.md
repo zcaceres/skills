@@ -1,34 +1,10 @@
 # `/pr merge` — Land the PR(s)
 
-## Mode
-
-- **normal mode** → merge the current branch's single PR. No stack
-  bookkeeping needed:
-
-  ```bash
-  PR=$(gh pr view --json number -q .number 2>/dev/null \
-       || gh pr list --head "$(git branch --show-current)" --state open --json number -q '.[0].number')
-  ```
-
-  If there's no open PR, tell the user and stop. Otherwise merge with the
-  user's chosen strategy (default `--merge`; `--rebase`/`--squash` if they
-  asked):
-
-  ```bash
-  gh pr merge "$PR" --merge   # or --rebase / --squash
-  ```
-
-  Do **not** pass `--delete-branch` unless the user explicitly asks. Report
-  the merged PR URL, then stop — the rest of this file is the stacked-mode
-  workflow.
-
-- **stacked mode** → land the whole stack bottom-up (continue below).
-
-## Stacked-mode workflow
-
 Merge the stack bottom-up, one PR at a time, with retarget verification
 between each step. Uses `git stack merge` when installed; otherwise
-walks the stack manually via `gh pr merge` + base retargeting.
+walks the stack manually via `gh pr merge` + base retargeting. A branch
+with no recorded parent is just a one-branch stack — the same workflow
+lands its single PR with no retargeting to do.
 
 **Strategy matters.** Each one has different implications for stacked
 PRs:
@@ -280,13 +256,13 @@ Print:
 
 - **Never** pass `--delete-branch` to `gh pr merge`. Deleting a base
   branch can auto-close child PRs irrecoverably. See
-  [recovery.md](recovery.md) if this already happened.
+  [recovery.md](../recovery.md) if this already happened.
 - **Always** verify each child's `baseRefName` is `$TRUNK` (detected
   in step 4B as `main` or `master`) before merging the next PR. Don't
   trust auto-retarget — it's a repo setting that may not be on.
 - Merge **bottom-up**. Top-down is never correct for stacks.
 - This subcommand does **not** rewrite the `[<name> N/M]` title markers
-  (see [title-convention.md](title-convention.md)). As PRs land, the
+  (see [title-convention.md](../title-convention.md)). As PRs land, the
   survivors' labels read stale (`3/4` after the bottom merges) until the
   next `/pr submit` renumbers them — that's intentional, so merging stays
   focused on landing the stack.
@@ -296,5 +272,5 @@ Print:
   `origin/$B~1`: that assumes one commit per branch and rebases the
   wrong range otherwise.
 - If anything goes wrong, **stop**. The recovery path
-  ([recovery.md](recovery.md)) covers the most common failure mode
+  ([recovery.md](../recovery.md)) covers the most common failure mode
   (`--delete-branch` auto-closing a child PR).

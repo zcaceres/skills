@@ -8,7 +8,7 @@ the finished stack reaches GitHub as one coherent set rather than a
 trickle of partial PRs. Idempotent — safe to re-run after rebases or
 after adding more checkpoints.
 
-This is the jj-backend variant of [submit.md](../submit.md). It needs no
+This is the jj-backend variant of [submit.md](../git/submit.md). It needs no
 extra tool: jj pushes the stack natively (with built-in
 force-with-lease-style safety), and the PR loop is plain `gh`.
 

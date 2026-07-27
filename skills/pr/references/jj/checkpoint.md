@@ -76,6 +76,16 @@ The named paths become the committed change (now `@-`); everything else
 stays behind in the fresh working-copy commit (`@`). Never run a bare
 `jj commit` while the working copy holds unrelated changes.
 
+Verify the carve before building on it:
+
+```bash
+jj diff -r @- --summary    # the new slice — exactly your named files?
+jj diff -r @  --summary    # what stayed behind in the working copy
+```
+
+If the split is wrong, `jj undo` reverses it — cheap now, expensive
+after the next checkpoint stacks on top.
+
 ### 4. Bookmark the Slice
 
 The bookmark is the branch GitHub will see — one bookmark per PR:

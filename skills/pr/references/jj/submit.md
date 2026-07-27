@@ -44,7 +44,7 @@ Stop here.
 
 ### 2. Guards
 
-All four must come back clean before anything is pushed:
+All five must come back clean before anything is pushed:
 
 ```bash
 # Conflicted commits in the stack — jj records conflicts instead of
@@ -58,17 +58,36 @@ jj bookmark list --conflicted
 # Non-empty commits with no description — jj git push refuses these.
 jj log -r 'trunk()..@ ~ empty() & description("")'
 
-# Non-empty work above the top bookmark — a slice that was never
-# checkpointed, or a bookmark that wasn't moved after an amend.
-jj log -r '(heads(trunk()..@ & bookmarks()))..@ ~ empty()'
+# Committed slices with no bookmark — a hand jj split / jj new left a
+# change that can't become a PR and would silently fold into the next
+# bookmark's diff.
+jj log -r 'trunk()..@- ~ bookmarks() ~ empty()'
+
+# Non-empty work in the working copy itself — in-progress changes that
+# won't be published.
+jj log -r '@ ~ empty()'
 ```
 
 If the first three print anything, surface it and stop (`jj resolve` for
 conflicts; `jj bookmark move <name> --to <rev>` for divergence — with
-`-B` if the move is backwards; `jj describe` for missing messages). If
-the fourth prints anything, warn: that work won't be published — the user
-likely forgot a `/pr checkpoint` or a `jj bookmark move <name> --to @-`.
-Ask before continuing without it.
+`-B` if the move is backwards; `jj describe` for missing messages).
+
+For each **bookmark-less committed slice** (fourth guard), create a
+bookmark so it publishes as its own PR — slug from its description, same
+convention as [checkpoint](checkpoint.md):
+
+```bash
+jj bookmark create <slug> -r <change-id>
+```
+
+If you can't infer a good name from the description, ask the user.
+Then re-derive `STACK` (step 1) so the new bookmark takes its place. If
+the user instead wants the change folded into the slice above it, that's
+a `jj squash --into <bookmark>` — confirm before rewriting.
+
+If the **working copy** (fifth guard) is non-empty, warn: that work won't
+be published — the user likely forgot a `/pr checkpoint`. Ask before
+continuing without it.
 
 ### 3. Pre-flight: Fetch + Show the Stack
 

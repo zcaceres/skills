@@ -51,6 +51,26 @@ jj log -r 'trunk()..@ | trunk()' --limit 10
 Verify your identified files match what `jj st` shows in the working
 copy.
 
+Then run the push guards. This workflow pushes in step 5, and both
+checks must come back clean **before** committing — step 4's
+`jj bookmark move` erases the divergence signal, and a recorded
+conflict only surfaces as a push error after the bookmark has already
+moved:
+
+```bash
+# Recorded conflicts — jj never halts on conflicts, so one can sit in
+# history after an earlier rebase or sync. Push refuses them.
+jj log -r 'trunk()..@ & conflicts()'
+
+# Divergent bookmarks (local and remote positions disagree, rendered
+# as name??).
+jj bookmark list --conflicted
+```
+
+If either prints anything, surface it and stop (`jj resolve` for
+conflicts; `jj bookmark move <name> --to <rev>`, with `-B` if
+backwards, for divergence).
+
 ### 3. Resolve the Branch Bookmark
 
 The current "branch" is the nearest bookmarked ancestor of the working
@@ -178,6 +198,9 @@ EOF
 - NEVER run a bare `jj commit` with no paths while unrelated changes are
   in the working copy — pass explicit files.
 - If unsure which files you changed, ASK the user.
+- Never push with the step 2 guards unresolved — a recorded conflict
+  fails only at push time, and step 4's bookmark move erases the
+  divergence (`name??`) signal.
 - Report the PR URL when done — note "(draft)" if it was opened as one.
 - When a PR already exists, do not change its base branch — it may be
   part of a stack. Only an explicit `--draft`/`--ready` flag flips its

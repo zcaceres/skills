@@ -61,8 +61,11 @@ survive git-stack's own title handling.
 
 ## The renumber routine
 
-Self-contained. Run it verbatim (or adapt the `gh` lookups to run in
-parallel — correctness matters more than speed here).
+Self-contained. **Run it with `bash`** — write it to a file and run
+`bash <file>` (or `bash -c '…'`). It relies on bash's 0-indexed arrays;
+under zsh (1-indexed) `${STACK[0]}` is empty and the PR/title arrays
+misalign, corrupting every marker written. Adapting the `gh` lookups to
+run in parallel is fine — correctness matters more than speed here.
 
 ```bash
 strip_marker() {

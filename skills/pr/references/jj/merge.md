@@ -100,6 +100,11 @@ Refuse to proceed if:
 gh pr merge "$PR_NUMBER" --merge
 ```
 
+> Colocated note: `gh pr merge` may print `could not determine current
+> branch: failed to run git: not on any branch` — colocated git `HEAD`
+> is detached by design. The merge itself lands; confirm with
+> `gh pr view "$PR_NUMBER" --json state`.
+
 Do **NOT** use `--delete-branch`. Then verify the next child PR (if
 any) was retargeted — GitHub auto-retarget is a repo setting, not the
 default:
@@ -108,15 +113,21 @@ default:
 NEXT="${STACK[1]}"
 if [[ -n "$NEXT" ]]; then
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    gh pr edit "$NEXT_PR" --base "$TRUNK"
-  fi
-  # Re-read to confirm
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
-    exit 1
+  if [[ -z "$NEXT_PR" ]]; then
+    # Unpublished slice (checkpointed, not yet submitted) — no PR to
+    # retarget. Normal under deferred publishing; continue.
+    echo "No open PR for $NEXT — unpublished slice, nothing to retarget"
+  else
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      gh pr edit "$NEXT_PR" --base "$TRUNK"
+    fi
+    # Re-read to confirm
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
+      exit 1
+    fi
   fi
 fi
 ```
@@ -158,6 +169,21 @@ jj log -r 'trunk()..@ & conflicts()'   # stop before pushing if anything prints
 jj git push -r 'trunk()..@'
 ```
 
+If the landed slice held **more than one commit**, expect the conflict
+check to fire: `--skip-emptied` abandons only commits whose rebased
+diff becomes empty, and a multi-commit slice's intermediate commits
+never individually match the squashed trunk content — the first one
+records an add/add-style conflict instead of emptying. The conflict is
+phantom: the slice's full content already landed. Abandon **all of the
+landed slice's commits** (never a surviving slice's) and the survivors
+reparent cleanly; then re-check and push:
+
+```bash
+jj abandon <landed-change-id> <landed-change-id-2> ...
+jj log -r 'trunk()..@ & conflicts()'   # must be silent now
+jj git push -r 'trunk()..@'
+```
+
 (As in [sync.md](sync.md) step 4, `-r` only updates bookmarks that
 already exist on origin — a never-pushed bookmark, i.e. a slice
 checkpointed but not yet submitted, is skipped with a
@@ -183,6 +209,12 @@ just drops each newly landed slice.
 > auto-close child PRs. (The `-r 'trunk()..@'` push above pushes only
 > surviving bookmarks and never propagates deletions.) See
 > [recovery.md](../recovery.md) if it already happened.
+>
+> jj itself **advertises the banned command**: after a local delete of a
+> tracked bookmark, `jj bookmark list` prints a hint suggesting
+> `jj git push --deleted`. Ignore it. To clear the lingering
+> `(deleted)` tracking entries locally, use `jj bookmark forget <name>`
+> — it drops the tracking state without touching the remote branch.
 
 #### After each merge
 

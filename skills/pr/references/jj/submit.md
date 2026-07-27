@@ -58,10 +58,11 @@ jj bookmark list --conflicted
 # Non-empty commits with no description — jj git push refuses these.
 jj log -r 'trunk()..@ ~ empty() & description("")'
 
-# Committed slices with no bookmark — a hand jj split / jj new left a
-# change that can't become a PR and would silently fold into the next
-# bookmark's diff.
-jj log -r 'trunk()..@- ~ bookmarks() ~ empty()'
+# Committed slices above the topmost bookmark — a hand jj split /
+# jj new left changes that belong to no PR. (Bookmark-less commits
+# *below* a bookmark are fine — they publish inside that bookmark's
+# PR, so don't flag them.)
+jj log -r 'heads(trunk()..@ & bookmarks())..@- ~ empty()'
 
 # Non-empty work in the working copy itself — in-progress changes that
 # won't be published.
@@ -71,6 +72,18 @@ jj log -r '@ ~ empty()'
 If the first three print anything, surface it and stop (`jj resolve` for
 conflicts; `jj bookmark move <name> --to <rev>` for divergence — with
 `-B` if the move is backwards; `jj describe` for missing messages).
+After resolving a divergence, check for a leftover **divergent change
+id** (two visible commits sharing one id, rendered `<id>/0`, `<id>/1`):
+`jj abandon` the stale twin, or revsets naming that change id start
+erroring with "Change ID is divergent".
+
+**After any conflict resolution, re-anchor the working copy.** The
+resolve flow jj's own hint prescribes (`jj new <conflicted>` → fix →
+`jj squash`) leaves `@` parked mid-stack, and a mid-stack `@` silently
+truncates every `trunk()..@` derivation — higher slices vanish from
+the stack, the guards, and the title renumbering. Abandon the leftover
+empty working-copy commit if needed and run `jj new <top-bookmark>`
+before re-deriving `STACK`.
 
 For each **bookmark-less committed slice** (fourth guard), create a
 bookmark so it publishes as its own PR — slug from its description, same
@@ -97,11 +110,26 @@ jj bookmark list --conflicted
 jj log -r 'trunk()..@ | trunk()'
 ```
 
-A teammate's push to a stack branch shows up after the fetch as a
-conflicted (`name??`) bookmark — that's the drift signal (the jj
-equivalent of a failed `--force-with-lease`). If any bookmark is
-conflicted, pause and ask how to reconcile before overwriting their
-work. Show the user the stack tree.
+A teammate's push to a stack branch shows up after the fetch in one of
+two ways:
+
+- **Divergent** (`name??`) — both sides moved the bookmark. The jj
+  equivalent of a failed `--force-with-lease`. Pause and ask how to
+  reconcile before overwriting their work.
+- **Silently fast-forwarded** — if the local bookmark still matched the
+  remote, the fetch advances it onto the teammate's commit, *off the
+  working copy's ancestry*: no `??`, and the slice drops out of the
+  `STACK` derivation. Detect it after every fetch:
+
+  ```bash
+  jj log -r '(trunk().. & bookmarks()) ~ ::@'   # stack bookmarks not in @'s ancestry
+  ```
+
+  If it prints a stack bookmark, rebase the slices above it back on
+  top (`jj rebase -s <next-slice-change> -d <bookmark>`), then
+  re-derive `STACK` (step 1).
+
+Show the user the stack tree.
 
 ### 4. Push the Whole Stack
 

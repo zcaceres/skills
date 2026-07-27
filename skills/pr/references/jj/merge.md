@@ -178,22 +178,35 @@ Strategy A) **before** rewriting anything locally. Then restack:
 ```bash
 jj git fetch
 jj rebase -d 'trunk()' --skip-emptied
+jj bookmark delete "$BOTTOM"           # landed slice's bookmark — local only
 jj log -r 'trunk()..@ & conflicts()'   # stop before pushing if anything prints
 jj git push -r 'trunk()..@'
 ```
 
-One `jj rebase` restacks *all* surviving changes at once — the landed
-slice's local commits become empty, are abandoned by `--skip-emptied`,
-and **their bookmark is deleted locally with them**. That's expected;
-report it. (On an older jj that leaves the bookmark behind, delete it
-locally with `jj bookmark delete <name>`.) With `--all`, later
-iterations' rebase is a near-no-op that just drops each newly landed
-slice.
+(As in [sync.md](sync.md) step 4, `-r` only updates bookmarks that
+already exist on origin — a never-pushed bookmark, i.e. a slice
+checkpointed but not yet submitted, is skipped with a
+`Refusing to create new remote bookmark` warning. Expected, not a
+failure; don't publish it with `-b`.)
 
-> **Never push bookmark deletions.** After `--skip-emptied` removes a
-> landed slice's local bookmark, `jj git push --deleted` (or
-> `-b <that-name>`) would delete the **remote** branch — which is
-> `--delete-branch` in disguise and can auto-close child PRs. See
+One `jj rebase` restacks *all* surviving changes at once — the landed
+slice's local commits become empty and are abandoned by
+`--skip-emptied`. Their bookmark is **not** deleted with them: the
+rebase's implicit abandon moves it to the abandoned commit's parent —
+the new trunk tip (only a standalone `jj abandon` deletes bookmarks).
+Left there it shadows trunk in every `bookmarks()`-based revset (e.g.
+`$BRANCH` resolution starts returning two space-joined names), so the
+`jj bookmark delete` above removes it immediately — report the cleanup.
+If the repo auto-deletes merged branches, the fetch may have already
+removed the bookmark; a "no such bookmark" error there is fine to
+ignore. With `--all`, later iterations' rebase is a near-no-op that
+just drops each newly landed slice.
+
+> **Never push bookmark deletions.** After the `jj bookmark delete`
+> above, `jj git push --deleted` (or `-b <that-name>`) would delete the
+> **remote** branch — which is `--delete-branch` in disguise and can
+> auto-close child PRs. (The `-r 'trunk()..@'` push above pushes only
+> surviving bookmarks and never propagates deletions.) See
 > [recovery.md](../recovery.md) if it already happened.
 
 #### After each merge
@@ -220,9 +233,9 @@ Print:
 - Which PRs merged (URLs)
 - Which child PRs were retargeted to trunk
 - For `--rebase`/`--squash`: that the surviving stack was restacked and
-  re-pushed, and which bookmarks were dropped as landed — those are
-  already cleaned up locally (jj deletes a bookmark with its abandoned
-  commit); no `git branch -D` chore
+  re-pushed, and which landed bookmarks the loop's `jj bookmark delete`
+  cleaned up locally (the rebase's abandon parks a bookmark on the new
+  trunk tip rather than deleting it); no `git branch -D` chore
 - For `--merge`: nothing is abandoned, so each landed bookmark survives
   locally unless the repo auto-deletes merged branches (in which case
   `jj git fetch` already removed it). Check `jj bookmark list` and

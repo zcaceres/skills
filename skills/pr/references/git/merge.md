@@ -164,15 +164,24 @@ default:
 NEXT="${STACK[1]}"
 if [[ -n "$NEXT" ]]; then
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    gh pr edit "$NEXT_PR" --base "$TRUNK"
-  fi
-  # Re-read to confirm
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
-    exit 1
+  if [[ -z "$NEXT_PR" ]]; then
+    # Unpublished slice (checkpointed, not yet submitted) — no PR to
+    # retarget. Normal under deferred publishing; continue. Never fall
+    # through with an empty $NEXT_PR: `gh pr view ""` silently resolves
+    # to the *current branch's* PR and would verify (or retarget) the
+    # wrong one.
+    echo "No open PR for $NEXT — unpublished slice, nothing to retarget"
+  else
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      gh pr edit "$NEXT_PR" --base "$TRUNK"
+    fi
+    # Re-read to confirm
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
+      exit 1
+    fi
   fi
 fi
 ```
@@ -211,8 +220,12 @@ for NEXT in "${STACK[@]:1}"; do
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
   BOUNDARY=$(printf '%s' "$TIPS" | awk -v b="$PREV" '$1 == b { print $2 }')
 
-  # 1. Retarget to trunk
-  gh pr edit "$NEXT_PR" --base "$TRUNK"
+  # 1. Retarget to trunk — but only if this slice has a PR. An
+  #    unpublished slice still needs the rebase below to stay stacked;
+  #    `gh pr edit ""` would retarget the *current branch's* PR instead.
+  if [[ -n "$NEXT_PR" ]]; then
+    gh pr edit "$NEXT_PR" --base "$TRUNK"
+  fi
 
   # 2. Rebase only this PR's unique commits onto the new trunk
   git fetch origin "$TRUNK"

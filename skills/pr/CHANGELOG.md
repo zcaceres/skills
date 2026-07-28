@@ -1,5 +1,45 @@
 # @zcaceres/skill-pr
 
+## 2.0.0
+
+### Major Changes
+
+- 76adea5: Make stacked PRs the only mode and mirror the backends in the file tree. The `pr.mode` setting and "normal mode" are gone: bare `/pr` (and `/pr commit`) always checkpoints the current diff as the next stacked branch, and `/pr setup` now manages only the draft default and the backend. The single-PR flow survives as the explicit `/pr update` subcommand, and `log`/`merge` treat an unstacked branch as a one-branch stack. The git workflow docs moved from `references/` into `references/git/`, mirroring `references/jj/`, so each backend has its own directory (`setup.md`, `nudge.md`, `recovery.md`, and `title-convention.md` stay shared at the top level).
+
+  Breaking: an existing `git config pr.mode normal` is ignored — bare `/pr` now checkpoints instead of updating a single PR. Use `/pr update` for that flow.
+
+### Minor Changes
+
+- baff0ba: Activate the opt-in Jujutsu (jj) backend. The dispatcher resolves `git config pr.backend` (falling back to `.jj/` auto-detection) before the mode and routes workflow subcommands to the `references/jj/` docs; `/pr setup jj` bootstraps a colocated repo (`jj git init --colocate`) and writes the local `pr.backend` key, `/pr setup git` switches back. git stays the default backend and the git docs are unchanged.
+
+### Patch Changes
+
+- d56597c: Fix two reproduced bugs in the gh-fallback stacked docs: checkpoint's 6B path now records `branch.<name>.stack-parent` / `gh-merge-base` (without it, log/sync/merge/renumber all saw a one-branch stack), and merge/log stop seeding rebase boundaries and fork points from `origin/$B~1` — which is mid-slice for any multi-commit branch — in favor of recorded pre-rebase parent tips and `git merge-base`.
+- 50caec3: Guard the git-backend merge retarget blocks against unpublished slices:
+  with no open PR for the next slice, `gh pr view ""` / `gh pr edit ""`
+  silently resolve to the current branch's PR, falsely verifying — or
+  retargeting — the wrong PR. Mirrors the jj-backend fix.
+- 3409103: Harden the jj backend references against 11 failure modes surfaced by live
+  stacked-PR exercising: guard the merge retarget block against unpublished
+  slices, document the phantom conflict after squash-merging a multi-commit
+  slice (and its `jj abandon` remedy), scope the submit bookmark-less-slice
+  guard to commits above the topmost bookmark, document silent fast-forward
+  drift and its detection revset, note lingering divergent change ids, require
+  bash for the renumber routine (zsh corrupts markers), warn that jj's own
+  hint advertises the banned `jj git push --deleted` (use `jj bookmark forget`),
+  guard `$BRANCH` resolution against multi-bookmark commits, re-anchor `@` on
+  the stack top after conflict resolution, note the benign detached-HEAD
+  warning from `gh pr merge`, and mark the checkpoint carve-verify as mandatory
+  (a typo'd path commits an empty slice with exit 0).
+- b1b3340: Correct the jj bookmark lifecycle in merge and sync: a rebase's `--skip-emptied` abandon does not delete the landed slice's bookmark (jj 0.43 parks it on the trunk tip, where it corrupts `bookmarks()`-based branch resolution) — merge's Strategy B now deletes it explicitly before pushing, sync documents the same cleanup, and both explain the `Refusing to create new remote bookmark` warning for never-pushed slices (expected: checkpoints stay local until submit).
+- ca60abf: Document adopting an existing remote branch in the jj update and submit workflows: fetched bookmarks are never auto-tracked, so `jj git push -b` fails with `Non-tracking remote bookmark <name>@origin exists` until `jj bookmark track <name>@origin` imports it.
+- b1b988f: Harden the jj docs: checkpoint verifies the carve (`jj diff -r @-/-r @ --summary`, `jj undo` recovery) before bookmarking, and submit gains a bookmark-completeness guard — bookmark-less committed slices get a named bookmark (or a confirmed `jj squash`) instead of silently folding into the next PR's diff.
+- bf67583: Add jj-backend reference docs for the everyday verbs (checkpoint, update, log) under `references/jj/`. Not yet routed — the dispatcher still reads the git docs; activation lands with the backend-routing slice.
+- 808edd9: Add jj-backend reference docs for the publish/land verbs (submit, sync, merge) and jj notes in the shared docs (title-convention stack derivation, recovery, nudge). Still inert — routing activates in the backend-routing slice.
+- 2b20664: Apply three confirmed review findings to the jj docs: update gains the conflict/divergence push guard in step 2 (before the commit, since the bookmark move erases the divergence signal), merge's report conditions local bookmark cleanup by strategy (default --merge leaves bookmarks behind), and recovery's jj rebase adds --skip-emptied so stale empty parent commits don't land on the reopened PR.
+- 576326f: Second review pass on the jj backend: update's new-bookmark path reassigns `$BRANCH` after `jj bookmark create` (the push and PR creation previously targeted the trunk, or an empty name), the stack handoff to submit moves after the commit so the conversation's changes land on the top slice first, and stale prose is corrected (SKILL.md submit row now says the jj backend needs no extra binary; setup manages three settings).
+- 28bf8c5: jj submit now self-heals PR bases: for each existing PR whose base disagrees with the stack's current shape it runs `gh pr edit --base`, verifies the retarget, and lists every base move in the report — matching `git stack submit`'s behavior on the git path. Draft state of existing PRs stays untouched.
+
 ## 1.3.1
 
 ### Patch Changes

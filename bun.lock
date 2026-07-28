@@ -24,7 +24,7 @@
     },
     "skills/bro": {
       "name": "@zcaceres/skill-bro",
-      "version": "0.0.0",
+      "version": "1.0.0",
     },
     "skills/clean-ai-slop": {
       "name": "@zcaceres/skill-clean-ai-slop",
@@ -64,7 +64,7 @@
     },
     "skills/laconic": {
       "name": "@zcaceres/skill-laconic",
-      "version": "0.7.0",
+      "version": "0.7.2",
     },
     "skills/loose-ends": {
       "name": "@zcaceres/skill-loose-ends",
@@ -171,6 +171,10 @@
     },
     "skills/security-socket": {
       "name": "@zcaceres/skill-security-socket",
+      "version": "0.0.0",
+    },
+    "skills/ste100": {
+      "name": "@zcaceres/skill-ste100",
       "version": "0.0.0",
     },
     "skills/storage-cleanup": {
@@ -366,6 +370,8 @@
     "@zcaceres/skill-security-snyk": ["@zcaceres/skill-security-snyk@workspace:skills/security-snyk"],
 
     "@zcaceres/skill-security-socket": ["@zcaceres/skill-security-socket@workspace:skills/security-socket"],
+
+    "@zcaceres/skill-ste100": ["@zcaceres/skill-ste100@workspace:skills/ste100"],
 
     "@zcaceres/skill-storage-cleanup": ["@zcaceres/skill-storage-cleanup@workspace:skills/storage-cleanup"],
 

@@ -1,0 +1,19 @@
+{
+  "name": "@zcaceres/skill-ste100",
+  "version": "0.0.0",
+  "description": "Write in ASD-STE100 Simplified Technical English. One word for one thing, active voice, simple tenses, short sentences, one instruction per sentence. Persisted per project or per user. A per-turn reminder refocuses the rules mid-session (cadence configurable). Invoke via /ste100 (on|off|status|cadence).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "bun test"
+  },
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ]
+}

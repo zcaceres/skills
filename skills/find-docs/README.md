@@ -23,7 +23,7 @@ Context7 requires Node.js 18 or newer. You can run it on demand without
 installing anything globally:
 
 ```bash
-npx ctx7@latest --version
+npx --yes ctx7@latest --version
 ```
 
 The skill invokes the Context7 CLI directly, so you do not need to run
@@ -36,7 +36,7 @@ Context7 works anonymously with lower rate limits. To authenticate for higher
 limits, log in:
 
 ```bash
-npx ctx7@latest login
+npx --yes ctx7@latest login
 ```
 
 Alternatively, provide an API key through your environment:
@@ -52,5 +52,5 @@ Do not commit API keys or other credentials to your repository.
 Run a library search to confirm Context7 is available:
 
 ```bash
-npx ctx7@latest library react "How does useEffect cleanup work?"
+npx --yes ctx7@latest library react "How does useEffect cleanup work?"
 ```

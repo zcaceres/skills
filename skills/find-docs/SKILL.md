@@ -7,16 +7,18 @@ description: Retrieve authoritative, up-to-date documentation, API references, c
 
 Retrieve current documentation and code examples for any library using the Context7 CLI.
 
-Make sure the CLI is up to date before running commands:
+Run the latest CLI on demand. `--yes` prevents an interactive package-install
+prompt from blocking the agent:
+
+```bash
+npx --yes ctx7@latest <command>
+```
+
+Users who prefer a global installation can install the same version separately,
+but all commands below use the installation-free form:
 
 ```bash
 npm install -g ctx7@latest
-```
-
-Or run directly without installing:
-
-```bash
-npx ctx7@latest <command>
 ```
 
 ## Workflow
@@ -25,13 +27,13 @@ Two-step process: resolve the library name to an ID, then query docs with that I
 
 ```bash
 # Step 1: Resolve library ID
-ctx7 library <name> <query>
+npx --yes ctx7@latest library <name> <query>
 
 # Step 2: Query documentation
-ctx7 docs <libraryId> <query>
+npx --yes ctx7@latest docs <libraryId> <query>
 ```
 
-You MUST call `ctx7 library` first to obtain a valid library ID UNLESS the user explicitly provides a library ID in the format `/org/project` or `/org/project/version`.
+You MUST call `npx --yes ctx7@latest library` first to obtain a valid library ID UNLESS the user explicitly provides a library ID in the format `/org/project` or `/org/project/version`.
 
 IMPORTANT: Do not run these commands more than 3 times per question. If you cannot find what you need after 3 attempts, use the best result you have.
 
@@ -40,9 +42,9 @@ IMPORTANT: Do not run these commands more than 3 times per question. If you cann
 Resolves a package/product name to a Context7-compatible library ID and returns matching libraries.
 
 ```bash
-ctx7 library react "How to clean up useEffect with async operations"
-ctx7 library nextjs "How to set up app router with middleware"
-ctx7 library prisma "How to define one-to-many relations with cascade delete"
+npx --yes ctx7@latest library react "How to clean up useEffect with async operations"
+npx --yes ctx7@latest library nextjs "How to set up app router with middleware"
+npx --yes ctx7@latest library prisma "How to define one-to-many relations with cascade delete"
 ```
 
 Always pass a `query` argument — it is required and directly affects result ranking. Use the user's intent to form the query, which helps disambiguate when multiple libraries share a similar name. Do not include any sensitive or confidential information such as API keys, passwords, credentials, personal data, or proprietary code in your query.
@@ -78,22 +80,22 @@ If the user mentions a specific version, use a version-specific library ID:
 
 ```bash
 # General (latest indexed)
-ctx7 docs /vercel/next.js "How to set up app router"
+npx --yes ctx7@latest docs /vercel/next.js "How to set up app router"
 
 # Version-specific
-ctx7 docs /vercel/next.js/v14.3.0-canary.87 "How to set up app router"
+npx --yes ctx7@latest docs /vercel/next.js/v14.3.0-canary.87 "How to set up app router"
 ```
 
-The available versions are listed in the `ctx7 library` output. Use the closest match to what the user specified.
+The available versions are listed in the `npx --yes ctx7@latest library` output. Use the closest match to what the user specified.
 
 ## Step 2: Query Documentation
 
 Retrieves up-to-date documentation and code examples for the resolved library.
 
 ```bash
-ctx7 docs /facebook/react "How to clean up useEffect with async operations"
-ctx7 docs /vercel/next.js "How to add authentication middleware to app router"
-ctx7 docs /prisma/prisma "How to define one-to-many relations with cascade delete"
+npx --yes ctx7@latest docs /facebook/react "How to clean up useEffect with async operations"
+npx --yes ctx7@latest docs /vercel/next.js "How to add authentication middleware to app router"
+npx --yes ctx7@latest docs /prisma/prisma "How to define one-to-many relations with cascade delete"
 ```
 
 ### Writing good queries
@@ -120,14 +122,14 @@ Works without authentication. For higher rate limits:
 export CONTEXT7_API_KEY=your_key
 
 # Option B: OAuth login
-ctx7 login
+npx --yes ctx7@latest login
 ```
 
 ## Error Handling
 
 If a command fails with a quota error ("Monthly quota reached" or "quota exceeded"):
 1. Inform the user their Context7 quota is exhausted
-2. Suggest they authenticate for higher limits: `ctx7 login`
+2. Suggest they authenticate for higher limits: `npx --yes ctx7@latest login`
 3. If they cannot or choose not to authenticate, answer from training knowledge and clearly note it may be outdated
 
 Do not silently fall back to training data — always tell the user why Context7 was not used.
@@ -135,6 +137,6 @@ Do not silently fall back to training data — always tell the user why Context7
 ## Common Mistakes
 
 - Library IDs require a `/` prefix — `/facebook/react` not `facebook/react`
-- Always run `ctx7 library` first — `ctx7 docs react "hooks"` will fail without a valid ID
+- Always run `npx --yes ctx7@latest library` first — `npx --yes ctx7@latest docs react "hooks"` will fail without a valid ID
 - Use descriptive queries, not single words — `"React useEffect cleanup function"` not `"hooks"`
 - Do not include sensitive information (API keys, passwords, credentials) in queries

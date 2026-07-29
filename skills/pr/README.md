@@ -4,8 +4,9 @@ A single Claude Code skill for committing your work and shipping it as
 stacked PRs with `/pr`. Each `/pr` cuts the current diff onto a new
 branch stacked on the last (built **locally**, with `git stack`), then
 you publish the finished stack all at once with `submit` — no trickle of
-partial PRs on GitHub. Plus subcommands to rebase onto trunk and merge
-bottom-up. Published PRs get a `[<name> N/M]` title marker (e.g.
+partial PRs on GitHub. Plus subcommands to review the whole stack as
+annotatable Markdown, rebase onto trunk, and merge bottom-up. Published
+PRs get a `[<name> N/M]` title marker (e.g.
 `[ENG-456 2/4] …`, named after the ticket when the branch carries one,
 else a slug) so GitHub shows at a glance which stack a PR is in and
 where it sits — see
@@ -52,6 +53,7 @@ intent — an explicit flag or the `pr.draft` default).
 | `setup` | Show and change the persistent settings — the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default. |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | Read-only. Print the stack tree with each branch's PR status. |
+| `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with structured controls, then apply the approved stack-wide plan and restack/push safely. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
 | `checkpoint [slice description]` | Cut current diff as the next stacked branch. Local-only on the git-stack path (publishes nothing); the `gh`-fallback path still publishes eagerly. The default action. |
 | `submit [--draft]` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. `--draft` opens the created PRs as drafts. Requires `git stack`. |

@@ -150,6 +150,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `security-scfw` | **Slash command.** Set up Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time; `setup` installs + aliases pip/npm/poetry through the firewall (plus an optional agent hook), `review` reads the local log and audits installed packages. |
 | `security-snyk` | **Slash command.** Walk through the Snyk GitHub App install (login → install → add project) and verify it landed; optionally scaffold a pinned `snyk code test` CI workflow. |
 | `security-socket` | **Slash command.** Walk through the Socket Security (socket.dev) GitHub App OAuth install and verify it landed; optionally scaffold a pinned CI status-check workflow. |
+| `ste100` | **Hook + slash command.** Write in ASD-STE100 Simplified Technical English — one word for one thing, active voice, simple tenses, 20 words per instruction, warnings before the step. Toggle per project or per user with `/ste100 on\|off`; a SessionStart hook injects the rules each session and a cadence-gated per-turn reminder counters drift. Governs presentation, never the code. |
 | `storage-cleanup` | Find large files and directories that are safe to delete. |
 | `transcribe-youtube` | Download and transcribe a YouTube video to a markdown file via yt-dlp + Whisper. |
 | `trip-planner` | Generate a packing list from a destination weather forecast (wttr.in helper bundled). |

@@ -21,7 +21,7 @@ is the single-branch path.
   semantics — `--draft` only affects newly-created PRs; it will not convert
   an already-open PR back to draft). This is also implied when
   `git config pr.draft true` is configured (see
-  [SKILL.md → Determine draft intent](../SKILL.md#determine-draft-intent)),
+  [SKILL.md → Determine draft intent](../../SKILL.md#determine-draft-intent)),
   unless overridden by `--ready`/`--no-draft` on the invocation.
 
 ## Workflow
@@ -76,7 +76,7 @@ how to reconcile before force-with-lease overwrites their work.
 ### 4. Submit
 
 Resolve draft intent (**draft** or **ready**) per
-[SKILL.md → Determine draft intent](../SKILL.md#determine-draft-intent) —
+[SKILL.md → Determine draft intent](../../SKILL.md#determine-draft-intent) —
 that resolves an explicit `--draft`/`-d` or `--ready`/`--no-draft` on the
 invocation, falling back to the `pr.draft` default. Pass `--draft` to
 `git stack submit` whenever the intent is **draft** (which includes the
@@ -99,7 +99,7 @@ This:
 ### 5. Renumber Stack Title Markers
 
 Run the renumber routine from
-[references/title-convention.md](title-convention.md) so every PR's title
+[references/title-convention.md](../title-convention.md) so every PR's title
 carries its `[<name> N/M]` marker. This runs *after* `git stack submit`,
 so it overrides whatever titles git-stack set and keeps the position
 labels (`N/M`) accurate for the current stack size.

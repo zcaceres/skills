@@ -10,7 +10,7 @@ checkpoints, then publish it as one finished set with
 [`/pr submit`](submit.md). This keeps half-built, partial PRs from
 accumulating on GitHub and confusing reviewers.
 
-This is the jj-backend variant of [checkpoint.md](../checkpoint.md). There
+This is the jj-backend variant of [checkpoint.md](../git/checkpoint.md). There
 is no tool-detect fork and no eager-publish fallback: jj itself records
 the stack (ancestry is the parent relationship — no
 `branch.<name>.stack-parent` config), and jj checkpoints are always
@@ -85,6 +85,11 @@ jj diff -r @  --summary    # what stayed behind in the working copy
 
 If the split is wrong, `jj undo` reverses it — cheap now, expensive
 after the next checkpoint stacks on top.
+
+This verify is **mandatory**, not optional: `jj commit` with a path
+that matches no file only warns and still exits 0, committing an
+**empty** change and leaving the real diff behind in the working copy
+— an empty `jj diff -r @- --summary` is that failure, not success.
 
 ### 4. Bookmark the Slice
 

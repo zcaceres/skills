@@ -6,12 +6,12 @@ PR if one doesn't exist. Stack-aware: commits first, then hands off to
 on a stack. **Preserves the existing base branch** on PRs that are
 already open.
 
-> **This is the normal-mode default.** In normal mode, bare `/pr` (or
-> `/pr "a short description"`) runs this workflow — commit your work,
-> push, and open/update a single PR against the trunk. A description
-> passed with no subcommand seeds the commit message / PR title.
+> **This is the single-branch flow.** Bare `/pr` checkpoints a new
+> stacked change instead — use `update` when the work belongs on the
+> *current* bookmark's PR (amending a slice, follow-up commits, or a
+> repo where you're not stacking).
 
-This is the jj-backend variant of [update.md](../update.md). The "branch"
+This is the jj-backend variant of [update.md](../git/update.md). The "branch"
 is a jj **bookmark**; there is no staging area — explicit paths passed to
 `jj commit` are the staging discipline.
 
@@ -70,7 +70,10 @@ jj bookmark list --conflicted
 
 If either prints anything, surface it and stop (`jj resolve` for
 conflicts; `jj bookmark move <name> --to <rev>`, with `-B` if
-backwards, for divergence).
+backwards, for divergence). After resolving a divergence, check for a
+leftover **divergent change id** (two visible commits sharing one id,
+rendered `<id>/0`, `<id>/1`): `jj abandon` the stale twin, or revsets
+naming that change id start erroring with "Change ID is divergent".
 
 ### 3. Resolve the Branch Bookmark
 
@@ -84,6 +87,12 @@ BRANCH=$(jj log -r 'heads(::@ & bookmarks())' --no-graph \
 
 - `$BRANCH` empty or equal to the trunk name → there's no feature
   bookmark yet; you'll create one in step 4.
+- `$BRANCH` contains a **space** → more than one bookmark sits on that
+  commit, and the joined string is not a branch: jj commands error on
+  it (`Failed to parse name pattern`), and `gh pr list --head` returns
+  empty **silently** — which would misread as "no PR exists". Stop and
+  ask the user which bookmark is the PR branch, then set `$BRANCH` to
+  that single name.
 - Otherwise `$BRANCH` is the bookmark whose PR this run updates.
 
 ### 4. Commit

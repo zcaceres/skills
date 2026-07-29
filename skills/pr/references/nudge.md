@@ -6,8 +6,8 @@ A hook that runs after every file-modifying tool call — `PostToolUse`
 current repo, runs `git diff --numstat HEAD` plus a status-porcelain
 pass for untracked files, and — when the uncommitted diff is over the
 line/file thresholds — emits a soft reminder telling the agent to
-consider `/pr` to land the slice as a focused PR (a stacked checkpoint
-in stacked mode). The same compiled binary serves both hosts: it reads
+consider `/pr` to land the slice as a focused PR (a stacked
+checkpoint). The same compiled binary serves both hosts: it reads
 the host's event name from the hook payload, echoes it back in the
 output envelope, and homes its state file accordingly (see below).
 
@@ -216,6 +216,6 @@ task touches dozens of files and edits hundreds or thousands of
 lines. This hook nags the agent to commit once it has finished a
 logical unit of work. Left open-ended, the agent proposes a slice
 back: "I think we can ship {some change} as one unit." When approved,
-`/pr` lands it as a focused PR (a stacked checkpoint in stacked mode).
+`/pr` lands it as a focused PR (a stacked checkpoint).
 
 The pattern is an *AI behavioral nudge* — gentle, frequent, non-blocking.

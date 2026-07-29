@@ -1,34 +1,10 @@
 # `/pr merge` — Land the PR(s)
 
-## Mode
-
-- **normal mode** → merge the current branch's single PR. No stack
-  bookkeeping needed:
-
-  ```bash
-  PR=$(gh pr view --json number -q .number 2>/dev/null \
-       || gh pr list --head "$(git branch --show-current)" --state open --json number -q '.[0].number')
-  ```
-
-  If there's no open PR, tell the user and stop. Otherwise merge with the
-  user's chosen strategy (default `--merge`; `--rebase`/`--squash` if they
-  asked):
-
-  ```bash
-  gh pr merge "$PR" --merge   # or --rebase / --squash
-  ```
-
-  Do **not** pass `--delete-branch` unless the user explicitly asks. Report
-  the merged PR URL, then stop — the rest of this file is the stacked-mode
-  workflow.
-
-- **stacked mode** → land the whole stack bottom-up (continue below).
-
-## Stacked-mode workflow
-
 Merge the stack bottom-up, one PR at a time, with retarget verification
 between each step. Uses `git stack merge` when installed; otherwise
-walks the stack manually via `gh pr merge` + base retargeting.
+walks the stack manually via `gh pr merge` + base retargeting. A branch
+with no recorded parent is just a one-branch stack — the same workflow
+lands its single PR with no retargeting to do.
 
 **Strategy matters.** Each one has different implications for stacked
 PRs:
@@ -188,15 +164,24 @@ default:
 NEXT="${STACK[1]}"
 if [[ -n "$NEXT" ]]; then
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    gh pr edit "$NEXT_PR" --base "$TRUNK"
-  fi
-  # Re-read to confirm
-  NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
-  if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
-    echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
-    exit 1
+  if [[ -z "$NEXT_PR" ]]; then
+    # Unpublished slice (checkpointed, not yet submitted) — no PR to
+    # retarget. Normal under deferred publishing; continue. Never fall
+    # through with an empty $NEXT_PR: `gh pr view ""` silently resolves
+    # to the *current branch's* PR and would verify (or retarget) the
+    # wrong one.
+    echo "No open PR for $NEXT — unpublished slice, nothing to retarget"
+  else
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      gh pr edit "$NEXT_PR" --base "$TRUNK"
+    fi
+    # Re-read to confirm
+    NEXT_BASE=$(gh pr view "$NEXT_PR" --json baseRefName -q '.baseRefName')
+    if [[ "$NEXT_BASE" != "$TRUNK" ]]; then
+      echo "Retarget verification failed for PR #$NEXT_PR — refusing to continue"
+      exit 1
+    fi
   fi
 fi
 ```
@@ -235,8 +220,12 @@ for NEXT in "${STACK[@]:1}"; do
   NEXT_PR=$(gh pr list --head "$NEXT" --state open --json number -q '.[0].number')
   BOUNDARY=$(printf '%s' "$TIPS" | awk -v b="$PREV" '$1 == b { print $2 }')
 
-  # 1. Retarget to trunk
-  gh pr edit "$NEXT_PR" --base "$TRUNK"
+  # 1. Retarget to trunk — but only if this slice has a PR. An
+  #    unpublished slice still needs the rebase below to stay stacked;
+  #    `gh pr edit ""` would retarget the *current branch's* PR instead.
+  if [[ -n "$NEXT_PR" ]]; then
+    gh pr edit "$NEXT_PR" --base "$TRUNK"
+  fi
 
   # 2. Rebase only this PR's unique commits onto the new trunk
   git fetch origin "$TRUNK"
@@ -280,13 +269,13 @@ Print:
 
 - **Never** pass `--delete-branch` to `gh pr merge`. Deleting a base
   branch can auto-close child PRs irrecoverably. See
-  [recovery.md](recovery.md) if this already happened.
+  [recovery.md](../recovery.md) if this already happened.
 - **Always** verify each child's `baseRefName` is `$TRUNK` (detected
   in step 4B as `main` or `master`) before merging the next PR. Don't
   trust auto-retarget — it's a repo setting that may not be on.
 - Merge **bottom-up**. Top-down is never correct for stacks.
 - This subcommand does **not** rewrite the `[<name> N/M]` title markers
-  (see [title-convention.md](title-convention.md)). As PRs land, the
+  (see [title-convention.md](../title-convention.md)). As PRs land, the
   survivors' labels read stale (`3/4` after the bottom merges) until the
   next `/pr submit` renumbers them — that's intentional, so merging stays
   focused on landing the stack.
@@ -296,5 +285,5 @@ Print:
   `origin/$B~1`: that assumes one commit per branch and rebases the
   wrong range otherwise.
 - If anything goes wrong, **stop**. The recovery path
-  ([recovery.md](recovery.md)) covers the most common failure mode
+  ([recovery.md](../recovery.md)) covers the most common failure mode
   (`--delete-branch` auto-closing a child PR).

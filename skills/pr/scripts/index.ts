@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 /**
- * Diff-size nudge hook bundled with /pr. Injects a soft system-reminder
- * when the uncommitted diff in the current repo crosses size/file
- * thresholds without a commit, nudging the agent to run /pr to land the
- * work as a focused PR (a stacked checkpoint in stacked mode).
+ * Bundled /pr helper binary. With no command it is the diff-size nudge
+ * hook: it injects a soft system-reminder when the uncommitted diff in
+ * the current repo crosses size/file thresholds without a commit. The
+ * `walk-prepare` command generates exact-patch, annotatable Markdown
+ * packets for published PR stacks.
  *
  * Host-agnostic: the same binary serves Claude Code (PostToolUse hook)
  * and Gemini CLI (AfterTool hook). It reads the host's event name from
@@ -23,6 +24,7 @@ import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { homedir } from "os";
 import { dirname, join } from "path";
 import { z } from "zod";
+import { prepareWalk } from "./walk";
 
 // === Schemas ===
 
@@ -258,6 +260,22 @@ function emitNudge(lines: number, files: number, hookEventName: string): void {
 // === Main ===
 
 async function main(): Promise<void> {
+  if (process.argv[2] === "--capabilities") {
+    process.stdout.write("hook:nudge\nwalk-prepare\n");
+    return;
+  }
+
+  if (process.argv[2] === "walk-prepare") {
+    try {
+      process.stdout.write(`${await prepareWalk(process.argv.slice(3))}\n`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      process.stderr.write(`pr walk: ${message}\n`);
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   try {
     const input = await Bun.stdin.text();
     if (!input.trim()) return;

@@ -42,4 +42,66 @@ describe("fetch-binary.sh", () => {
     expect(exit).toBe(0);
     expect(out).toContain("already present");
   });
+
+  test("accepts an existing binary that reports the required capability", async () => {
+    const platform = hostPlatform();
+    if (!platform) return;
+
+    const root = await mkdtemp(join(tmpdir(), "fetchbin-capable-"));
+    const scripts = join(root, "demo-skill", "scripts");
+    await mkdir(join(scripts, "bin"), { recursive: true });
+    await cp(FETCH, join(scripts, "fetch-binary.sh"));
+
+    const binFile = join(scripts, "bin", `demo-skill-nudge-${platform}`);
+    await writeFile(
+      binFile,
+      "#!/bin/sh\n[ \"${1:-}\" = \"--capabilities\" ] && printf 'hook:nudge\\nwalk-prepare\\n'\n",
+    );
+    await chmod(binFile, 0o755);
+
+    const proc = Bun.spawn(["bash", join(scripts, "fetch-binary.sh")], {
+      env: {
+        ...process.env,
+        SKILL_BINARY_CAPABILITY: "walk-prepare",
+      },
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const exit = await proc.exited;
+    const out = await new Response(proc.stdout).text();
+
+    expect(exit).toBe(0);
+    expect(out).toContain("already present");
+  });
+
+  test("rejects a stale binary that lacks the required capability", async () => {
+    const platform = hostPlatform();
+    if (!platform) return;
+
+    const root = await mkdtemp(join(tmpdir(), "fetchbin-stale-"));
+    const scripts = join(root, "demo-skill", "scripts");
+    await mkdir(join(scripts, "bin"), { recursive: true });
+    await cp(FETCH, join(scripts, "fetch-binary.sh"));
+
+    const binFile = join(scripts, "bin", `demo-skill-nudge-${platform}`);
+    await writeFile(binFile, "#!/bin/sh\nexit 0\n");
+    await chmod(binFile, 0o755);
+
+    const proc = Bun.spawn(["bash", join(scripts, "fetch-binary.sh")], {
+      env: {
+        ...process.env,
+        PATH: "/usr/bin:/bin",
+        SKILL_BINARY_CAPABILITY: "walk-prepare",
+      },
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const exit = await proc.exited;
+    const err = await new Response(proc.stderr).text();
+
+    expect(exit).not.toBe(0);
+    expect(err).toContain(
+      "existing binary does not provide required capability 'walk-prepare'",
+    );
+  });
 });

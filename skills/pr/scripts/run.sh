@@ -1,7 +1,7 @@
 #!/bin/sh
-# Picks the right pre-built pr-nudge binary for the host OS/arch and execs it.
-# Reads the Bash command payload on stdin (Claude Code hook protocol) and forwards
-# stdin/stdout/stderr unchanged.
+# Picks the right pre-built /pr helper binary for the host OS/arch and execs it.
+# With no arguments it forwards the hook payload on stdin. Named helper commands,
+# such as walk-prepare, use regular command-line arguments.
 
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"

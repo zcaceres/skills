@@ -24,6 +24,7 @@
 # Env overrides:
 #   SKILL_BINARY_REPO  owner/repo to fetch releases from (default: zcaceres/skills)
 #   SKILL_BINARY_TAG   exact release tag to pull (default: latest <skill>@*)
+#   SKILL_BINARY_CAPABILITY  capability the binary must report via --capabilities
 
 set -euo pipefail
 
@@ -32,6 +33,7 @@ SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILL_NAME="$(basename "$SKILL_DIR")"
 BIN_DIR="$SCRIPT_DIR/bin"
 REPO="${SKILL_BINARY_REPO:-zcaceres/skills}"
+REQUIRED_CAPABILITY="${SKILL_BINARY_CAPABILITY:-}"
 
 # --- platform -> asset suffix (mirrors run.sh's binary selection) ---
 OS="$(uname -s)"
@@ -64,10 +66,21 @@ present_binary() {
   return 1
 }
 
+binary_ready() {
+  local binary="$1"
+  [ -x "$binary" ] || return 1
+  [ -z "$REQUIRED_CAPABILITY" ] && return 0
+  "$binary" --capabilities 2>/dev/null |
+    grep -Fqx "$REQUIRED_CAPABILITY"
+}
+
 # --- 1. already present? ---
 if existing="$(present_binary)" && [ -x "$existing" ]; then
-  echo "✓ $SKILL_NAME binary already present: $existing"
-  exit 0
+  if binary_ready "$existing"; then
+    echo "✓ $SKILL_NAME binary already present: $existing"
+    exit 0
+  fi
+  echo "fetch-binary: existing binary does not provide required capability '$REQUIRED_CAPABILITY'; refreshing it." >&2
 fi
 
 mkdir -p "$BIN_DIR"
@@ -82,12 +95,18 @@ if command -v gh >/dev/null 2>&1; then
   fi
   if [ -n "$TAG" ]; then
     if gh release download "$TAG" --repo "$REPO" --pattern "*-$PLATFORM" \
-         --dir "$BIN_DIR" --clobber >/dev/null 2>&1 && fetched="$(present_binary)"; then
-      chmod +x "$fetched"
-      echo "✓ Downloaded $SKILL_NAME binary from $REPO ($TAG) -> $fetched"
-      exit 0
+         --dir "$BIN_DIR" --clobber >/dev/null 2>&1; then
+      if fetched="$(present_binary)"; then
+        chmod +x "$fetched"
+        if binary_ready "$fetched"; then
+          echo "✓ Downloaded $SKILL_NAME binary from $REPO ($TAG) -> $fetched"
+          exit 0
+        fi
+        echo "fetch-binary: downloaded binary does not provide required capability '$REQUIRED_CAPABILITY'; falling back to local build." >&2
+      fi
+    else
+      echo "fetch-binary: no $PLATFORM asset on release $TAG; falling back to local build." >&2
     fi
-    echo "fetch-binary: no $PLATFORM asset on release $TAG; falling back to local build." >&2
   else
     echo "fetch-binary: no published ${SKILL_NAME}@* release found; falling back to local build." >&2
   fi
@@ -115,16 +134,18 @@ if command -v bun >/dev/null 2>&1; then
   fi
   echo "Building $SKILL_NAME binary locally with bun ($BUILD_SCRIPT, one-time, may take a moment)…" >&2
   ( cd "$SKILL_DIR" && bun install --silent && bun run "$BUILD_SCRIPT" ) >&2
-  if built="$(present_binary)" && [ -x "$built" ]; then
+  if built="$(present_binary)" && binary_ready "$built"; then
     echo "✓ Built $SKILL_NAME binary -> $built"
     exit 0
   fi
-  echo "fetch-binary: bun build did not produce a $PLATFORM binary." >&2
+  echo "fetch-binary: bun build did not produce a compatible $PLATFORM binary." >&2
 fi
 
 # --- 4. manual fallback ---
 {
   echo "✗ Could not provision the $SKILL_NAME binary for $PLATFORM."
+  [ -n "$REQUIRED_CAPABILITY" ] &&
+    echo "  Required capability: $REQUIRED_CAPABILITY"
   echo "  Install one of, then re-run $SCRIPT_DIR/fetch-binary.sh :"
   echo "    • gh  (GitHub CLI)  — downloads a prebuilt binary"
   echo "    • bun (https://bun.sh) — builds it from source"

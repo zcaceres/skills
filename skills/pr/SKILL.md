@@ -1,7 +1,7 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, or open a PR. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
-argument-hint: "[commit | setup | update | log | merge | checkpoint | submit | sync] [--draft] [args]"
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
+argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | submit | sync] [--draft] [args]"
 hooks:
   PostToolUse:
     - matcher: "Edit|Write|MultiEdit|NotebookEdit"
@@ -18,8 +18,9 @@ hooks:
 Commit your work and ship it as stacked PRs with `/pr`. Each bare `/pr`
 slices the current diff onto a new branch stacked on the last one;
 subcommands push the whole stack (`submit`), rebase it onto trunk
-(`sync`), and merge it bottom-up (`merge`). `/pr update` covers the
-single-branch case — commit and refresh the current branch's PR.
+(`sync`), review it as annotatable Markdown (`walk`), and merge it
+bottom-up (`merge`). `/pr update` covers the single-branch case — commit
+and refresh the current branch's PR.
 
 Any PR this skill **creates** can be a **draft**: pass `--draft` (or
 `-d`) on the invocation, or make drafts the default everywhere with
@@ -50,7 +51,7 @@ git config pr.backend 2>/dev/null   # resolves local, then global; empty = unset
 The backend only changes *which reference file* a workflow subcommand
 reads: `update`, `log`, `merge`, `checkpoint`, `submit`, `sync`, and the
 default action read `references/git/<keyword>.md` on the git backend and
-`references/jj/<keyword>.md` on the jj backend, while `setup`,
+`references/jj/<keyword>.md` on the jj backend, while `setup`, `walk`,
 `title-convention.md`, and `recovery.md` are shared. Draft semantics are
 identical in both backends. The jj backend is **colocated-only** (jj
 working alongside `.git` in the same checkout) —
@@ -88,6 +89,7 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
 | `update [base-branch]` | [references/git/update.md](references/git/update.md) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | [references/git/log.md](references/git/log.md) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
+| `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/git/merge.md](references/git/merge.md) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
 | `checkpoint [slice description]` | [references/git/checkpoint.md](references/git/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
 | `submit [--draft]` | [references/git/submit.md](references/git/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
@@ -151,8 +153,8 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 First read the backend (see "Determine the backend first" above). Every
 `references/<backend>/<keyword>.md` below means
 `references/git/<keyword>.md` on the git backend and
-`references/jj/<keyword>.md` on the jj backend — `setup` is always
-shared.
+`references/jj/<keyword>.md` on the jj backend — `setup` and `walk` are
+always shared.
 
 **`setup` is exempt from the next step.** If the first non-flag token of
 `$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
@@ -175,16 +177,20 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
 1. **First token is `setup`** → read [references/setup.md](references/setup.md)
    and follow it. This is how the user changes the persistent settings.
 
-2. **First token is `update`, `log`, `merge`, `checkpoint`, `submit`, or
+2. **First token is `walk`** → read [references/walk.md](references/walk.md)
+   and follow it with the remaining `$ARGUMENTS`. This workflow is shared
+   across backends because it operates on published GitHub PRs.
+
+3. **First token is `update`, `log`, `merge`, `checkpoint`, `submit`, or
    `sync`** → read `references/<backend>/<keyword>.md`, then follow its
    workflow with the remaining `$ARGUMENTS` as that subcommand's
    arguments.
 
-3. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
+4. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
    print this subcommand list and stop. (Draft flags were already
    stripped in the pre-parse step, so they never land here.)
 
-4. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
+5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
    the **default action**: read `references/<backend>/checkpoint.md` and
    follow it, using the message as the slice description.
 

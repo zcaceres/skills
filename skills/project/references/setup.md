@@ -321,7 +321,7 @@ Card workflow:
 - Pick:      `/project next` (shows top Todo cards, moves pick to In Progress, dumps context)
 - Edit:      `/project update [id|number|title]`
 - Decompose: `/project decompose [id|number|title]` (split a big card into linked subtasks)
-- Audit:     `/project review` (board vs codebase)
+- Audit:     `/project audit` (board vs codebase)
 - Delete:    `/project delete [id|number|title]`
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
@@ -407,7 +407,7 @@ Next: open <url> and add a Board view grouped by Status.
 Subcommands:
   /project new-task   — create a card
   /project next       — pick the next Todo card and start
-  /project review     — audit board vs codebase
+  /project audit      — audit board vs codebase
   /project update     — edit a card
   /project decompose  — split a big card into linked subtasks
   /project delete     — remove a card

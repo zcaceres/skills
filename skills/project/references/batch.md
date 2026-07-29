@@ -36,7 +36,7 @@ guessing here.
   confirmation those give is better when there's only one.
 - **Splitting one card into children.** That's `decompose` — it wires
   parent/child links batch does not.
-- **Auditing the board for staleness.** That's `review` — it gathers codebase
+- **Auditing the board for staleness.** That's `audit` — it gathers codebase
   evidence per card before proposing moves. Batch applies *user-supplied*
   changes; it does not investigate.
 - **Heterogeneous operations** (create one, delete another, update a third in a

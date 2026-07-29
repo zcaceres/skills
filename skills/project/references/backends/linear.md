@@ -32,7 +32,7 @@ model-invoked tool, so enforce it by hand:
 | `close_item(id,comment?)` | `update_issue(id, stateId = statusMap.done)`; optional `create_comment(id, comment)`. |
 | `unlink_item(id)` | Linear has no board-scoped unlink. Treat "remove from board" as **cancel/archive**: `update_issue(id, stateId = statusMap.cancelled)`. Hard delete is out of scope for the MCP. |
 
-Comments (used by `update` / `review` to add context): `create_comment(issueId, body)`,
+Comments (used by `update` / `audit` to add context): `create_comment(issueId, body)`,
 `list_comments(issueId)`.
 
 ## Status translation

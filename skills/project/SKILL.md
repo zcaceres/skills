@@ -1,7 +1,7 @@
 ---
 name: project
-description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit the board against the codebase (review), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), apply one operation across many cards at once (batch), and walk a scope of cards one by one for per-card decisions informed by codebase context (walk). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "review the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", "/project batch", "walk me through the milestone", "triage these cards", "groom the backlog one by one", or "/project walk".
-argument-hint: "[setup | next | new-task | update | review | decompose | delete | milestone | batch | walk] [args]"
+description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit board accuracy against the codebase (audit), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), apply one operation across many cards at once (batch), and walk a scope of cards one by one for per-card decisions informed by codebase context (walk). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "audit the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", "/project batch", "walk me through the milestone", "triage these cards", "groom the backlog one by one", or "/project walk".
+argument-hint: "[setup | next | new-task | update | audit | decompose | delete | milestone | batch | walk] [args]"
 ---
 
 # Project Tracker Kanban — One Skill
@@ -33,19 +33,19 @@ reference file and follow it exactly.
 | `next [--board-order] [--auto]` | [references/next.md](references/next.md) | Rank Todo cards by what's logically next, let the user pick one, move it to In Progress, and dump the full card context. Stops at the handoff — no branches, no edits. |
 | `new-task [title]` | [references/new-task.md](references/new-task.md) | Create a card (GitHub issue by default, draft on request) and END THE TURN — never start the work described in the card. |
 | `update [id\|number\|title]` | [references/update.md](references/update.md) | Update one card's title, body, or status, folding in context from the conversation. Infers the target card if invoked bare, but never writes without confirmation. |
-| `review` | [references/review.md](references/review.md) | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
+| `audit` | [references/audit.md](references/audit.md) | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
 | `decompose [id\|number\|title]` | [references/decompose.md](references/decompose.md) | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. Wires children via the sub-issues API plus a parent body checklist. |
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
 | `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 | `batch <create\|update\|delete>` | [references/batch.md](references/batch.md) | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. Envelope over new-task/update/delete; per-card safety preserved. |
-| `walk [scope]` | [references/walk.md](references/walk.md) | Walk a set of cards one by one — concise block + compact decision menu (accept suggestion/status/update/keep/more/quit) applied per card as you go. `scope` is described in words (a milestone, "the Todo column", "the `stale` cards", or nothing → everything not-Done); the agent resolves it via the board's filtering. Each card carries light codebase context plus a suggested change; Enter accepts it, while `m` opens infrequent actions and deeper investigation. Interactive triage/grooming; envelope over update/milestone/decompose/delete with per-card safety preserved. |
+| `walk [scope]` | [references/walk.md](references/walk.md) | Groom every card in a natural-language scope, one at a time. Each concise card includes an evidence-backed suggested action; Enter accepts it, while status/update/keep/more/quit override it. `m` contains details, comment, milestone, and delete. |
 
 ## Dispatcher
 
 Parse the first whitespace-separated token of `$ARGUMENTS`:
 
 1. **First token is a known subcommand keyword** (`setup`, `next`,
-   `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`, `batch`,
+   `new-task`, `update`, `audit`, `decompose`, `delete`, `milestone`, `batch`,
    `walk`)
    → read `references/<keyword>.md`, then follow its workflow with the remaining
    `$ARGUMENTS` (everything after the first token) as that subcommand's
@@ -66,7 +66,7 @@ Parse the first whitespace-separated token of `$ARGUMENTS`:
    triggered by a natural-language request (no explicit `/project`),
    map the user's intent to a subcommand using the trigger phrases in
    each reference's "When to use" section (e.g. "what's next" → `next`,
-   "add a card" → `new-task`, "audit the kanban" → `review`). If the
+   "add a card" → `new-task`, "audit the kanban" → `audit`). If the
    intent is ambiguous between two subcommands, show the table and ask.
 
 ## Important — applies to every subcommand

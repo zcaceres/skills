@@ -2,8 +2,6 @@
 "@zcaceres/skill-project": minor
 ---
 
-Add a `walk` subcommand: walk a set of cards one at a time for hands-on triage/grooming. Each card gets a concise block (title, status, key signals, short body preview) and a compact decision menu — accept the suggested change / choose status / update / keep / more / quit — applied per card as you go; infrequent actions live under `m` (more). The scope is described in the user's own words (a milestone, "the Todo column", "the `stale` cards", or nothing → everything not-Done); the agent resolves it via the board's existing server-side filtering rather than any user-typed query flag.
+Add `/project walk` for card-by-card grooming of a natural-language scope. Each card shows an evidence-backed suggested action; Enter accepts it, while a compact menu supports another status, update, keep, details, comment, milestone, delete, or quit. Actions apply as the walk advances and retain the existing update and delete safety gates.
 
-Decisions are informed by the codebase: by default each card carries a light context signal — reusing `review`'s evidence engine (git-log grep, merged-PR search, file/symbol existence, linked PRs) distilled to one line — that flags when a card was likely completed elsewhere or when its premise drifted (a file/approach it references was refactored or deleted). Walk turns that signal into a suggested change; the user can accept it with Enter or override it. Deeper investigation remains available under `m` (more).
-
-It's an envelope that reuses the per-card recipes from update / milestone / decompose / delete and keeps every single-card safety rule (typed `yes` on delete, the "move finished cards to Done, don't delete" norm). Distinct from `next` (picks one to work on), `review` (evidence-driven audit with per-card approval), and `batch` (same change across many). Backend-neutral: the linear backend resolves the scope, gathers evidence from the local git repo plus linked PRs, and applies through the Linear MCP.
+Rename `/project review` to `/project audit` so board auditing is not confused with source-code review. The old project subcommand is removed rather than retained as an alias.

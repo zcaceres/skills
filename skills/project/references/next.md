@@ -37,7 +37,7 @@ TODO_COUNT=$(wc -l < /tmp/todos.jsonl)
 
 If `TODO_COUNT` is 0:
 
-> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/project review` to audit?"
+> "Todo column is empty. Either everything's in flight, or the board's out of date. Want to run `/project audit` to audit?"
 
 Stop. Don't try to fall back to `In Progress` or `Done` — those imply different things.
 

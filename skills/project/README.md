@@ -22,12 +22,12 @@ Bare `/project` prints the subcommand list — there is no default subcommand.
 | `next [--board-order] [--auto]` | Rank Todo cards by what's logically next, let the user pick one, move it to In Progress, and dump the full card context. |
 | `new-task [title]` | Create a card (an issue by default; github also supports a board-only draft). Ends the turn — never starts the work described in the card. |
 | `update [id\|number\|title]` | Update one card's title, body, or status, folding in context from the conversation. |
-| `review` | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
+| `audit` | Audit the board against the codebase: find cards that look Done or stale, present evidence, apply one-by-one approved status moves. |
 | `decompose [id\|number\|title]` | Split a large card into 3–7 linked subtask cards through a propose-and-refine loop. |
 | `delete [id\|number\|title]` | Remove a card from the board with mandatory show-and-confirm. |
 | `milestone <create\|add\|next\|list>` | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card, run a `next`-style pick scoped to it, or list milestones. |
 | `batch <create\|update\|delete>` | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. An envelope over new-task / update / delete that preserves every per-card safety rule. |
-| `walk [scope]` | Walk a set of cards one at a time: a concise block plus a compact decision menu (accept suggestion / status / update / keep / more / quit) applied per card as you go. Describe the `scope` in words (a milestone, "the Todo column", "the `stale` cards", or nothing → everything not-Done) and the agent resolves it via the board's filtering. Each card carries a light codebase-context signal and a suggested change; Enter accepts that default, while `m` exposes infrequent actions and deeper investigation. Interactive triage/grooming — an envelope over update / milestone / decompose / delete that keeps every per-card safety rule. |
+| `walk [scope]` | Groom every card in a natural-language scope, one at a time. Each card includes an evidence-backed suggested action; Enter accepts it, while status/update/keep/more/quit override it. `m` contains details, comment, milestone, and delete. |
 
 See [SKILL.md](./SKILL.md) for the dispatcher and the per-subcommand references
 for the full workflows.

@@ -15,7 +15,7 @@ Treat this like architecting a small PR stack. The point isn't just N tickets �
 
 - The card is already small/atomic (one focused change). Push back — say so and suggest just picking it.
 - The user wants to *create* unrelated new tasks. Route to `/project new-task`.
-- The user wants to *audit* the whole board for staleness. Route to `/project review`.
+- The user wants to *audit* the whole board for staleness. Route to `/project audit`.
 
 ## Prerequisites
 
@@ -290,7 +290,7 @@ Apply via the helper:
 $HELPER set-status "$PARENT_ITEM_ID" "In Progress"
 ```
 
-If the parent is an issue and the user picked `done`, also ask whether to close the underlying issue (same prompt pattern as `/project review`).
+If the parent is an issue and the user picked `done`, also ask whether to close the underlying issue (same prompt pattern as `/project audit`).
 
 ## Step 9 — Output
 

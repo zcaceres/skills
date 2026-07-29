@@ -9,10 +9,11 @@ This is **interactive triage / grooming**, not work-picking and not auditing:
 
 - Unlike [`next`](next.md), walk does not stop at one card to start work on it —
   it moves through the *whole scope* so the user can groom it.
-- Like [`review`](review.md), walk reads the codebase to inform each card — but it
-  distills the evidence to a **one-line signal** and lets the **user** decide,
-  rather than proposing a status verdict and asking approval per card. Walk is the
-  fast hands-on grooming pass; `review` is the evidence-driven reconciliation.
+- Like [`review`](review.md), walk reads the codebase to inform each card. It
+  distills the evidence to a **one-line signal**, adds a **suggested change** when
+  warranted, and lets the user accept that default or choose another action. Walk
+  is the fast hands-on grooming pass; `review` is the deeper evidence-driven
+  reconciliation.
 - Unlike [`batch`](batch.md), walk decides and applies **per card as you go**
   (each action lands immediately), rather than previewing a whole set and
   confirming once. Reach for `batch` when the same change applies to many cards;
@@ -164,9 +165,11 @@ tag from `review`'s verdict vocabulary, extended with a drift case:
 | `not started` | nothing in the code | referenced files absent, no matching commits |
 | `unclear` | no usable signal | show **nothing** rather than noise |
 
-This is a **signal, not a verdict.** Walk surfaces the tag and lets the user pick
-any menu action — it does **not** propose a status move and ask approval. That
-proposal-and-approval loop is `review`'s job; keep walk's lighter contract.
+Use this evidence to add a concise **Suggested:** field. Recommend the smallest
+useful change: usually a status move, a specific card update when the premise
+changed, or `keep as-is` when no change is warranted. Never suggest deletion;
+recommend Done or Cancelled instead. This remains a default, not an automatic
+verdict: the user must accept it or choose another action.
 
 Draft cards (title only) get title-keyword signals just like `review` handles
 them. On the **linear** backend the evidence comes from the local git repo (same
@@ -183,47 +186,54 @@ body unless the user asks (`more`).
 ── [i/N] ────────────────────────────────────────────
 **"<title>"**   ·   <Issue #n | Draft>   ·   <Status>
 <age> old · milestone: <name or —> · labels: <csv or —> · linked PR: <#n or —>
-Context: ⚑ <tag> — <one strongest signal>       ← omit this line if tag is `unclear` or context is off
+Context: ⚑ <tag> — <one strongest signal>       ← omit if `unclear` or context is off
+Suggested: <smallest warranted change | keep as-is>
 
 > <body preview: first ~2 lines / ~200 chars, or "(no body)">
 
-**[s]** status  **[e]** edit  **[c]** comment  **[m]** milestone  **[x]** decompose  **[d]** delete  **[g]** dig  **[k]** skip  **[o]** open  **[more]** full body  **[q]** quit
+**[Enter]** accept suggestion  **[s]** status  **[u]** update  **[k]** keep  **[m]** more  **[q]** quit
 ```
 
 The `Context:` line is **one line** — the tag plus the single strongest signal
 (e.g. `⚑ likely shipped — merged PR #234, src/export/csv.ts exists`, or
 `⚑ premise changed — src/legacy/auth.ts named in body was deleted in #300`). Omit
 it entirely when the tag is `unclear` or context is off. The full evidence lives
-behind `more` / `dig`, not here — if the block scrolls, you've shown too much.
+behind `details` / `investigate`, not here — if the block scrolls, you've shown too much.
 
-Show the menu once at the top of the loop in full; on later cards you may abbreviate
-it to a single hint line (`s/e/c/m/x/d/g/k/o/more/q`) to keep the walk scannable.
+Show the full primary menu for each card. Keep it intentionally small:
 
-### Decision keys
+| Key | Action |
+|---|---|
+| `Enter` / `accept` | Accept the `Suggested:` default. Status and keep-as-is suggestions apply immediately. Suggested edits first show the exact proposed diff and require the normal update approval. Never use Enter to delete. |
+| `s` / `status` | Choose another status. If no target is inline, offer the columns (`done` / `progress` / `todo` / `backlog` / `cancel`). |
+| `u` / `update` | Edit title, body, or status through [update.md](update.md), retaining its preview and explicit approval gate. |
+| `k` / `keep` | Leave unchanged and advance, regardless of the suggestion. |
+| `m` / `more` | Open the secondary action menu below; stay on this card. |
+| `q` / `quit` | Stop the walk and print the tally. |
 
-Accept the single letter, the full word, or an inline argument form (e.g. `s done`,
-`m v0.4`). Apply, echo a one-line result, then advance to card `i+1`.
+`m` means **more options**, not milestone. Show secondary actions as words so they
+are clear and difficult to trigger accidentally:
 
-| Key | Action | Recipe |
-|---|---|---|
-| `s` / `status` | Move the card's status. If no target given, offer the columns (`done` / `progress` / `todo` / `backlog` / `cancel`); `s done` skips the prompt. | `set_item_status(id, <canonical>)` — github: `$HELPER set-status "$ID" "<native>"`. |
-| `e` / `edit` | Edit title / body / status, folding in conversation context. | [update.md](update.md) — run its per-card recipe inline, then return to this card's result line. |
-| `c` / `comment` | Add a comment. Prompt for the text if not given inline. | github: `gh issue comment <n> --repo "$REPO_OWNER/$REPO" --body "…"`; linear: `create_comment(id, body)`. **Drafts have no comments** — say so and offer to convert to an issue or skip. |
-| `m` / `milestone` | Add the card to a milestone. | [milestone.md](milestone.md) `add`. Issues only on github (drafts have no milestone field). |
-| `x` / `decompose` | Split this card into subtasks. | [decompose.md](decompose.md) — run its propose-and-refine loop, then return here. This card usually then becomes `skip`/`done` (its children carry the work). |
-| `d` / `delete` | Remove the card. **Keeps delete's full gate** — show consequences (draft = destroyed; issue = unlinked, stays open; linear = cancelled/archived) and require a typed `yes`. | [delete.md](delete.md). |
-| `g` / `dig` / `deep` / `investigate` | Escalate **this** card beyond the light signals: spawn an `Explore` agent to reason about whether the work already shipped or the premise drifted, reading the actual code paths the card touches. Print its finding, refine the `Context:` tag, stay on the card, re-offer the menu. Pay for deep reasoning only on the cards that warrant it. | `Explore` agent scoped to the card's title/body keywords + referenced paths. |
-| `k` / `skip` / `` (Enter) | Leave unchanged, advance. | — |
-| `o` / `open` | Print the card URL (and note it's clickable). Stay on this card. | — |
-| `more` / `why` | Dump the full body (`get_item`), the **full evidence** behind the `Context:` tag (the code refs, commits, PRs — like review's evidence list), plus comments count / last comment and any linked PRs. Stay on this card, re-offer the menu. | `get_item(id)` + the Step 3 signals. |
-| `b` / `back` | Re-show the previous card to revise a decision. | — |
-| `q` / `quit` / `done` | Stop the walk. Go to Step 5 (tally). | — |
+```text
+comment · milestone · decompose · investigate · open · details · delete
+[b] back
+```
+
+- `comment`: add a comment; drafts require conversion to an issue first.
+- `milestone`: reuse [milestone.md](milestone.md) `add`; github drafts have no milestone.
+- `decompose`: reuse [decompose.md](decompose.md), then return to the card.
+- `investigate`: deep-read this card's code paths, refine Context and Suggested,
+  and stay on the card.
+- `open`: print the card URL and stay on the card.
+- `details`: show the full body and evidence, then stay on the card.
+- `delete`: retain [delete.md](delete.md)'s consequences preview and typed `yes` gate.
+- `b` / `back`: return to the primary menu.
 
 Rules for the loop:
 
-- **Apply direct non-destructive actions on the keystroke** (status, comment,
+- **Apply direct non-destructive actions on the choice** (accepted status, status, comment,
   milestone) once any required target or text is known; don't add another
-  confirmation afterward. Selecting **edit** enters `update.md`'s per-card recipe
+  confirmation afterward. Selecting **update** enters `update.md`'s per-card recipe
   and keeps its preview-and-explicit-approval gate. **Delete** likewise keeps the
   typed-`yes` gate from `delete.md`.
 - **One card visible at a time.** Print the next block only after the current
@@ -280,11 +290,11 @@ cards by hand, or narrowing the scope, resumes triage.)
 - **Most-urgent-first asked but no ranking signals exist.** Fall back to board
   order silently (as [next.md](next.md) does) — note "(ranking signals unavailable
   — board order)".
-- **User keeps hitting Enter.** Empty input = `skip`. A fast Enter-Enter-Enter run
-  is a valid way to page through a scope read-only; that's fine.
+- **User keeps hitting Enter.** Empty input accepts the displayed suggestion; it is
+  never an implicit skip. Every card must display its suggestion before waiting.
 - **Context can't be gathered** (evidence tools fail, or the card body names no
   code). Degrade to `unclear` and omit the `Context:` line — never block the walk
-  or invent a signal. The user can still `dig` a card by hand.
+  or invent a signal. The user can still choose `m` → `investigate`.
 - **Context contradicts the card's status** (tag `likely shipped` on a `Todo`
   card). Surface it in the one-line signal, but still let the user decide — walk
   reports, it doesn't auto-move. This is the everyday value of the feature.
@@ -300,12 +310,10 @@ cards by hand, or narrowing the scope, resumes triage.)
 - **Apply as you go; keep delete's gate.** The value of walk is deciding and
   landing each card in one beat. Only `delete` interrupts that with its typed
   confirmation — because it's irreversible.
-- **One card at a time; the user drives.** Don't propose verdicts (that's
-  `review`) and don't pick for them. Walk presents; the user decides.
-- **Context is a signal, not a verdict.** Gather evidence like `review`, but show
-  one distilled line and let the user act — never fold it into review's
-  propose-and-approve loop. Light by default; `dig` a specific card only when it
-  warrants a closer read.
+- **One card at a time; the user drives.** Offer a suggested default, but do not apply it automatically. The user accepts or overrides every recommendation.
+- **Suggest, never auto-decide.** Gather evidence like `review`, show one distilled
+  line, and derive the smallest useful default action. Enter accepts that default;
+  any other choice overrides it. Deeply investigate only when requested.
 - **Respect the "move to Done, don't delete" norm.** If the user reaches for
   `delete` on a finished-looking card, push back once and offer `s done` instead.
 - **Convert relative dates** ("today", "next sprint") to absolute before writing

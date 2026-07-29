@@ -33,10 +33,11 @@ Card workflow (all via the `/project` skill):
 - Pick:      `/project next` (shows top Todo cards, moves pick to In Progress, dumps context)
 - Edit:      `/project update [id|number|title]`
 - Decompose: `/project decompose [id|number|title]` (split a big card into linked subtasks)
-- Audit:     `/project review` (board vs codebase)
+- Audit:     `/project audit` (board vs codebase)
 - Delete:    `/project delete [id|number|title]`
 - Milestone: `/project milestone create|add|next|list` (group work toward a milestone — a github milestone / a linear project milestone)
 - Batch:     `/project batch create|update|delete ...` (apply one operation across many cards — single preview, one confirmation, continue-on-error apply loop, per-item tally)
+- Walk:      `/project walk [scope]` (groom every card in a milestone, status/column, label, or default not-Done scope; each card shows an evidence-backed status-or-keep suggestion; Enter accepts, with status/update/keep/details/delete/quit overrides)
 
 When an item is finished, **move it to the `Done` column — do not delete it.**
 Deleted draft items lose their history.

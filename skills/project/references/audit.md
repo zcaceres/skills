@@ -1,14 +1,14 @@
-# `/project review` — Audit the Board
+# `/project audit` — Audit Board Accuracy
 
 You are auditing the repository's GitHub Projects kanban against the actual state of the codebase. The output is a structured conversation: for each card whose status looks wrong, you present **evidence from the code** and the user **approves or rejects each update individually**.
 
-Treat this like a code review with verdicts. False positives are expensive — moving a card to Done when the work isn't actually shipped misleads everyone.
+Treat this as a board audit with evidence-backed verdicts. False positives are expensive — moving a card to Done when the work isn't actually shipped misleads everyone.
 
 ## When to use
 
-- "review the board" / "audit the kanban" / "what's stale on the project"
+- "audit the board" / "audit the kanban" / "what's stale on the project"
 - "check the project tasks"
-- "/project review"
+- "/project audit"
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ workspace integrates GitHub, else branch/identifier matches in git history. See
 Use the helper. It fetches up to 500 items, asserts `fetched == totalCount`, and outputs one compact JSON row per line:
 
 ```bash
-# Cards not yet Done — most reviews want this.
+# Cards not yet Done — most audits want this.
 $HELPER list --query "-status:Done" > /tmp/board.jsonl
 
 # Or everything (rarely needed):
@@ -116,14 +116,14 @@ $HELPER set-status "$ITEM_ID" "Done"          # or "Todo", "In Progress"
 If the card is an Issue (`content.type=="Issue"`) AND the verdict is `Looks Done` AND the issue is still open, also ask the user whether to close the underlying issue:
 
 ```bash
-gh issue close <issue-number> --repo "$REPO_OWNER/$REPO" --comment "Closing per project board review — see <PR or commit reference>."
+gh issue close <issue-number> --repo "$REPO_OWNER/$REPO" --comment "Closing per project board audit — see <PR or commit reference>."
 ```
 
 Don't auto-close issues; closing is user-visible and notifies subscribers.
 
 ### 6. Final tally
 
-After all cards are reviewed:
+After all cards are audited:
 
 ```
 Reviewed: N

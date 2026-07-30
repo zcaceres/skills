@@ -1,16 +1,7 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships a diff-size nudge hook toward /pr when the uncommitted diff grows large. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships an optional diff-size nudge hook toward /pr when the uncommitted diff grows large; enable it explicitly with /pr setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
 argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | submit | sync] [--draft] [args]"
-hooks:
-  PostToolUse:
-    - matcher: "Edit|Write|MultiEdit|NotebookEdit"
-      type: command
-      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
-  AfterTool:
-    - matcher: "replace|write_file"
-      type: command
-      command: "${CLAUDE_SKILL_DIR}/scripts/run.sh"
 ---
 
 # PR — One Skill
@@ -85,7 +76,7 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | Subcommand | Reference | What it does |
 |---|---|---|
 | `commit [message]` | (alias) | Alias for the **default action** — `checkpoint`, with the message as the slice description. The everyday "ship my work" verb; identical to bare `/pr`. |
-| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
+| `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). The optional nudge hook is enabled only with an explicit `/pr setup nudge`. |
 | `update [base-branch]` | [git](references/git/update.md) · [jj](references/jj.md#update) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | [git](references/git/log.md) · [jj](references/jj.md#log) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
 | `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
@@ -107,7 +98,7 @@ them alone. See
 [references/title-convention.md](references/title-convention.md) for the
 format and the renumber routine.
 
-## Bundled hook
+## Optional bundled hook
 
 A diff-size nudge hook is shipped with this skill. It fires after every
 file-modifying tool call and nudges toward `/pr` when the uncommitted
@@ -119,7 +110,10 @@ binary runs under **Claude Code** (`PostToolUse`;
 from the hook payload and adapts. Only the settings wiring differs, and
 `install.sh --agent` handles that.
 
-Two-step install:
+The hook is **opt-in**. Installing the skill does not register it, and
+ordinary `/pr setup` operations for drafts or backends must not register
+or provision it. Enable it explicitly with `/pr setup nudge`, or run the
+installer directly after installing the skill:
 
 ```sh
 npx skills add zcaceres/skills -s pr
@@ -143,9 +137,9 @@ for thresholds, env-var overrides, and manual wiring as an alternative.
 file-copy install ships the source but not the ~60 MB binary) by
 running `scripts/fetch-binary.sh` — which downloads the prebuilt binary
 for your platform from the skill's GitHub release, or builds it with
-`bun`. `/pr setup` runs `install.sh` for you — inferring `--agent` from
-the host it's running in — so configuring the skill both wires the hook
-and leaves it fully functional. See [references/nudge.md](references/nudge.md#provisioning-the-binary).
+`bun`. `/pr setup nudge` runs `install.sh` for you, inferring `--agent`
+from the host it's running in. See
+[references/nudge.md](references/nudge.md#provisioning-the-binary).
 
 ## Dispatcher
 

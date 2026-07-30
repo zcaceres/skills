@@ -15,9 +15,9 @@ The hook is **non-blocking by design**. It never exits non-zero, never
 returns block payloads, never errors out — soft failures are
 intentional so the agent loop is never interrupted.
 
-This document is reference, not a subcommand. The hook activates from
-the `hooks:` block in [SKILL.md](../SKILL.md) (or your settings.json
-wiring — see Install below) and has no user-facing command surface.
+The hook is **opt-in**. Installing or using the skill does not activate
+it. Enable it with `/pr setup nudge` or wire it into `settings.json`
+with the installer below.
 
 ## Thresholds and cooldowns
 
@@ -60,19 +60,21 @@ Override with `PR_NUDGE_EXCLUDE` (colon-separated globs) — the
 `PR_NUDGE_SKIP_ROOTS` (colon-separated paths) to skip specific repos
 entirely.
 
-## Install
+## Opt-in install
 
 ```sh
 npx skills add zcaceres/skills -s pr
+# Then explicitly opt in:
 ~/.claude/skills/pr/scripts/install.sh                 # Claude Code (default)
 # or, for Gemini CLI:
 ~/.gemini/skills/pr/scripts/install.sh --agent gemini
 ```
 
-The second step wires this hook into the host's `settings.json`
+The installer step is optional and explicitly opts into the nudge. It
+wires this hook into the host's `settings.json`
 (`~/.claude` or `~/.gemini`) so it fires on every matching tool call,
-not just when the skill is active in context. `install.sh` auto-detects
-the host — override with `--agent claude|gemini` — and writes the right
+regardless of whether the skill is active in context. `install.sh`
+auto-detects the host — override with `--agent claude|gemini` — and writes the right
 event name (`PostToolUse` / `AfterTool`), tool matcher, and settings
 dir. The script is idempotent, backs up the target file with a
 timestamp, and is a no-op if the hook is already wired. It derives the
@@ -93,7 +95,7 @@ committed, fetched or built on demand. A pure file-copy install
 (`npx skills add`, a sparse checkout) therefore lands the source and
 `run.sh` but **no binary**, and `run.sh` then silently no-ops. That's
 the gap `scripts/fetch-binary.sh` closes. Run it directly any time, or
-let `install.sh` / `/pr setup` call it for you:
+let `install.sh` / `/pr setup nudge` call it for you:
 
 ```sh
 ~/.claude/skills/pr/scripts/fetch-binary.sh
@@ -120,16 +122,14 @@ install.sh** — otherwise you'll get two nudges per fire, with
 different state files. The script prints a warning when it detects
 an existing pr-size-nudge entry.
 
-### Why two steps
+### Why the hook is not in skill frontmatter
 
-The `hooks:` block in SKILL.md is the spec-correct shape for a skill
-that registers a hook (it declares both the `PostToolUse` and `AfterTool`
-variants, one per host), but as of today neither Claude Code nor Gemini
-CLI substitutes `${CLAUDE_SKILL_DIR}` in frontmatter hook commands
-— see [anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)
-(closed as "not planned"). And frontmatter `hooks:` blocks only fire
-while the skill is loaded into context — not always-on. `install.sh`
-writes an absolute path into the host's `settings.json`, closing both gaps.
+The skill intentionally omits a `hooks:` frontmatter block so installing
+or loading `/pr` cannot activate the nudge implicitly. Once the user opts
+in, `install.sh` writes an absolute runner path into the host's
+`settings.json`; this also avoids relying on unsupported
+`${CLAUDE_SKILL_DIR}` substitution in frontmatter hook commands (see
+[anthropics/claude-code#36135](https://github.com/anthropics/claude-code/issues/36135)).
 
 ### Manual wiring (alternative)
 

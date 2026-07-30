@@ -50,7 +50,7 @@ intent — an explicit flag or the `pr.draft` default).
 | Subcommand | What it does |
 |---|---|
 | `commit [message]` | Alias for the default action — `checkpoint`, with the message as the slice description. Same as bare `/pr`. |
-| `setup` | Show and change the persistent settings — the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default. |
+| `setup` | Show and change the persistent settings — the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default. Enable the optional nudge only with `/pr setup nudge`. |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | Read-only. Print the stack tree with each branch's PR status. |
 | `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with structured controls, then apply the approved stack-wide plan and restack/push safely. |
@@ -62,7 +62,7 @@ intent — an explicit flag or the `pr.draft` default).
 See [references/recovery.md](references/recovery.md) if a `--delete-branch`
 mishap has already auto-closed a child PR.
 
-## Bundled PostToolUse hook
+## Optional PostToolUse hook
 
 This skill also ships a diff-size nudge hook. It fires after every
 `Edit`/`Write`/`MultiEdit`/`NotebookEdit` tool call and emits a soft
@@ -70,7 +70,9 @@ reminder to run `/pr` when the uncommitted diff crosses size/file
 thresholds — so you land a focused PR (a stacked checkpoint) before the
 diff grows unwieldy.
 
-The hook is wired up by the bundled `scripts/install.sh` (see Install
+The hook is opt-in: installing the skill and using `/pr setup` for draft
+or backend settings do not activate or provision it. Enable it with
+`/pr setup nudge` or the bundled `scripts/install.sh` (see Install
 below). See [references/nudge.md](references/nudge.md) for thresholds,
 env-var overrides, and manual wiring as an alternative.
 
@@ -86,18 +88,25 @@ references for the full workflows.
 
 ```sh
 npx skills add zcaceres/skills -s pr
+```
+
+This installs only the `/pr` skill; the nudge remains disabled.
+
+To opt into the nudge, run `/pr setup nudge`, or invoke the installer
+directly:
+
+```sh
 ~/.claude/skills/pr/scripts/install.sh
 ```
 
-The second step wires the bundled PostToolUse nudge hook into
+The installer wires the bundled PostToolUse nudge hook into
 `~/.claude/settings.json` so it fires on every matching tool call,
 not just when the skill is active in context. The script is
 idempotent, backs up the target file with a timestamp, and is a
 no-op if the hook is already wired. The script self-locates, so it
 works whether the skill was installed at user scope or project
 scope. Flags: `--project`, `--target PATH`. Requires `jq`. Skip
-this step if you only want the slash command and don't want the
-nudge.
+this opt-in step if you only want the slash command.
 
 To open every new PR as a draft by default:
 

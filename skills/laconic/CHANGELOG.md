@@ -1,5 +1,11 @@
 # @zcaceres/skill-laconic
 
+## 0.7.4
+
+### Patch Changes
+
+- 3a84acf: Align the README's voice and mode guidance with the simplified canonical rules.
+
 ## 0.7.3
 
 ### Patch Changes

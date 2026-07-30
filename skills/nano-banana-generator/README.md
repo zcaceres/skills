@@ -2,9 +2,13 @@
 
 Claude Code skill that generates graphic assets — logos, icons,
 illustrations, UI elements, one-off graphics — using Google's Nano
-Banana (Gemini image generation API) via a bundled `bun` helper.
+Banana Pro (Gemini image generation API) via a bundled `bun` helper.
 Supports text-to-image and image-to-image editing, custom dimensions,
-transparent backgrounds, and style modifiers.
+transparent backgrounds, and style modifiers. It defaults to Google's
+stable `gemini-3-pro-image` model for the best output quality and offers
+`gemini-3.1-flash-image` (Nano Banana 2) for faster generation. Requests use
+Google's stable `generateContent` API with native aspect-ratio and output-size
+settings.
 
 See [SKILL.md](./SKILL.md) for usage, the full option table, and
 prompt tips.

@@ -14,6 +14,48 @@ import { parseArgs } from "util";
 import { mkdir, writeFile, readFile } from "fs/promises";
 import { dirname } from "path";
 
+const SUPPORTED_ASPECT_RATIOS = [
+  "1:8",
+  "1:4",
+  "2:3",
+  "3:4",
+  "4:5",
+  "1:1",
+  "5:4",
+  "4:3",
+  "3:2",
+  "16:9",
+  "21:9",
+  "4:1",
+  "8:1",
+] as const;
+
+function nearestAspectRatio(width: number, height: number): string {
+  const requestedRatio = width / height;
+
+  return SUPPORTED_ASPECT_RATIOS.reduce((nearest, candidate) => {
+    const [candidateWidth, candidateHeight] = candidate.split(":").map(Number);
+    const [nearestWidth, nearestHeight] = nearest.split(":").map(Number);
+    const candidateDistance = Math.abs(Math.log(requestedRatio / (candidateWidth / candidateHeight)));
+    const nearestDistance = Math.abs(Math.log(requestedRatio / (nearestWidth / nearestHeight)));
+
+    return candidateDistance < nearestDistance ? candidate : nearest;
+  });
+}
+
+function imageSize(
+  width: number,
+  height: number,
+  model: string
+): "512" | "1K" | "2K" | "4K" {
+  const largestDimension = Math.max(width, height);
+
+  if (largestDimension <= 512 && model === "gemini-3.1-flash-image") return "512";
+  if (largestDimension <= 1024) return "1K";
+  if (largestDimension <= 2048) return "2K";
+  return "4K";
+}
+
 async function generateImage(
   prompt: string,
   model: string,
@@ -30,10 +72,14 @@ async function generateImage(
     );
   }
 
-  const fullPrompt = `${prompt}\n\nImage dimensions: ${width}x${height} pixels.`;
+  const aspectRatio = nearestAspectRatio(width, height);
+  const outputSize = imageSize(width, height, model);
 
-  // Build request parts
-  const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
+  // Build generateContent request parts.
+  const parts: Array<
+    { text: string }
+    | { inlineData: { mimeType: string; data: string } }
+  > = [];
 
   // If input image provided, add it first
   if (inputImagePath) {
@@ -49,7 +95,7 @@ async function generateImage(
   }
 
   // Add text prompt
-  parts.push({ text: fullPrompt });
+  parts.push({ text: prompt });
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
@@ -67,6 +113,10 @@ async function generateImage(
         ],
         generationConfig: {
           responseModalities: ["IMAGE"],
+          imageConfig: {
+            aspectRatio,
+            imageSize: outputSize,
+          },
         },
       }),
     }
@@ -79,7 +129,7 @@ async function generateImage(
 
   const data = await response.json();
 
-  // Extract image from response
+  // Extract image from the generateContent response.
   const responseParts = data.candidates?.[0]?.content?.parts;
   if (!responseParts) {
     throw new Error("No content in response");
@@ -87,7 +137,6 @@ async function generateImage(
 
   for (const part of responseParts) {
     if (part.inlineData?.data) {
-      // Decode base64 image data
       const base64Data = part.inlineData.data;
       const binaryString = atob(base64Data);
       const bytes = new Uint8Array(binaryString.length);
@@ -107,7 +156,7 @@ async function main() {
     options: {
       output: { type: "string", short: "o", default: "./output.png" },
       input: { type: "string", short: "i" },
-      model: { type: "string", short: "m", default: "nano-banana" },
+      model: { type: "string", short: "m", default: "nano-banana-pro" },
       width: { type: "string", short: "w", default: "512" },
       height: { type: "string", short: "h", default: "512" },
       transparent: { type: "boolean", short: "t", default: false },
@@ -127,7 +176,7 @@ Usage:
 Options:
   -o, --output <path>     Output file path (default: ./output.png)
   -i, --input <path>      Input image for image-to-image editing
-  -m, --model <model>     Model: nano-banana (default) or nano-banana-pro
+  -m, --model <model>     Model: nano-banana-pro (default, best quality) or nano-banana-2 (faster)
   -w, --width <px>        Image width (default: 512)
   -h, --height <px>       Image height (default: 512)
   -t, --transparent       Request transparent PNG background
@@ -137,7 +186,7 @@ Options:
 Examples:
   bun run generate.ts "Art Deco city logo" --output ./logo.png --transparent
   bun run generate.ts "CITY TYCOON title" --width 800 --height 200
-  bun run generate.ts "game icon" --model nano-banana-pro --transparent
+  bun run generate.ts "game icon" --model nano-banana-2 --transparent
   bun run generate.ts "add flowers to grass" --input ./grass.png --output ./grass_flowers.png
 `);
     process.exit(0);
@@ -148,22 +197,27 @@ Examples:
 
   // Map friendly names to model IDs
   const modelMap: Record<string, string> = {
-    "nano-banana": "gemini-2.5-flash-image",
-    "nano-banana-pro": "gemini-3-pro-image-preview",
+    "nano-banana-pro": "gemini-3-pro-image",
+    "nano-banana-2": "gemini-3.1-flash-image",
   };
 
-  const modelName = values.model || "nano-banana";
+  const modelName = values.model || "nano-banana-pro";
   const modelId = modelMap[modelName];
 
   if (!modelId) {
     console.error(
-      `Unknown model: ${modelName}. Use 'nano-banana' or 'nano-banana-pro'`
+      `Unknown model: ${modelName}. Use 'nano-banana-pro' or 'nano-banana-2'`
     );
     process.exit(1);
   }
 
   const width = parseInt(values.width || "512", 10);
   const height = parseInt(values.height || "512", 10);
+
+  if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
+    console.error("Width and height must be positive integers");
+    process.exit(1);
+  }
 
   // Build full prompt
   let prompt = userPrompt;
@@ -181,7 +235,9 @@ Examples:
   console.log(`Generating image...`);
   console.log(`Prompt: ${userPrompt}`);
   console.log(`Model: ${modelName}`);
-  console.log(`Size: ${width}x${height}`);
+  console.log(
+    `Requested size: ${width}x${height} (API: ${nearestAspectRatio(width, height)}, ${imageSize(width, height, modelId)})`
+  );
   console.log(`Output: ${outputPath}`);
 
   if (values.input) {

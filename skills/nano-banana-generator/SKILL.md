@@ -27,11 +27,11 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "Art Deco logo for City Tycoon gam
 # Specify output path
 bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "icon of a golden skyscraper" --output ./logo.png
 
-# Specify dimensions
+# Specify dimensions (mapped to the nearest supported aspect ratio and output size)
 bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "game title banner" --width 800 --height 200
 
-# Use higher quality model
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "detailed illustration" --model nano-banana-pro
+# Use the faster Nano Banana 2 model
+bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "quick concept" --model nano-banana-2
 
 # Request transparent background
 bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "app icon" --transparent
@@ -46,9 +46,9 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "add flowers to grass" --input ./g
 |--------|-------|-------------|
 | `--output <path>` | `-o` | Output file path (default: ./output.png) |
 | `--input <path>` | `-i` | Input image for image-to-image editing |
-| `--width <px>` | `-w` | Image width (default: 512) |
-| `--height <px>` | `-h` | Image height (default: 512) |
-| `--model <name>` | `-m` | Model: nano-banana (default) or nano-banana-pro |
+| `--width <px>` | `-w` | Desired image width; selects the nearest supported aspect ratio and output size (default: 512) |
+| `--height <px>` | `-h` | Desired image height; selects the nearest supported aspect ratio and output size (default: 512) |
+| `--model <name>` | `-m` | Model: nano-banana-pro (default, best quality) or nano-banana-2 (faster) |
 | `--transparent` | `-t` | Request transparent PNG background |
 | `--style <desc>` | `-s` | Add style modifier to prompt |
 | `--help` | | Show help |
@@ -57,8 +57,14 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "add flowers to grass" --input ./g
 
 | Model | ID | Best For |
 |-------|-----|----------|
-| Nano Banana | `gemini-2.5-flash-image` | Fast iteration, testing |
-| Nano Banana Pro | `gemini-3-pro-image-preview` | Final assets, higher quality |
+| Nano Banana Pro (default) | `gemini-3-pro-image` | Professional-grade final assets and highest quality |
+| Nano Banana 2 | `gemini-3.1-flash-image` | Fast, high-volume generation and iteration |
+
+The helper uses Google's stable `generateContent` API with its current native
+image configuration and maps `--width` and `--height` to the nearest supported
+aspect ratio and model-supported output size. Nano Banana Pro supports `1K`,
+`2K`, and `4K`; Nano Banana 2 additionally supports `512`. Generated dimensions
+can differ from the exact requested pixel values.
 
 ## Examples
 
@@ -93,4 +99,5 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
 - Specify style explicitly: "Art Deco", "flat design", "pixel art"
 - For transparent backgrounds, always include `--transparent`
 - Larger dimensions = more detail, but slower generation
-- Use `nano-banana-pro` for final production assets
+- The default `nano-banana-pro` model provides the best output quality
+- Use `nano-banana-2` when speed and generation volume matter more

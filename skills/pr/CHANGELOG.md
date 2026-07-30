@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.2.0
+
+### Minor Changes
+
+- 01702f9: Add git-delta-powered colorized terminal rendering for `/pr walk` review documents while preserving exact canonical patch artifacts.
+
 ## 2.1.2
 
 ### Patch Changes

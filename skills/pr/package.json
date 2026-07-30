@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-pr",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Commit your work and ship it as stacked PRs with /pr. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), review it as annotatable Markdown with colorized git-delta diffs and exact patches (walk), rebase it onto trunk (sync), and land it bottom-up (merge). /pr update covers the single-branch case. Open any PR as a draft with --draft, or make drafts the default via /pr setup. Includes an opt-in PostToolUse diff-size nudge hook. Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj).",
   "license": "MIT",
   "type": "module",

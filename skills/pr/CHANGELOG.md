@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.1.2
+
+### Patch Changes
+
+- 798e084: Make the bundled diff-size nudge hook opt-in instead of activating it during skill installation or ordinary `/pr setup` configuration.
+
 ## 2.1.1
 
 ### Patch Changes

@@ -63,7 +63,8 @@ The second step wires this skill's `PreToolUse:Bash` hook into
 `~/.claude/settings.json` so it fires on every Bash call, not just when
 this skill is active in context. The script is idempotent, backs up the
 target file with a timestamp, and is a no-op if the hook is already
-wired. Flags: `--project`, `--target PATH`. Requires `jq`.
+wired. Flags: `--claude`, `--codex`, `--user`, `--project`,
+`--target PATH`. Requires `jq`.
 
 Frontmatter `hooks:` blocks fire only while the skill is loaded into
 context, so they're not real always-on protection — `install.sh` closes
@@ -99,29 +100,24 @@ The same binary works on Codex CLI. Codex's hook engine delivers the same
 stdin JSON payload (`tool_input.command`) and honors the same `PreToolUse`
 `permissionDecision: "deny"` stdout contract this guard emits — so no rebuild
 or variant binary is needed. Codex does **not** read the `hooks:` frontmatter,
-so the install is manual.
+so install it explicitly:
 
-Add to `~/.codex/config.toml` (note the **top-level** `[[PreToolUse]]` table —
-not `[[hooks.PreToolUse]]`):
-
-```toml
-[[PreToolUse]]
-matcher = "Bash"
-
-[[PreToolUse.hooks]]
-type = "command"
-command = "/abs/path/to/safety-git-reset-guard/scripts/run.sh"
-timeout = 30
+```sh
+~/.claude/skills/safety-git-reset-guard/scripts/install.sh --codex
 ```
+
+This writes the hook to `~/.codex/hooks.json`; use `--project` to write
+`./.codex/hooks.json` instead. The official Codex hook documentation recommends
+using either `hooks.json` or inline `[hooks]` tables in `config.toml` per config
+layer, not both.
 
 After editing, run `/hooks` inside Codex to review and **trust** the new hook
 — Codex registers user-defined hooks as untrusted until you approve them.
 
-**Known limitation.** Codex's `PreToolUse` doesn't intercept every shell
-invocation yet — the newer `unified_exec` streaming path has incomplete
-coverage. The guard catches the common `Bash`-tool calls but is best-effort
-on Codex, not airtight. Pair it with sandboxing and backups as you would on
-Claude Code.
+Codex documents `PreToolUse` coverage for both shell commands and unified
+`exec_command`, matching both as `Bash`. Hooks remain a defense layer rather
+than a complete enforcement boundary because specialized tool paths may opt
+out; pair them with sandboxing and backups.
 
 You can stack this alongside
 [`safety-rm-rf-guard`](../safety-rm-rf-guard/SKILL.md#codex-cli) on Codex too —

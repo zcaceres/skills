@@ -16,11 +16,14 @@ works.
 ```sh
 npx skills add zcaceres/skills -s safety-git-reset-guard
 ~/.claude/skills/safety-git-reset-guard/scripts/install.sh
+# Also install for Codex:
+~/.claude/skills/safety-git-reset-guard/scripts/install.sh --codex
 ```
 
 The bundled `install.sh` idempotently wires the hook into
-`~/.claude/settings.json` (with timestamped backup) so it fires on every
-Bash call, not just while this skill is loaded. Requires `jq`. See
+`~/.claude/settings.json` or, with `--codex`, `~/.codex/hooks.json` (with
+timestamped backup) so it fires on every Bash call, not just while this skill
+is loaded. Codex requires reviewing and trusting it through `/hooks`. Requires `jq`. See
 [SKILL.md](./SKILL.md#install) for why two steps are needed and for
 manual wiring as an alternative.
 

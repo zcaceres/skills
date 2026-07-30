@@ -1,7 +1,8 @@
 # `/pr setup` — Persistent `/pr` Settings
 
-Show and change the persistent `/pr` settings, all stored in git
-config (a local value always overrides a global one):
+Show and change the persistent `/pr` settings, which are stored in git
+config (a local value always overrides a global one), or explicitly
+enable the optional nudge hook:
 
 - **draft default** (`pr.draft`) — when `true`, every PR this skill
   **creates** is opened as a draft unless the invocation passes
@@ -10,6 +11,8 @@ config (a local value always overrides a global one):
   subcommands read `references/jj.md` and drive the repo with Jujutsu
   (colocated with git) instead of `git`/`git stack`. Written **local scope
   only** — see "Switch the backend" below.
+- **nudge hook** — optional, disabled by default, and enabled only when
+  the user explicitly requests `/pr setup nudge`.
 
 The draft default affects PR creation only; a per-invocation
 `--draft`/`-d` or `--ready`/`--no-draft` always overrides it for that
@@ -17,13 +20,14 @@ run.
 
 ## What the user asked to change
 
-`/pr setup` manages two settings. Figure out which the invocation
-targets, then only touch that one:
+`/pr setup` manages two settings and one optional hook. Figure out which
+the invocation targets, then only touch that one:
 
 - Draft words → `draft`, `--draft`, `draft on` (turn on); `no-draft`,
   `--no-draft`, `ready`, `draft off` (turn off) (e.g. `/pr setup draft`).
 - Backend words → `jj`, `git` (e.g. `/pr setup jj`).
-- Several in one go is fine: `/pr setup jj draft`.
+- Nudge words → `nudge`, `nudge on`, `hook` (e.g. `/pr setup nudge`).
+- Several in one go is fine: `/pr setup jj draft nudge`.
 - No setting word → show everything (step 1) and ask which to change.
 
 A `--global` / `--local` token sets the scope for whatever is written
@@ -50,11 +54,14 @@ If `pr.draft` is unset (or not `true`) new PRs default to **ready**.
 ### 2. Ask the user what they want
 
 If the invocation already made it clear (e.g. `/pr setup draft`,
-`/pr setup jj`, `/pr setup no-draft`), skip the question and go straight
-to step 3. Otherwise ask which setting(s) to change:
+`/pr setup jj`, `/pr setup no-draft`, `/pr setup nudge`), skip the
+question and go straight to step 3. Otherwise ask which setting(s) to
+change:
 
 - Drafts by default? `on` or `off`.
 - Backend? `git` or `jj` (jj is per-repo and colocates with git).
+- Enable the optional diff-size nudge hook? `yes` or `no` (default
+  **no**).
 - Scope? **global** (applies to every repo on this machine — the right
   choice if you always work this way) or **local** (this repo only; the
   backend is always local).
@@ -132,7 +139,7 @@ PRs `/pr` creates from now on; an existing PR is unaffected until you
 explicitly flip it (`gh pr ready --undo` to draft, `gh pr ready` to mark
 ready), and a single run can still opt out with `--ready`/`--no-draft`.
 
-### 5. Wire and provision the nudge hook
+### 5. Optionally wire and provision the nudge hook
 
 `/pr` bundles a diff-size nudge hook (see [nudge.md](nudge.md)) that nudges you
 toward a focused PR once the uncommitted diff grows large. Two things must be in
@@ -142,10 +149,16 @@ provisioned (a file-copy install — `npx skills add`, a sparse checkout — shi
 the source but **not** the ~60 MB binary). Until both are done the hook silently
 no-ops.
 
+**Run this step only when the user explicitly requested `nudge` or answered
+yes to the nudge question in this setup invocation.** For every other setup
+invocation, stop after step 4. Installing the skill, running bare `/pr setup`,
+or changing only the draft/backend setting must leave the hook unwired and its
+binary unprovisioned.
+
 `install.sh` does both — it wires the hook *and* runs `fetch-binary.sh` — and
-it's idempotent, so it's safe to run on every `/pr setup`. Run the `install.sh`
-that ships in this skill's `scripts/` directory (it self-locates, so any install
-scope works), passing `--agent` for **the host you are running in right now**:
+it's idempotent. Run the `install.sh` that ships in this skill's `scripts/`
+directory (it self-locates, so any install scope works), passing `--agent` for
+**the host you are running in right now**:
 
 - **Claude Code** → `--agent claude` (wires a `PostToolUse` hook into `~/.claude/settings.json`)
 - **Gemini CLI** → `--agent gemini` (wires an `AfterTool` hook into `~/.gemini/settings.json`)
@@ -172,9 +185,9 @@ if you ever see a "binary not found" note in your hook logs.
 
 - This subcommand reads and writes `git config pr.draft` and
   `git config pr.backend` (plus `jj git init --colocate` when switching
-  to jj), and wires + provisions the nudge hook (step 5, via
-  `install.sh` — which edits the host's `settings.json`, backing it up
-  first). It never commits, pushes, or opens PRs.
+  to jj). Only an explicit nudge request wires + provisions the hook
+  (step 5, via `install.sh`, which edits the host's `settings.json` and
+  backs it up first). It never commits, pushes, or opens PRs.
 - All keys are plain git config — the user can also set them by hand
   with `git config [--global] pr.draft true` or
   `git config --local pr.backend <git|jj>`.

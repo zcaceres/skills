@@ -5,6 +5,7 @@ import {
   assertStablePullRequest,
   isStackCandidateFromRepository,
   orderLinearStack,
+  renderDiffBlocks,
   renderIndex,
   renderReviewDocument,
   splitPatch,
@@ -182,6 +183,52 @@ describe("splitPatch", () => {
       "src/b.ts",
     ]);
     expect(sections.map((section) => section.content).join("")).toBe(patch);
+  });
+});
+
+describe("renderDiffBlocks", () => {
+  test("renders each diff independently without treating later Markdown as diff content", async () => {
+    const markdown = [
+      "# Review\n",
+      "\n",
+      "~~~~diff\n",
+      "diff --git a/src/a.ts b/src/a.ts\n",
+      "-old\n",
+      "+new\n",
+      "~~~~\n",
+      "\n",
+      "## Notes\n",
+      "\n",
+      "- [ ] keep this as Markdown\n",
+      "\n",
+      "~~~~~diff\n",
+      "diff --git a/src/b.ts b/src/b.ts\n",
+      "+second\n",
+      "~~~~~\n",
+    ].join("");
+    const patches: string[] = [];
+
+    const output = await renderDiffBlocks(markdown, async (patch) => {
+      patches.push(patch);
+      return `<rendered>${patch}</rendered>\n`;
+    });
+
+    expect(patches).toEqual([
+      "diff --git a/src/a.ts b/src/a.ts\n-old\n+new\n",
+      "diff --git a/src/b.ts b/src/b.ts\n+second\n",
+    ]);
+    expect(output).toContain(
+      "<rendered>diff --git a/src/a.ts b/src/a.ts\n-old\n+new\n</rendered>",
+    );
+    expect(output).toContain("- [ ] keep this as Markdown");
+    expect(output).not.toContain("~~~~diff");
+    expect(output).not.toContain("~~~~~diff");
+  });
+
+  test("rejects an unclosed generated diff fence", async () => {
+    await expect(
+      renderDiffBlocks("~~~~diff\ndiff --git a/a b/a\n", async (patch) => patch),
+    ).rejects.toThrow("unclosed diff fence");
   });
 });
 

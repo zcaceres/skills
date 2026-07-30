@@ -53,7 +53,7 @@ intent — an explicit flag or the `pr.draft` default).
 | `setup` | Show and change the persistent settings — the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default. Enable the optional nudge only with `/pr setup nudge`. |
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | Read-only. Print the stack tree with each branch's PR status. |
-| `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with structured controls, then apply the approved stack-wide plan and restack/push safely. |
+| `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with colorized git-delta diffs and structured controls, then apply the approved stack-wide plan and restack/push safely. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
 | `checkpoint [slice description]` | Cut current diff as the next stacked branch. Local-only on the git-stack path (publishes nothing); the `gh`-fallback path still publishes eagerly. The default action. |
 | `submit [--draft]` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. `--draft` opens the created PRs as drafts. Requires `git stack`. |
@@ -120,6 +120,10 @@ Optional but recommended:
   [`zcaceres/git-stack`](https://github.com/zcaceres/git-stack) releases.
   Without it, the skill falls back to `gh` + `git` (and `submit`,
   the whole-stack push, is unavailable).
+- [`git-delta`](https://github.com/dandavison/delta) — provides colorized,
+  syntax-highlighted, line-numbered diffs during conversational `/pr walk`.
+  If another `delta` CLI shadows it, set `PR_WALK_DELTA` to the git-delta
+  executable path.
 
 ## Live test bed (maintainers)
 

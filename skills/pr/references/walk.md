@@ -18,7 +18,17 @@ Markdown documents and exact patches.
 ### 1. Pre-flight
 
 Require `git`, an authenticated `gh`, a GitHub remote, and a repository
-root. Generated review packets must not enter source control. Check:
+root. Conversational mode also uses
+[`git-delta`](https://github.com/dandavison/delta) for colorized terminal
+diffs. The helper verifies the executable instead of trusting the name
+`delta`, because another CLI may shadow it. If needed, point directly to
+git-delta:
+
+```bash
+export PR_WALK_DELTA=/path/to/delta
+```
+
+Generated review packets must not enter source control. Check:
 
 ```bash
 git check-ignore -q artifacts/pr-walk/.pr-walk-ignore-check
@@ -37,12 +47,12 @@ Never change either file without confirmation.
 Locate this skill's directory, provision its binary if needed, and run:
 
 ```bash
-SKILL_BINARY_CAPABILITY=walk-prepare "$SKILL_DIR/scripts/fetch-binary.sh"
+SKILL_BINARY_CAPABILITY=walk-render "$SKILL_DIR/scripts/fetch-binary.sh"
 "$SKILL_DIR/scripts/run.sh" walk-prepare [number-or-URL]
 ```
 
 The capability requirement prevents an old, gitignored nudge binary from
-surviving a skill upgrade and silently no-oping on `walk-prepare`.
+surviving a skill upgrade and silently no-oping on the walk commands.
 
 The preparer:
 
@@ -79,9 +89,24 @@ tell them:
 
 Otherwise, use **conversational mode**:
 
-1. Render the complete current PR as one review unit: metadata, PR body,
-   submitted reviews, conversation comments, inline comments, and every
-   file's exact diff. Do not pause or prompt between files.
+1. Render the complete current PR as one review unit by running:
+
+   ```bash
+   "$SKILL_DIR/scripts/run.sh" walk-render <numbered-review-document.md>
+   ```
+
+   This preserves the metadata, PR body, submitted reviews, conversation
+   comments, and inline comments as text while replacing each generated
+   diff fence with an independent `git-delta --paging=never
+   --line-numbers` rendering. Rendering each fence independently is
+   required: piping the complete Markdown document through git-delta can
+   misclassify later notes as diff lines. The `.patch` artifact remains
+   canonical and unchanged.
+
+   If the renderer cannot find git-delta, show its actionable error and
+   ask the user whether to install/configure it or continue with the raw
+   Markdown diff. Do not silently invoke an unrelated `delta` executable.
+   Do not pause or prompt between files.
 2. After the entire PR, show this stable control bar:
 
    ```text
@@ -120,8 +145,8 @@ Do not infer approval merely because a note exists.
 For each numbered document, bottom-to-top:
 
 1. In direct-edit mode, read the document after the user says it is
-   ready. In conversational mode, render the complete PR and process
-   controls until the user enters `n`.
+   ready. In conversational mode, run `walk-render` for the complete PR
+   and process controls until the user enters `n`.
 2. Extract additions from the single `Notes` section. Ignore the
    generated PR text, reviewer comments, and placeholder unchecked bullet.
 3. Classify each addition as:

@@ -9,9 +9,9 @@ argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | sub
 Commit your work and ship it as stacked PRs with `/pr`. Each bare `/pr`
 slices the current diff onto a new branch stacked on the last one;
 subcommands push the whole stack (`submit`), rebase it onto trunk
-(`sync`), review it as annotatable Markdown (`walk`), and merge it
-bottom-up (`merge`). `/pr update` covers the single-branch case — commit
-and refresh the current branch's PR.
+(`sync`), review it as annotatable Markdown with colorized git-delta
+rendering (`walk`), and merge it bottom-up (`merge`). `/pr update` covers
+the single-branch case — commit and refresh the current branch's PR.
 
 Any PR this skill **creates** can be a **draft**: pass `--draft` (or
 `-d`) on the invocation, or make drafts the default everywhere with
@@ -79,7 +79,7 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). The optional nudge hook is enabled only with an explicit `/pr setup nudge`. |
 | `update [base-branch]` | [git](references/git/update.md) · [jj](references/jj.md#update) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | [git](references/git/log.md) · [jj](references/jj.md#log) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
-| `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
+| `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with colorized git-delta diffs and structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
 | `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
 | `checkpoint [slice description]` | [git](references/git/checkpoint.md) · [jj](references/jj.md#checkpoint) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
 | `submit [--draft]` | [git](references/git/submit.md) · [jj](references/jj.md#submit) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |

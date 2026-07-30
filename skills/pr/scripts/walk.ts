@@ -1,5 +1,5 @@
-import { mkdir, rename, rm, writeFile } from "fs/promises";
-import { join, relative } from "path";
+import { mkdir, readFile, rename, rm, writeFile } from "fs/promises";
+import { delimiter, join, relative, resolve } from "path";
 
 interface Author {
   login?: string;
@@ -69,6 +69,8 @@ interface PatchSection {
   path: string;
   content: string;
 }
+
+type DiffRenderer = (patch: string) => Promise<string>;
 
 const PR_FIELDS = [
   "number",
@@ -176,6 +178,47 @@ export function splitPatch(patch: string): PatchSection[] {
     sections.push({ path: pathFromSection(content, sections.length), content });
   }
   return sections;
+}
+
+export async function renderDiffBlocks(
+  markdown: string,
+  renderDiff: DiffRenderer,
+): Promise<string> {
+  const openingFence = /^(~{3,})diff[ \t]*\r?\n/gm;
+  const output: string[] = [];
+  let cursor = 0;
+
+  for (
+    let opening = openingFence.exec(markdown);
+    opening;
+    opening = openingFence.exec(markdown)
+  ) {
+    const fence = opening[1]!;
+    const closingFence = new RegExp(`^${fence}[ \\t]*(?:\\r?\\n|$)`, "gm");
+    closingFence.lastIndex = openingFence.lastIndex;
+    const closing = closingFence.exec(markdown);
+    if (!closing) {
+      throw new Error("Review document contains an unclosed diff fence.");
+    }
+
+    output.push(markdown.slice(cursor, opening.index));
+    const rendered = await renderDiff(
+      markdown.slice(openingFence.lastIndex, closing.index),
+    );
+    output.push(rendered);
+    if (
+      rendered.length > 0 &&
+      !rendered.endsWith("\n") &&
+      closing[0].endsWith("\n")
+    ) {
+      output.push("\n");
+    }
+    cursor = closingFence.lastIndex;
+    openingFence.lastIndex = cursor;
+  }
+
+  output.push(markdown.slice(cursor));
+  return output.join("");
 }
 
 function renderInlineComment(comment: InlineComment): string {
@@ -419,6 +462,88 @@ async function run(
     );
   }
   return stdout;
+}
+
+async function isGitDelta(command: string, cwd: string): Promise<boolean> {
+  try {
+    const help = await run(command, ["--help"], cwd);
+    return help.includes("A viewer for git and diff output") &&
+      help.includes("--paging");
+  } catch {
+    return false;
+  }
+}
+
+async function findGitDelta(cwd: string): Promise<string | undefined> {
+  const override = process.env.PR_WALK_DELTA?.trim();
+  const executableNames = process.platform === "win32"
+    ? ["delta.exe", "delta"]
+    : ["delta"];
+  const candidates = override
+    ? [override]
+    : (process.env.PATH ?? "")
+      .split(delimiter)
+      .filter(Boolean)
+      .flatMap((directory) =>
+        executableNames.map((name) => join(directory, name))
+      );
+
+  for (const candidate of new Set(candidates)) {
+    if (await isGitDelta(candidate, cwd)) return candidate;
+  }
+  return undefined;
+}
+
+async function renderWithGitDelta(
+  executable: string,
+  patch: string,
+  cwd: string,
+): Promise<string> {
+  const process = Bun.spawn(
+    [executable, "--paging=never", "--line-numbers"],
+    {
+      cwd,
+      stdin: "pipe",
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  );
+  process.stdin.write(patch);
+  process.stdin.end();
+  const [stdout, stderr, exitCode] = await Promise.all([
+    new Response(process.stdout).text(),
+    new Response(process.stderr).text(),
+    process.exited,
+  ]);
+  if (exitCode !== 0) {
+    throw new Error(
+      `git-delta failed:\n${stderr.trim() || stdout.trim()}`,
+    );
+  }
+  return stdout;
+}
+
+export async function renderWalkDocument(
+  args: string[],
+  cwd = process.cwd(),
+): Promise<string> {
+  if (args.length !== 1 || args[0]!.startsWith("-")) {
+    throw new Error("Usage: /pr walk renderer <review-document.md>");
+  }
+
+  const documentPath = resolve(cwd, args[0]!);
+  const gitDelta = await findGitDelta(cwd);
+  if (!gitDelta) {
+    throw new Error(
+      "Could not find the git-delta diff viewer. Install git-delta, or set PR_WALK_DELTA to its executable path if another `delta` command shadows it.",
+    );
+  }
+
+  const markdown = await readFile(documentPath, "utf8");
+  return renderDiffBlocks(
+    markdown,
+    (patch) => renderWithGitDelta(gitDelta, patch, cwd),
+  );
 }
 
 async function runJson<T>(

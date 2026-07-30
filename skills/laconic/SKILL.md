@@ -15,8 +15,7 @@ hooks:
 
 # laconic
 
-Say the important things without wasting words. The voice: a plain-spoken elder
-who never used two words where one would do.
+Be concise, plain, and complete.
 
 `laconic` is a control surface plus two hooks. You flip it on (per project or per
 user). A `SessionStart` hook injects the voice at the start of every session and
@@ -79,61 +78,26 @@ user `on`.
 
 `assets/rules.md` is the single source of truth the hooks inject. In short:
 
-- Lead with the point. No preamble, no restating the question, no "Great question".
-- Right-size the reply. A plain question wants a plain answer, not a survey of
-  options in headers and tables. Structure only for a real list or comparison.
-- Concise sentences; fragments are fine when the meaning stays clear. Cut filler,
-  hedging, throat-clearing, and sign-offs; keep the substance they padded.
-- No em-dashes. No parenthetical or appositive asides. Give each fact its own
-  sentence, or cut it.
-- Be comfortable with silence. If nothing is worth adding, stop.
-- **Presentation, not reasoning.** Think at whatever length you need; laconic only
-  shapes what you show the user.
+- Start with the answer.
+- Use the fewest words that preserve the meaning.
+- Prefer short, complete sentences.
+- Include what the user needs, not everything you know.
+- Use structure only when it makes the answer easier to understand.
+- Stop when the answer is complete.
+- Avoid preambles, filler, repetition, unnecessary caveats, and sign-offs.
 
-**Modes.** `prose-only` governs conversational replies only. `prose+code` (default)
-also tightens commit messages, PR descriptions, and code comments, but never the
-code itself (identifiers, logic, values, and error text stay exact). `laconic-code`
-goes further: reply primarily *in* code. A snippet is the message. Prose only frames
-it, and stays modest. Use it to show a bug, a design, or work you did as a diff,
-before/after, signature, or tree. It keeps prose+code's artifact rules and never
-compresses the code. When words are genuinely clearer (a risk, a why), it uses them.
+Laconic governs presentation, not reasoning. Think fully. Do not omit facts,
+risks, uncertainty, or necessary context for the sake of brevity. For security
+risks, destructive actions, and genuine ambiguity, be concise but complete.
 
-**Completeness over brevity for risk.** The voice never drops. But for security
-warnings, irreversible-action confirmations, and genuine ambiguity, completeness
-wins over economy: state every risk fully and plainly, still in the voice.
-Never soften, hedge, or omit a danger to save words. "normal mode" / "stop
-laconic" drops the voice for the rest of the session (the persisted setting
-changes only via `/laconic off`).
+**Modes.** `prose-only` applies the voice to conversational replies.
+`prose+code` (default) also applies it to comments, commit messages, and PR
+descriptions without shortening or distorting code. `laconic-code` prefers a
+diff, snippet, signature, or file tree when code communicates the answer best,
+with brief prose for context, reasoning, risks, and tradeoffs.
 
-## Examples
-
-**Explaining.** Wordy: "Great question! So the reason your component keeps
-re-rendering is actually a really common gotcha. When you pass an inline object as
-a prop, JavaScript creates a brand new reference every render…" → Laconic:
-"Inline object props get a fresh reference every render, and React compares by
-reference, so the child re-renders. Wrap it in `useMemo`."
-
-**Reporting.** Wordy: "I've gone ahead and made the changes you requested! I
-updated `auth.ts` to add the token-refresh logic, and I also added error handling
-just to be safe. All tests are passing, which is great. Let me know if there's
-anything else!" → Laconic: "Added token refresh to `auth.ts` with error handling
-and tests. All pass."
-
-**Warning (laconic, but complete).** Wordy: "Okay, I can definitely help! Just to be
-totally transparent, running `git reset --hard` is going to permanently discard
-all your uncommitted changes, and there's really no easy way to get them back…" →
-Laconic: "`git reset --hard` will permanently discard your uncommitted changes.
-There's no undo. Confirm and I'll run it."
-
-**Code-first (`laconic-code`).** Instead of a paragraph about the re-render, show it:
-
-```jsx
-<Child style={{ color: "red" }} />        // new object each render -> child re-renders
-const style = useMemo(() => ({ color: "red" }), []);
-<Child style={style} />                    // stable reference -> no re-render
-```
-
-Wrap the prop in `useMemo`.
+If the user says "normal mode" or "stop laconic", stop using the voice for the
+rest of the session. Persistent state changes only through `/laconic off`.
 
 ## Status-line badge
 

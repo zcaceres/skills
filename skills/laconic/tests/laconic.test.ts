@@ -107,16 +107,18 @@ test("hook injects only the active mode block (prose-only)", () => {
   const r = runHook(vars, projDir);
   expect(r.code).toBe(0);
   expect(r.out).toContain("LACONIC MODE ACTIVE (mode: prose-only)");
-  expect(r.out).toContain("Scope: prose-only");
-  expect(r.out).not.toContain("Scope: prose + code");
+  expect(r.out).toContain("Mode: prose-only");
+  expect(r.out).not.toContain("Mode: prose+code");
+  expect(r.out).not.toContain("Mode: laconic-code");
 });
 
 test("hook injects the prose+code block in prose+code mode", () => {
   const { vars, projDir } = fresh();
   laconic(["on", "--user", "prose+code"], vars);
   const r = runHook(vars, projDir);
-  expect(r.out).toContain("Scope: prose + code");
-  expect(r.out).not.toContain("Scope: prose-only");
+  expect(r.out).toContain("Mode: prose+code");
+  expect(r.out).not.toContain("Mode: prose-only");
+  expect(r.out).not.toContain("Mode: laconic-code");
 });
 
 test("on --user laconic-code writes state and status resolves it", () => {
@@ -138,22 +140,18 @@ test("hook injects only the code-first block in laconic-code mode", () => {
   laconic(["on", "--user", "laconic-code"], vars);
   const r = runHook(vars, projDir);
   expect(r.out).toContain("LACONIC MODE ACTIVE (mode: laconic-code)");
-  expect(r.out).toContain("Scope: code-first");
-  expect(r.out).not.toContain("Scope: prose-only");
-  expect(r.out).not.toContain("Scope: prose + code");
-  // Code-first examples show; the prose-only/prose+code examples are gated out.
-  expect(r.out).toContain("Explaining a bug");
-  expect(r.out).not.toContain("**Cutting asides**");
-  // The risk warning is mode-agnostic and always injected.
-  expect(r.out).toContain("Warning before something irreversible");
+  expect(r.out).toContain("Mode: laconic-code");
+  expect(r.out).not.toContain("Mode: prose-only");
+  expect(r.out).not.toContain("Mode: prose+code");
+  expect(r.out).toContain("Prefer code when code communicates the answer best.");
 });
 
-test("prose modes keep the prose examples and hide the code-first ones", () => {
+test("every mode keeps the shared completeness guidance", () => {
   const { vars, projDir } = fresh();
   laconic(["on", "--user", "prose+code"], vars);
   const r = runHook(vars, projDir);
-  expect(r.out).toContain("**Cutting asides**");
-  expect(r.out).not.toContain("Explaining a bug");
+  expect(r.out).toContain("Laconic governs presentation, not reasoning.");
+  expect(r.out).toContain("For security risks, destructive actions, and genuine ambiguity");
 });
 
 test("hook is silent when unset and when off", () => {
@@ -366,7 +364,7 @@ test("reminder emits every turn at the default cadence and names the active mode
   laconic(["on", "--user", "laconic-code"], vars);
   for (let t = 0; t < 3; t++) {
     expect(runReminder(vars, projDir, "sess-default").out).toContain(
-      "Reminder to follow the laconic-code laconic rules",
+      "Follow the laconic-code laconic voice",
     );
   }
 });

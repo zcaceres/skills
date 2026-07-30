@@ -73,8 +73,9 @@ Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude
 
 **Hook skills.** `safety-dotenv-guard`, `safety-git-reset-guard`,
 `safety-op-creds`, `safety-rm-rf-guard`, and `pr` each ship a
-`scripts/install.sh` that idempotently wires
-the hook into `~/.claude/settings.json` (with a timestamped backup).
+`scripts/install.sh` that idempotently wires the hook into the host config
+(with a timestamped backup). The `pr` installer also supports Codex and
+Gemini CLI via `--agent`.
 Two-step install:
 
 ```sh
@@ -133,7 +134,7 @@ yet: their hooks run a compiled binary that a file-copy marketplace can't ship
 | `laconic` | **Hook + slash command.** Answer in a spare, plain register — economical full sentences, not fragments. Toggle per project or per user with `/laconic on\|off`, in `prose-only` or `prose+code` mode; a SessionStart hook injects it each session. Governs presentation, not reasoning. |
 | `optimize-permissions` | Scan recent transcripts for safe commands the user keeps approving, preview the proposals, and write them to the right agent config (Claude Code, Codex, Cursor). |
 | `optimize-skill-activation` | Right-size each installed skill's activation mode — slash-only, model-invocable, or eager-loaded — then rewrite its `SKILL.md` frontmatter. |
-| `pr` | **Hook + slash command.** Commit work and open PRs with `/pr`. Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns `/pr` into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `/pr setup`. Open any PR as a draft with `--draft` (`-d`), or make drafts the default via `/pr setup`. Also bundles the diff-size nudge hook. Runs under both Claude Code and Gemini CLI (`install.sh --agent gemini`). |
+| `pr` | **Hook + skill command.** Commit work and open PRs with `/pr` (`$pr` in Codex). Normal mode (default) commits your conversation changes, pushes, and opens a single PR against the trunk; stacked mode turns it into a stacked-PR workflow (`checkpoint`, `submit`, `sync`, bottom-up `merge`). Toggle with `setup`. Open any PR as a draft with `--draft` (`-d`), or make drafts the default via `setup`. Also bundles the diff-size nudge hook. Runs under Claude Code, Codex (`install.sh --agent codex`), and Gemini CLI (`install.sh --agent gemini`). |
 | `project` | **Slash command.** Manage a repo's project-tracker kanban board with one skill over a pluggable backend (GitHub Projects or Linear via the official Linear MCP) — `setup`, `next`, `new-task`, `update`, `review`, `decompose`, `delete`, `milestone`, `batch` subcommands. |
 | `quality-project-health` | **Slash command.** Assess the current repo and work tracker, then rate overall project health from 0-10. |
 | `record-gif` | Record animated GIFs of web page animations via Playwright frame capture + ffmpeg palette encoding. |

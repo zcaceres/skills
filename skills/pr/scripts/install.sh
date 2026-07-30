@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# Wire the pr diff-size nudge hook into a host's settings.json so it fires
+# Wire the pr diff-size nudge hook into a host's hook config so it fires
 # after every file-modifying tool call, not just when this skill is loaded
 # into context. Supports Claude Code (PostToolUse hook; Edit|Write|MultiEdit|
-# NotebookEdit) and Gemini CLI (AfterTool hook; replace|write_file) from the
-# same skill dir — the only differences are the event name, tool matcher, and
-# settings dir, all selected by --agent. Idempotent — re-running is a no-op.
+# NotebookEdit), Codex (PostToolUse hook; apply_patch), and Gemini CLI
+# (AfterTool hook; replace|write_file) from the same skill dir. The event,
+# matcher, and config path are selected by --agent. Idempotent.
 #
 # Usage:
 #   scripts/install.sh                  # auto-detect host, user scope
 #   scripts/install.sh --agent gemini   # wire for Gemini CLI  (~/.gemini)
+#   scripts/install.sh --agent codex    # wire for Codex       (~/.codex)
 #   scripts/install.sh --agent claude   # wire for Claude Code (~/.claude)
-#   scripts/install.sh --project        # project scope: ./.claude|.gemini/settings.json
+#   scripts/install.sh --project        # project scope under the host config dir
 #   scripts/install.sh --target PATH    # explicit target file
 #
 # Requires: jq. macOS: brew install jq. Linux: apt-get install jq.
@@ -18,7 +19,7 @@
 # Why this exists: skills.sh CLI is a pure file copier — no install
 # lifecycle. SKILL.md frontmatter hooks only fire while the skill is
 # active in context, so the nudge would only fire when this skill is
-# loaded. Wiring into settings.json gets the nudge on every edit.
+# loaded. Wiring into the host config gets the nudge on every edit.
 
 set -euo pipefail
 
@@ -26,8 +27,8 @@ SKILL_NAME="pr"
 
 # Resolve the runner from this script's own location so it points at the
 # correct binary launcher whether the skill was installed at user or project
-# scope. The wired command is a bare path — host differences are handled by
-# the binary (it reads the event name from the payload), not the command.
+# scope. The binary distinguishes host payloads; install.sh only wires the
+# host-specific event, matcher, and config path.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOK_COMMAND="$SCRIPT_DIR/run.sh"
 
@@ -48,11 +49,13 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# Auto-detect the host when --agent is omitted: pick Gemini only if its config
-# dir exists and Claude's does not; otherwise default to Claude Code.
+# Preserve the historical Gemini precedence when Claude is absent. Detect Codex
+# only when it is the sole existing host config dir; Claude wins when present.
 if [ -z "$AGENT" ]; then
   if [ -d "$HOME/.gemini" ] && [ ! -d "$HOME/.claude" ]; then
     AGENT="gemini"
+  elif [ -d "$HOME/.codex" ] && [ ! -d "$HOME/.claude" ] && [ ! -d "$HOME/.gemini" ]; then
+    AGENT="codex"
   else
     AGENT="claude"
   fi
@@ -64,23 +67,33 @@ case "$AGENT" in
     HOOK_MATCHER="Edit|Write|MultiEdit|NotebookEdit"
     HOME_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
     PROJECT_SUBDIR=".claude"
+    CONFIG_FILE="settings.json"
     HOST_LABEL="Claude Code"
+    ;;
+  codex)
+    HOOK_EVENT="PostToolUse"
+    HOOK_MATCHER="apply_patch"
+    HOME_DIR="${CODEX_HOME:-$HOME/.codex}"
+    PROJECT_SUBDIR=".codex"
+    CONFIG_FILE="hooks.json"
+    HOST_LABEL="Codex"
     ;;
   gemini)
     HOOK_EVENT="AfterTool"
     HOOK_MATCHER="replace|write_file"
     HOME_DIR="${GEMINI_CONFIG_DIR:-$HOME/.gemini}"
     PROJECT_SUBDIR=".gemini"
+    CONFIG_FILE="settings.json"
     HOST_LABEL="Gemini CLI"
     ;;
-  *) echo "install.sh: unknown --agent '$AGENT' (expected: claude|gemini)" >&2; exit 2 ;;
+  *) echo "install.sh: unknown --agent '$AGENT' (expected: claude|codex|gemini)" >&2; exit 2 ;;
 esac
 
 case "$SCOPE" in
-  user)    TARGET="$HOME_DIR/settings.json" ;;
-  project) TARGET="./$PROJECT_SUBDIR/settings.json" ;;
+  user)    TARGET="$HOME_DIR/$CONFIG_FILE" ;;
+  project) TARGET="./$PROJECT_SUBDIR/$CONFIG_FILE" ;;
 esac
-TARGET="${TARGET:-$HOME_DIR/settings.json}"
+TARGET="${TARGET:-$HOME_DIR/$CONFIG_FILE}"
 
 [ -x "$HOOK_COMMAND" ] || {
   echo "install.sh: runner not found at $HOOK_COMMAND" >&2
@@ -149,4 +162,8 @@ mv "$TARGET.tmp" "$TARGET"
 echo "✓ Wired $SKILL_NAME → $TARGET"
 echo "  Backup: $BACKUP"
 echo
+if [ "$AGENT" = "codex" ]; then
+  echo "Review and trust the new command hook with /hooks in Codex."
+  echo
+fi
 echo "Restart $HOST_LABEL (or open a new conversation) for the hook to take effect."

@@ -4,6 +4,7 @@ import { join, sep } from "path";
 import {
   buildNudgeMessage,
   globToRegex,
+  hookHostFor,
   isExcluded,
   shouldFire,
   stateFileFor,
@@ -109,6 +110,26 @@ describe("buildNudgeMessage", () => {
     expect(msg).toContain("9 files");
     expect(msg).toContain("/pr");
   });
+
+  test("uses Codex skill invocation syntax for Codex hooks", () => {
+    const msg = buildNudgeMessage(321, 9, "codex");
+    expect(msg).toContain("$pr");
+    expect(msg).not.toContain("/pr");
+  });
+});
+
+describe("hookHostFor", () => {
+  test("distinguishes hosts without changing Claude and Gemini detection", () => {
+    expect(hookHostFor({})).toBe("claude");
+    expect(hookHostFor({ hook_event_name: "AfterTool" })).toBe("gemini");
+    expect(
+      hookHostFor({
+        hook_event_name: "PostToolUse",
+        turn_id: "turn_123",
+        model: "gpt-5",
+      }),
+    ).toBe("codex");
+  });
 });
 
 describe("stateFileFor", () => {
@@ -120,20 +141,24 @@ describe("stateFileFor", () => {
 
   test("Gemini's AfterTool homes state under ~/.gemini", () => {
     delete process.env.PR_NUDGE_STATE_DIR;
-    const p = stateFileFor("AfterTool");
+    const p = stateFileFor("gemini");
     expect(p).toContain(`${sep}.gemini${sep}state${sep}`);
     expect(p.endsWith("pr-nudge.json")).toBe(true);
   });
 
   test("Claude Code (no event name, or PostToolUse) homes state under ~/.claude", () => {
     delete process.env.PR_NUDGE_STATE_DIR;
-    expect(stateFileFor(undefined)).toContain(`${sep}.claude${sep}state${sep}`);
-    expect(stateFileFor("PostToolUse")).toContain(`${sep}.claude${sep}state${sep}`);
+    expect(stateFileFor("claude")).toContain(`${sep}.claude${sep}state${sep}`);
+  });
+
+  test("Codex homes state under ~/.codex", () => {
+    delete process.env.PR_NUDGE_STATE_DIR;
+    expect(stateFileFor("codex")).toContain(`${sep}.codex${sep}state${sep}`);
   });
 
   test("PR_NUDGE_STATE_DIR overrides the host default", () => {
     process.env.PR_NUDGE_STATE_DIR = join(sep, "tmp", "nudge-state");
-    expect(stateFileFor("AfterTool")).toBe(
+    expect(stateFileFor("gemini")).toBe(
       join(sep, "tmp", "nudge-state", "pr-nudge.json"),
     );
   });

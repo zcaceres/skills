@@ -7,12 +7,12 @@
  * packets for published PR stacks. `walk-render` prints those documents
  * with each embedded patch rendered independently by git-delta.
  *
- * Host-agnostic: the same binary serves Claude Code (PostToolUse hook)
- * and Gemini CLI (AfterTool hook). It reads the host's event name from
- * the payload and echoes it back in the output envelope, and homes its
- * state file under the matching config dir (~/.claude or ~/.gemini). The
- * settings wiring (event name + tool matcher) is the only host-specific
- * piece, and that lives in install.sh, not here.
+ * Host-agnostic: the same binary serves Claude Code and Codex
+ * (PostToolUse hooks) plus Gemini CLI (AfterTool hook). It identifies the
+ * host from the payload, echoes the event name back in the output envelope,
+ * and homes its state file under the matching config dir. The settings
+ * wiring (event name + tool matcher) is the only other host-specific piece,
+ * and that lives in install.sh.
  *
  * Output is JSON on stdout (additionalContext) — never blocks the agent.
  * Every error path returns silently; the hook must never break the loop.
@@ -33,9 +33,12 @@ const StdinSchema = z
   .object({
     cwd: z.string(),
     session_id: z.string(),
-    // Gemini CLI sends the event name in the payload; Claude Code omits it.
-    // Used to echo the right envelope and home state under the right config dir.
+    // Gemini CLI and Codex send the event name; Claude Code may omit it.
     hook_event_name: z.string().optional(),
+    // Codex-specific common hook fields. Their presence distinguishes Codex's
+    // PostToolUse payload from Claude Code's event with the same name.
+    turn_id: z.string().optional(),
+    model: z.string().optional(),
   })
   .passthrough();
 
@@ -53,13 +56,24 @@ type State = z.infer<typeof StateSchema>;
 
 const HOME = homedir();
 
-// State lives under the config dir of whichever host fired the hook, keyed off
-// the payload's event name (AfterTool → Gemini, else Claude Code). Overridable
-// with PR_NUDGE_STATE_DIR for non-standard layouts.
-export function stateFileFor(hookEventName: string | undefined): string {
+export type HookHost = "claude" | "codex" | "gemini";
+
+export function hookHostFor(data: {
+  hook_event_name?: string;
+  turn_id?: string;
+  model?: string;
+}): HookHost {
+  if (data.hook_event_name === "AfterTool") return "gemini";
+  if (data.turn_id !== undefined || data.model !== undefined) return "codex";
+  return "claude";
+}
+
+// State lives under the config dir of whichever host fired the hook.
+// Overridable with PR_NUDGE_STATE_DIR for non-standard layouts.
+export function stateFileFor(host: HookHost): string {
   const dir =
     process.env.PR_NUDGE_STATE_DIR ??
-    join(HOME, hookEventName === "AfterTool" ? ".gemini" : ".claude", "state");
+    join(HOME, `.${host}`, "state");
   return join(dir, "pr-nudge.json");
 }
 
@@ -241,18 +255,28 @@ export function shouldFire(entry: StateEntry | undefined, current: DiffStats): b
 
 // === Output ===
 
-export function buildNudgeMessage(lines: number, files: number): string {
+export function buildNudgeMessage(
+  lines: number,
+  files: number,
+  host: HookHost = "claude",
+): string {
+  const invocation = host === "codex" ? "$pr" : "/pr";
   return (
     `Uncommitted diff is ${lines} lines across ${files} files without a commit. ` +
-    `If this work forms a shippable slice, run /pr to land it as a focused PR before continuing.`
+    `If this work forms a shippable slice, run ${invocation} to land it as a focused PR before continuing.`
   );
 }
 
-function emitNudge(lines: number, files: number, hookEventName: string): void {
+function emitNudge(
+  lines: number,
+  files: number,
+  hookEventName: string,
+  host: HookHost,
+): void {
   const payload = {
     hookSpecificOutput: {
       hookEventName,
-      additionalContext: buildNudgeMessage(lines, files),
+      additionalContext: buildNudgeMessage(lines, files, host),
     },
   };
   process.stdout.write(JSON.stringify(payload));
@@ -306,7 +330,8 @@ async function main(): Promise<void> {
     const stats = await computeDiffStats(repoRoot);
     if (stats.lines < THRESHOLD_LINES && stats.files < THRESHOLD_FILES) return;
 
-    const stateFile = stateFileFor(data.hook_event_name);
+    const host = hookHostFor(data);
+    const stateFile = stateFileFor(host);
     const state = await loadState(stateFile);
     const key = `${data.session_id}:${repoRoot}`;
     const entry = state[key];
@@ -318,8 +343,13 @@ async function main(): Promise<void> {
       lastFireFiles: stats.files,
     };
     await saveState(stateFile, state);
-    // Echo the host's event name back (Claude Code omits it → PostToolUse).
-    emitNudge(stats.lines, stats.files, data.hook_event_name ?? "PostToolUse");
+    // Echo the host's event name back (Claude Code may omit it → PostToolUse).
+    emitNudge(
+      stats.lines,
+      stats.files,
+      data.hook_event_name ?? "PostToolUse",
+      host,
+    );
   } catch {
     // Soft fail — never block the agent.
   }

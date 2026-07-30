@@ -1,15 +1,16 @@
 # `pr` Hook — Diff-Size Nudge
 
 A hook that runs after every file-modifying tool call — `PostToolUse`
-(`Edit`, `Write`, `MultiEdit`, `NotebookEdit`) under Claude Code, and
-`AfterTool` (`replace`, `write_file`) under Gemini CLI. It opens the
+(`Edit`, `Write`, `MultiEdit`, `NotebookEdit`) under Claude Code,
+`PostToolUse` (`apply_patch`) under Codex, and `AfterTool` (`replace`,
+`write_file`) under Gemini CLI. It opens the
 current repo, runs `git diff --numstat HEAD` plus a status-porcelain
 pass for untracked files, and — when the uncommitted diff is over the
 line/file thresholds — emits a soft reminder telling the agent to
 consider `/pr` to land the slice as a focused PR (a stacked
-checkpoint). The same compiled binary serves both hosts: it reads
-the host's event name from the hook payload, echoes it back in the
-output envelope, and homes its state file accordingly (see below).
+checkpoint). The same compiled binary serves all three hosts: it identifies
+the host from the hook payload, echoes the event name back in the output
+envelope, and homes its state file accordingly (see below).
 
 The hook is **non-blocking by design**. It never exits non-zero, never
 returns block payloads, never errors out — soft failures are
@@ -39,12 +40,13 @@ The hook re-fires when either:
 - The diff has grown by ≥150 lines OR ≥3 files since the last fire.
 
 State lives under the config dir of whichever host fired the hook —
-`~/.claude/state/pr-nudge.json` for Claude Code, `~/.gemini/state/pr-nudge.json`
-for Gemini CLI (the binary picks the dir from the payload's event name;
-override with `PR_NUDGE_STATE_DIR`). Entries older than 7 days are swept
-on the next write. (Distinct from the standalone `pr-size-nudge` skill's
-state file — the two coexist without colliding if you happen to have
-both installed.)
+`~/.claude/state/pr-nudge.json` for Claude Code,
+`~/.codex/state/pr-nudge.json` for Codex, and
+`~/.gemini/state/pr-nudge.json` for Gemini CLI (the binary picks the dir
+from the payload; override with `PR_NUDGE_STATE_DIR`). Entries older than
+7 days are swept on the next write. (Distinct from the standalone
+`pr-size-nudge` skill's state file — the two coexist without colliding if
+you happen to have both installed.)
 
 ## Default exclusions
 
@@ -66,22 +68,26 @@ entirely.
 npx skills add zcaceres/skills -s pr
 # Then explicitly opt in:
 ~/.claude/skills/pr/scripts/install.sh                 # Claude Code (default)
+# or, for Codex:
+~/.codex/skills/pr/scripts/install.sh --agent codex
 # or, for Gemini CLI:
 ~/.gemini/skills/pr/scripts/install.sh --agent gemini
 ```
 
 The installer step is optional and explicitly opts into the nudge. It
-wires this hook into the host's `settings.json`
-(`~/.claude` or `~/.gemini`) so it fires on every matching tool call,
+wires this hook into the host's config (`settings.json` under `~/.claude`
+or `~/.gemini`; `hooks.json` under `~/.codex`) so it fires on every
+matching tool call,
 regardless of whether the skill is active in context. `install.sh`
-auto-detects the host — override with `--agent claude|gemini` — and writes the right
-event name (`PostToolUse` / `AfterTool`), tool matcher, and settings
-dir. The script is idempotent, backs up the target file with a
+auto-detects the host — override with `--agent claude|codex|gemini` — and
+writes the right event name, tool matcher, and config path. The script is
+idempotent, backs up the target file with a
 timestamp, and is a no-op if the hook is already wired. It derives the
 runner path from its own location, so it works whether the skill was
 installed at user scope or project scope. Flags: `--agent`, `--project`
-(writes to `./.claude/settings.json` or `./.gemini/settings.json`),
-`--target PATH` (explicit file). Requires `jq`.
+(writes under `./.claude`, `./.codex`, or `./.gemini`), `--target PATH`
+(explicit file). Requires `jq`. Codex requires one additional safety step:
+open `/hooks` after installation and review and trust the new command hook.
 
 `install.sh` also runs `scripts/fetch-binary.sh` to provision the
 binary (see below), so the two-step install both wires the hook *and*
@@ -117,7 +123,7 @@ The script is generic across every binary-bundling skill in this repo
 platform), so the same file drops into `safety-*` and friends unchanged.
 
 If you're migrating from the standalone `pr-size-nudge` skill,
-**remove its hook entry from settings.json before running this
+**remove its hook entry from the host hook config before running this
 install.sh** — otherwise you'll get two nudges per fire, with
 different state files. The script prints a warning when it detects
 an existing pr-size-nudge entry.
@@ -170,16 +176,36 @@ using the `AfterTool` event and Gemini's tool names instead:
 }
 ```
 
+For **Codex**, wire the runner under `~/.codex/hooks.json` using the
+`PostToolUse` event and canonical `apply_patch` tool name:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch",
+        "hooks": [
+          { "type": "command", "command": "<path>/scripts/run.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Then open `/hooks` in Codex and trust the command hook.
+
 On Windows, point at `scripts\\run.cmd` instead.
 
 ## How it works
 
-1. The host (Claude Code or Gemini CLI) invokes `scripts/run.sh` after
+1. The host (Claude Code, Codex, or Gemini CLI) invokes `scripts/run.sh` after
    every matched tool call.
 2. `run.sh` picks the right bundled binary for the host OS/arch
    (`pr-nudge-{darwin-arm64,linux-x64,windows-x64.exe}`).
 3. The binary reads the JSON hook payload from stdin (`cwd`,
-   `session_id`, and — from Gemini — `hook_event_name`).
+   `session_id`, and host-specific event metadata).
 4. It resolves the repo root via `git -C <cwd> rev-parse
    --show-toplevel`. If that fails (not in a repo), the hook exits
    silently.
@@ -196,7 +222,7 @@ On Windows, point at `scripts\\run.cmd` instead.
    suppressed, exit silently.
 10. Otherwise, write an `additionalContext` payload to stdout — echoing
     the host's event name (`PostToolUse`, or `AfterTool` for Gemini) —
-    with a one-liner like:
+    with a host-appropriate invocation (`/pr`, or `$pr` in Codex), like:
 
     > Uncommitted diff is 412 lines across 11 files without a commit.
     > If this work forms a shippable slice, run /pr to land it as a

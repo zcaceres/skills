@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). /pr update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with /pr setup. Also ships an optional diff-size nudge hook toward /pr when the uncommitted diff grows large; enable it explicitly with /pr setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under both Claude Code and Gemini CLI (install with --agent gemini). Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos (enable with /pr setup jj). Invoke via /pr [subcommand] [args].
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr (or $pr in Codex) checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). Update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with setup. Also ships an optional diff-size nudge hook when the uncommitted diff grows large; enable it explicitly with setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under Claude Code, Codex, and Gemini CLI. Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos. Invoke via /pr [subcommand] [args], or $pr [subcommand] [args] in Codex.
 argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | submit | sync] [--draft] [args]"
 ---
 
@@ -19,10 +19,13 @@ Any PR this skill **creates** can be a **draft**: pass `--draft` (or
 Draft is orthogonal to everything else — it works on every subcommand
 that creates a PR.
 
-**Usage:** `/pr [subcommand] [args]`
+**Usage:** `/pr [subcommand] [args]` in Claude Code and Gemini CLI;
+`$pr [subcommand] [args]` in Codex.
 
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched
 subcommand's reference file and follow it exactly.
+If the host does not substitute a literal `$ARGUMENTS` variable (including
+Codex), treat the text following the skill invocation as `$ARGUMENTS`.
 
 ## Determine the backend first
 
@@ -103,12 +106,12 @@ format and the renumber routine.
 A diff-size nudge hook is shipped with this skill. It fires after every
 file-modifying tool call and nudges toward `/pr` when the uncommitted
 diff crosses size/file thresholds — so you land a focused PR (a stacked
-checkpoint) before the diff grows unwieldy. The same hook
-binary runs under **Claude Code** (`PostToolUse`;
-`Edit`/`Write`/`MultiEdit`/`NotebookEdit`) and **Gemini CLI**
-(`AfterTool`; `replace`/`write_file`) — it reads the host's event name
-from the hook payload and adapts. Only the settings wiring differs, and
-`install.sh --agent` handles that.
+checkpoint) before the diff grows unwieldy. The same hook binary runs
+under **Claude Code** (`PostToolUse`;
+`Edit`/`Write`/`MultiEdit`/`NotebookEdit`), **Codex** (`PostToolUse`;
+`apply_patch`), and **Gemini CLI** (`AfterTool`; `replace`/`write_file`).
+It identifies the host from the hook payload and adapts. Only the config
+wiring differs, and `install.sh --agent` handles that.
 
 The hook is **opt-in**. Installing the skill does not register it, and
 ordinary `/pr setup` operations for drafts or backends must not register
@@ -118,20 +121,23 @@ installer directly after installing the skill:
 ```sh
 npx skills add zcaceres/skills -s pr
 ~/.claude/skills/pr/scripts/install.sh                 # Claude Code (default)
+# or, for Codex:
+~/.codex/skills/pr/scripts/install.sh --agent codex
 # or, for Gemini CLI:
 ~/.gemini/skills/pr/scripts/install.sh --agent gemini
 ```
 
-The second step wires the hook into the host's `settings.json` so it
-fires on every matching tool call, not just when the skill is active in
-context (`${CLAUDE_SKILL_DIR}` substitution in frontmatter hook commands
-is unsupported by both hosts today). `install.sh` auto-detects the host
-(override with `--agent claude|gemini`) and writes the right event name,
-tool matcher, and settings dir (`~/.claude` vs `~/.gemini`). The script
-self-locates, so the same command works whether the skill was installed
-at user scope or project scope. Flags: `--agent`, `--project`,
-`--target PATH`. Requires `jq`. See [references/nudge.md](references/nudge.md)
-for thresholds, env-var overrides, and manual wiring as an alternative.
+The second step wires the hook into the host's hook config so it fires on
+every matching tool call, not just when the skill is active in context.
+`install.sh` auto-detects the host (override with
+`--agent claude|codex|gemini`) and writes the right event name, tool
+matcher, and config path (`settings.json` for Claude/Gemini; `hooks.json`
+for Codex). The script self-locates, so the same command works whether
+the skill was installed at user scope or project scope. Codex users must
+review and trust the new command hook with `/hooks`. Flags: `--agent`,
+`--project`, `--target PATH`. Requires `jq`. See
+[references/nudge.md](references/nudge.md) for thresholds, env-var
+overrides, and manual wiring as an alternative.
 
 `install.sh` also provisions the compiled binary the hook execs (a
 file-copy install ships the source but not the ~60 MB binary) by

@@ -1,6 +1,6 @@
 # pr
 
-A single Claude Code skill for committing your work and shipping it as
+A single agent skill for committing your work and shipping it as
 stacked PRs with `/pr`. Each `/pr` cuts the current diff onto a new
 branch stacked on the last (built **locally**, with `git stack`), then
 you publish the finished stack all at once with `submit` — no trickle of
@@ -19,7 +19,8 @@ It detects whether the
 [`git-stack`](https://github.com/zcaceres/git-stack) CLI is installed —
 if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 
-**Usage:** `/pr [subcommand] [args]`
+**Usage:** `/pr [subcommand] [args]` in Claude Code and Gemini CLI;
+`$pr [subcommand] [args]` in Codex.
 
 ## Default action
 
@@ -90,23 +91,28 @@ references for the full workflows.
 npx skills add zcaceres/skills -s pr
 ```
 
-This installs only the `/pr` skill; the nudge remains disabled.
+This installs only the `/pr` skill; the nudge remains disabled. Use
+`-a codex` to target Codex explicitly.
 
 To opt into the nudge, run `/pr setup nudge`, or invoke the installer
 directly:
 
 ```sh
 ~/.claude/skills/pr/scripts/install.sh
+# Codex:
+~/.codex/skills/pr/scripts/install.sh --agent codex
 ```
 
-The installer wires the bundled PostToolUse nudge hook into
-`~/.claude/settings.json` so it fires on every matching tool call,
+The installer wires the bundled nudge hook into the selected host's config
+so it fires on every matching tool call,
 not just when the skill is active in context. The script is
 idempotent, backs up the target file with a timestamp, and is a
 no-op if the hook is already wired. The script self-locates, so it
 works whether the skill was installed at user scope or project
-scope. Flags: `--project`, `--target PATH`. Requires `jq`. Skip
-this opt-in step if you only want the slash command.
+scope. Use `--agent claude|codex|gemini`; Codex writes
+`~/.codex/hooks.json` and requires reviewing the new hook with `/hooks`.
+Flags: `--project`, `--target PATH`. Requires `jq`. Skip this opt-in
+step if you only want the skill command.
 
 To open every new PR as a draft by default:
 

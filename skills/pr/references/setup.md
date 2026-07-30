@@ -144,7 +144,7 @@ ready), and a single run can still opt out with `--ready`/`--no-draft`.
 `/pr` bundles a diff-size nudge hook (see [nudge.md](nudge.md)) that nudges you
 toward a focused PR once the uncommitted diff grows large. Two things must be in
 place for it to fire on every edit: the hook has to be **wired** into the host's
-`settings.json`, and the small prebuilt **binary** it execs has to be
+hook config, and the small prebuilt **binary** it execs has to be
 provisioned (a file-copy install — `npx skills add`, a sparse checkout — ships
 the source but **not** the ~60 MB binary). Until both are done the hook silently
 no-ops.
@@ -161,32 +161,37 @@ directory (it self-locates, so any install scope works), passing `--agent` for
 **the host you are running in right now**:
 
 - **Claude Code** → `--agent claude` (wires a `PostToolUse` hook into `~/.claude/settings.json`)
+- **Codex** → `--agent codex` (wires a `PostToolUse` hook into `~/.codex/hooks.json`)
 - **Gemini CLI** → `--agent gemini` (wires an `AfterTool` hook into `~/.gemini/settings.json`)
 
 You *are* the host executing this command, so pass the matching flag explicitly
-rather than leaning on auto-detection — it can't tell the hosts apart when both
-`~/.claude` and `~/.gemini` exist and defaults to Claude Code. If you genuinely
+rather than leaning on auto-detection — it can't tell the hosts apart when
+multiple host config dirs exist and defaults to Claude Code. If you genuinely
 can't tell which host you are, ask the user.
 
 ```bash
 # From the pr skill's scripts/ dir (e.g. ~/.claude/skills/pr/scripts):
 ./install.sh --agent claude    # Claude Code
 # or
+./install.sh --agent codex     # Codex
+# or
 ./install.sh --agent gemini    # Gemini CLI
 ```
 
-`install.sh` needs `jq`, backs up the settings file with a timestamp before
+`install.sh` needs `jq`, backs up the hook config with a timestamp before
 editing it, and downloads the prebuilt binary from the skill's GitHub release
 (needs `gh`) or builds it with `bun`. Add `--project` to wire into the
-repo-local `./.claude` / `./.gemini` settings instead of user scope. Re-run it
-if you ever see a "binary not found" note in your hook logs.
+repo-local `./.claude`, `./.codex`, or `./.gemini` config instead of user
+scope. After a Codex install, use `/hooks` to review and trust the new command
+hook; Codex skips untrusted hooks. Re-run the installer if you ever see a
+"binary not found" note in your hook logs.
 
 ## Important
 
 - This subcommand reads and writes `git config pr.draft` and
   `git config pr.backend` (plus `jj git init --colocate` when switching
   to jj). Only an explicit nudge request wires + provisions the hook
-  (step 5, via `install.sh`, which edits the host's `settings.json` and
+  (step 5, via `install.sh`, which edits the host's hook config and
   backs it up first). It never commits, pushes, or opens PRs.
 - All keys are plain git config — the user can also set them by hand
   with `git config [--global] pr.draft true` or

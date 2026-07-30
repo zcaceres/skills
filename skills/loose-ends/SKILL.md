@@ -23,92 +23,53 @@ restrict yourself to the diff.
 - "open threads" / "unaddressed items" / "what did we punt on"
 - "/loose-ends"
 
-## What counts as a loose end
+## Scan
 
-Scan the whole conversation for anything in these buckets. Each is a candidate —
-apply the bar in the next section before listing it.
+Read the whole conversation. Look for:
 
-- **Bugs mentioned but not fixed** — a defect noticed, named, or hypothesized in
-  passing, then never addressed. Includes "we should check that…" and "that
-  might break if…".
-- **Deferred / unsurfaced decisions** — a fork the conversation took implicitly
-  without ever putting the choice to the user, or a decision explicitly pushed to
-  "later" and never returned to.
-- **Nits and tradeoffs** — a smaller-quality point, a shortcut knowingly taken, a
-  TODO dropped inline, a "good enough for now" that was never revisited.
-- **Cross-workstream relationships** — dependencies or conflicts with other PRs,
-  branches, tickets, migrations, or teammates' work that were noted but not
-  acted on or tracked.
-- **Unverified claims / assumptions** — something asserted as true and built upon
-  without being checked ("this endpoint returns X", "that test already covers
-  it").
-- **Promised-but-not-done** — anything the assistant or user said would happen
-  ("I'll add a test for that", "let's rename this after") that never did.
+- defects mentioned but not fixed;
+- choices deferred or made implicitly without surfacing the tradeoff;
+- acknowledged shortcuts, dropped nits, and TODOs;
+- dependencies or conflicts with other work that were not acted on or tracked;
+- assumptions that the conversation relied on without checking;
+- commitments that the assistant or user made but did not complete.
 
-## The bar
+These are search prompts, not output categories. A candidate belongs in the
+report only when it is both unresolved and plausibly action-worthy.
 
-Only list an item that is **both**:
+Re-read the later conversation first so you do not report something quietly
+handled afterward. Verify against the current code only when the claim is
+concrete, local, and cheap to check. If it would require a broader investigation,
+keep the item only when it still matters and mark it `[unsure]`.
 
-1. **Genuinely unresolved** — check the later conversation and the current code
-   before listing. If it was quietly handled afterward, drop it. If unsure
-   whether it was addressed, keep it but mark confidence `unsure`.
-2. **Plausibly action-worthy** — a reasonable engineer might want to do something
-   about it. Skip rhetorical asides, ideas that were raised *and rejected*, and
-   things already captured in a tracked artifact (a written ticket, a `TODO(name)`
-   that's clearly intentional).
-
-When in doubt, prefer a shorter, higher-signal list. A wall of marginal items
-buries the one that matters. If nothing qualifies, say so plainly — don't invent
-loose ends to fill the list.
+Skip rhetorical asides, rejected ideas, and work already captured in a ticket or
+clearly intentional tracked TODO. Prefer a short, high-signal list. If nothing
+qualifies, say so plainly.
 
 ## Output format
 
-Group by bucket, most actionable first. One line per item where possible — this
-must be skimmable. Anchor to a `file:line` or a commit only when the loose end
-actually has one; many won't.
+Return one ranked list, most actionable first. Keep each item to one sentence:
+what remains unresolved, plus where when a useful `file:line`, commit, PR, or
+ticket exists. Do not propose fixes.
 
 ```markdown
 ## Loose ends
 
-**Bugs mentioned, not fixed**
-- [high] Empty-input path still dereferences `value.trim()` before the null
-  check — flagged mid-session, never patched. `src/ui/Input.tsx:42`
+- Empty-input path still dereferences `value.trim()` before the null check —
+  flagged mid-session, never patched. `src/ui/Input.tsx:42`
 - [unsure] Timezone handling in the export may double-apply the offset — raised,
   not confirmed either way.
-
-**Deferred decisions**
 - Chose in-memory caching without surfacing the Redis option to you — worth a
   yes/no before this ships.
-
-**Nits & tradeoffs**
-- Hardcoded 30s timeout with a "make configurable later" note. `client.ts:88`
-
-**Cross-workstream**
 - Depends on the auth refactor in PR #214 landing first; not tracked anywhere.
-
-**Promised, not done**
 - Said a regression test would be added for the retry fix — none written.
+
+5 loose ends.
 ```
 
 Rules:
-- Tag each item with a severity/confidence hint in brackets when useful:
-  `[high]` / `[med]` / `[low]` for impact, `[unsure]` when you couldn't confirm
-  it's still open. Omit the tag when it adds nothing.
-- Keep each item to one sentence of *what* plus, where it exists, *where*. No
-  fixes, no patches, no multi-paragraph explanations.
-- Drop any empty bucket entirely — don't print a heading with nothing under it.
-- End with a one-line count: `N loose ends across M areas.`
-
-## Guidelines
-
-- **Report, don't resolve.** This step lists; it does not fix, edit, or open
-  PRs/issues. If the user wants to act on an item, that's a follow-up (a code
-  fix for a bug, a planning pass for a decision, an issue for cross-workstream
-  tracking).
-- **Verify before listing.** Grep the current code or re-read the later
-  transcript to avoid flagging something already handled. A false loose end costs
-  the user a re-investigation.
-- **Signal over volume.** The value is catching the dropped thread that mattered,
-  not enumerating every aside. Rank ruthlessly.
-- **Stay concrete.** "Error handling could be better" is noise. "The `parse()`
-  path swallows a `SyntaxError` we said we'd surface" is a loose end.
+- Use `[unsure]` only when useful to show that the item could not be confirmed.
+- Stay concrete: "Error handling could be better" is noise; "The `parse()` path
+  swallows a `SyntaxError` we said we'd surface" is a loose end.
+- End with `N loose ends.` Do not add categories or an area count.
+- Report only. Never edit code or open issues as part of this skill.

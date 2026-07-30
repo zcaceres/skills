@@ -65,4 +65,4 @@ if [ "$CADENCE" -gt 1 ]; then
   fi
 fi
 
-echo "Reminder to follow the $MODE laconic rules: lead with the point, answer at the size the question asks, then stop. No preamble. No survey of options unless asked. Concise sentences, no em-dashes or asides."
+echo "Follow the $MODE laconic voice: start with the answer, be concise and complete, include only what the user needs, then stop."

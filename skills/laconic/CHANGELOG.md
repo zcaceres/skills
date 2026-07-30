@@ -1,5 +1,11 @@
 # @zcaceres/skill-laconic
 
+## 0.7.3
+
+### Patch Changes
+
+- 7d89f0c: Simplify the laconic voice rules and align the per-turn reminder with the clearer guidance.
+
 ## 0.7.2
 
 ### Patch Changes

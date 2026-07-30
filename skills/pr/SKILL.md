@@ -48,14 +48,13 @@ git config pr.backend 2>/dev/null   # resolves local, then global; empty = unset
 - Anything else — including an explicit `git` — → **git backend** (the
   default).
 
-The backend only changes *which reference file* a workflow subcommand
-reads: `update`, `log`, `merge`, `checkpoint`, `submit`, `sync`, and the
-default action read `references/git/<keyword>.md` on the git backend and
-`references/jj/<keyword>.md` on the jj backend, while `setup`, `walk`,
+The backend only changes which workflow reference is read. The git backend
+uses `references/git/<keyword>.md`; the jj backend uses the matching command
+section in [`references/jj.md`](references/jj.md). `setup`, `walk`,
 `title-convention.md`, and `recovery.md` are shared. Draft semantics are
-identical in both backends. The jj backend is **colocated-only** (jj
-working alongside `.git` in the same checkout) —
-[`/pr setup`](references/setup.md) wires it with `/pr setup jj`.
+identical in both backends. The jj backend is **colocated-only** (jj working
+alongside `.git` in the same checkout) — [`/pr setup`](references/setup.md)
+wires it with `/pr setup jj`.
 
 ## Determine draft intent
 
@@ -79,7 +78,7 @@ subcommand. It only affects PR **creation** — `gh pr create` gets
 `--draft` (or `git stack submit` gets `--draft`) when the answer is
 draft. An explicit per-invocation flag may also flip an *already-open* PR
 (`gh pr ready` / `gh pr ready --undo`); the configured default never does
-— see [update.md](references/git/update.md).
+— see the matched backend's `update` workflow.
 
 ## Subcommands
 
@@ -87,13 +86,13 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 |---|---|---|
 | `commit [message]` | (alias) | Alias for the **default action** — `checkpoint`, with the message as the slice description. The everyday "ship my work" verb; identical to bare `/pr`. |
 | `setup` | [references/setup.md](references/setup.md) | Show and change the persistent settings: the draft default (`pr.draft`) and the backend (`pr.backend`, `git` ↔ `jj`). Global by default (the backend is always local-scope). |
-| `update [base-branch]` | [references/git/update.md](references/git/update.md) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
-| `log` | [references/git/log.md](references/git/log.md) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
+| `update [base-branch]` | [git](references/git/update.md) · [jj](references/jj.md#update) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
+| `log` | [git](references/git/log.md) · [jj](references/jj.md#log) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
 | `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [references/git/merge.md](references/git/merge.md) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
-| `checkpoint [slice description]` | [references/git/checkpoint.md](references/git/checkpoint.md) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
-| `submit [--draft]` | [references/git/submit.md](references/git/submit.md) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
-| `sync [--no-push]` | [references/git/sync.md](references/git/sync.md) | Fetch trunk and rebase every branch in the stack onto the updated tip. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
+| `checkpoint [slice description]` | [git](references/git/checkpoint.md) · [jj](references/jj.md#checkpoint) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
+| `submit [--draft]` | [git](references/git/submit.md) · [jj](references/jj.md#submit) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
+| `sync [--no-push]` | [git](references/git/sync.md) · [jj](references/jj.md#sync) | Fetch trunk and rebase every branch in the stack onto the updated tip. |
 
 ## Stacked-PR title markers
 
@@ -150,11 +149,10 @@ and leaves it fully functional. See [references/nudge.md](references/nudge.md#pr
 
 ## Dispatcher
 
-First read the backend (see "Determine the backend first" above). Every
-`references/<backend>/<keyword>.md` below means
-`references/git/<keyword>.md` on the git backend and
-`references/jj/<keyword>.md` on the jj backend — `setup` and `walk` are
-always shared.
+First read the backend (see "Determine the backend first" above). For a
+workflow command, read `references/git/<keyword>.md` on the git backend or
+the matching command section in `references/jj.md` on the jj backend.
+`setup` and `walk` are always shared.
 
 **`setup` is exempt from the next step.** If the first non-flag token of
 `$ARGUMENTS` is `setup`, skip draft-flag stripping and dispatch straight
@@ -182,8 +180,8 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
    across backends because it operates on published GitHub PRs.
 
 3. **First token is `update`, `log`, `merge`, `checkpoint`, `submit`, or
-   `sync`** → read `references/<backend>/<keyword>.md`, then follow its
-   workflow with the remaining `$ARGUMENTS` as that subcommand's
+   `sync`** → read the matched backend workflow described above, then
+   follow it with the remaining `$ARGUMENTS` as that subcommand's
    arguments.
 
 4. **First remaining token starts with `-`** (e.g. `--help`, `-h`) →
@@ -191,8 +189,8 @@ parse the first remaining whitespace-separated token of `$ARGUMENTS`:
    stripped in the pre-parse step, so they never land here.)
 
 5. **First token is `commit`, anything else, OR `$ARGUMENTS` is empty** →
-   the **default action**: read `references/<backend>/checkpoint.md` and
-   follow it, using the message as the slice description.
+   the **default action**: read the matched backend's `checkpoint`
+   workflow and follow it, using the message as the slice description.
 
    When the first token is literally `commit`, strip it and pass the
    *remaining* `$ARGUMENTS` as the slice description. For any other

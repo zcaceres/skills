@@ -7,9 +7,9 @@ config (a local value always overrides a global one):
   **creates** is opened as a draft unless the invocation passes
   `--ready`/`--no-draft`.
 - **backend** (`pr.backend`) — `git` (default) or `jj`. On `jj`, workflow
-  subcommands read the `references/jj/` docs and drive the repo with
-  Jujutsu (colocated with git) instead of `git`/`git stack`. Written
-  **local scope only** — see "Switch the backend" below.
+  subcommands read `references/jj.md` and drive the repo with Jujutsu
+  (colocated with git) instead of `git`/`git stack`. Written **local scope
+  only** — see "Switch the backend" below.
 
 The draft default affects PR creation only; a per-invocation
 `--draft`/`-d` or `--ready`/`--no-draft` always overrides it for that

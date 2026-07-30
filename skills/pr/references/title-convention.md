@@ -153,18 +153,10 @@ fi
 ### jj backend
 
 On the jj backend there is no `stack-parent` config — the stack is
-ancestry. Replace steps 1–2 of the routine with:
-
-```bash
-# Stack bottom -> top; trunk()..@ already excludes the trunk itself.
-STACK=($(jj log -r 'trunk()..@ & bookmarks()' --no-graph --reversed \
-  -T 'local_bookmarks.map(|b| b.name()).join(" ") ++ "\n"'))
-```
-
-Steps 3–5 are plain `gh` + git config and run unchanged: colocated repos
-expose bookmarks as git branches, so `git log -1 --format=%s "$BOTTOM"`
-and the `branch.<bottom>.stack-label` lookup both work as written — the
-"bottom branch" is `${STACK[0]}`.
+ancestry. Derive the current stack's bookmarked commits from `trunk()..@`,
+bottom to top, and require exactly one PR bookmark per slice. Then apply
+steps 3–5 unchanged: they are plain `gh` + git config, and colocated repos
+expose bookmarks as git branches.
 
 ## Naming the stack
 

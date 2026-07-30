@@ -121,7 +121,6 @@ real GitHub behavior — stacked submit/retarget/merge, teammate drift
 mid-stack edits, and both backends (clone it and `jj git init --colocate`
 + `git config pr.backend jj` for jj). Its history and PRs are disposable:
 reset `main`, force-push, close PRs, and delete branches freely — nothing
-in it is real work. The jj-backend reference docs were hardened against
-findings from three rounds of exercising in this repo (see the PRs that
-touched `references/jj/`); reuse it for future skill changes rather than
-minting a new repo.
+in it is real work. The jj-backend guidance in `references/jj.md` reflects
+findings from three rounds of exercising in this repo; reuse the test bed for
+future skill changes rather than minting a new repo.

@@ -9,24 +9,14 @@ it. It reports; it never edits code.
 
 ## What it catches
 
-Six buckets, each filtered by a strict "would an engineer actually act on this"
-bar:
+It scans for defects, deferred choices, acknowledged shortcuts, untracked
+dependencies, unchecked assumptions, and unfulfilled commitments. Those are
+search prompts rather than report categories: only unresolved items that a
+reasonable engineer might act on make the cut.
 
-- **Bugs mentioned but not fixed** — a defect named in passing, then dropped.
-- **Deferred / unsurfaced decisions** — a fork taken implicitly, or a choice
-  pushed to "later" and never returned to.
-- **Nits & tradeoffs** — a knowing shortcut, an inline TODO, a "good enough for
-  now."
-- **Cross-workstream** — dependencies or conflicts with other PRs, branches,
-  tickets, or migrations that were noted but not tracked.
-- **Unverified claims / assumptions** — something asserted and built upon without
-  being checked.
-- **Promised-but-not-done** — anything the assistant or user said would happen
-  that never did.
-
-Output is grouped by bucket, ranked most-actionable-first, one line per item,
-ending in a `N loose ends across M areas` count. Empty buckets are dropped, and
-if nothing qualifies it says so rather than inventing filler.
+Output is one most-actionable-first list, one sentence per item, ending in an
+`N loose ends` count. Unconfirmed items are marked `[unsure]`; if nothing
+qualifies, the skill says so rather than inventing filler.
 
 See [SKILL.md](./SKILL.md) for the full workflow.
 

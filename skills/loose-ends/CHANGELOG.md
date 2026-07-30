@@ -1,5 +1,11 @@
 # @zcaceres/skill-loose-ends
 
+## 1.0.1
+
+### Patch Changes
+
+- 8cbbee4: Simplify loose-end scanning and reporting into a concise ranked list.
+
 ## 1.0.0
 
 ### Major Changes

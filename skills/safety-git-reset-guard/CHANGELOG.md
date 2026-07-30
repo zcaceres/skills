@@ -1,5 +1,11 @@
 # @zcaceres/skill-safety-git-reset-guard
 
+## 2.1.0
+
+### Minor Changes
+
+- 35d742e: Add an idempotent Codex installer mode that writes the destructive Git command guard to `hooks.json`, and update Codex hook coverage documentation.
+
 ## 2.0.0
 
 ### Major Changes

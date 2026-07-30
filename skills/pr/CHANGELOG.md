@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.1.1
+
+### Patch Changes
+
+- 5d21fd7: Simplify the jj backend into one concise command-mapping and edge-case guide while retaining merge, rebase, and squash support for stacked PRs.
+
 ## 2.1.0
 
 ### Minor Changes

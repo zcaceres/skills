@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.2.1
+
+### Patch Changes
+
+- 6c31f76: Add Codex skill invocation and opt-in PostToolUse nudge hook support without changing Claude Code or Gemini CLI wiring.
+
 ## 2.2.0
 
 ### Minor Changes

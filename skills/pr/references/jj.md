@@ -54,14 +54,23 @@ the current stack.
 
 ## `checkpoint`
 
-Bare `/pr` and `/pr commit` map here too. Map this command to a local jj
-slice:
+Bare `/pr` and `/pr commit` map here too. Map this command to one or more local
+jj slices:
 
 1. Review the current diff and identify this conversation's paths.
-2. Commit those explicit paths with the supplied or inferred description.
-3. Ensure the completed commit has one appropriately named bookmark.
-4. Leave a fresh working-copy commit on top.
-5. Verify the completed slice and what remains in the working copy.
+2. Partition the diff by reviewer-meaningful concern, not line count. Each slice
+   must have one primary purpose that can be explained, reviewed, and reverted
+   independently. Normally separate mechanical renames/refactors,
+   documentation, and behavior or business-logic changes; keep tests with the
+   behavior they directly verify. A 400-line diff containing docs, a rename,
+   and a business-logic change should normally become three slices.
+3. If multiple concerns exist, propose a bottom-to-top stack plan and confirm it
+   with the user. Do not commit the whole diff as one slice.
+4. Commit each confirmed concern independently, using explicit paths or jj's
+   interactive splitting facilities when concerns share files.
+5. Ensure every completed commit has one appropriately named bookmark.
+6. Leave a fresh working-copy commit on top.
+7. Verify every completed slice and what remains in the working copy.
 
 Typical operations are `jj commit` plus `jj bookmark create` or
 `jj bookmark move`. Bookmarks do not automatically advance after every jj
@@ -76,11 +85,15 @@ Map this command to updating the current bookmark's PR:
 
 1. Identify the single bookmark representing the current PR. Stop if multiple
    bookmarks make that ambiguous.
-2. Commit or squash this conversation's explicit paths into that slice.
-3. Ensure the bookmark points to the updated slice, not the fresh working-copy
+2. Confirm that the uncommitted work belongs to that PR's single
+   reviewer-meaningful concern. If it introduces a new concern or mixes
+   independent concerns, do not broaden the PR; propose an ordered stack and
+   use `checkpoint` after user confirmation.
+3. Commit or squash this conversation's explicit paths into that slice.
+4. Ensure the bookmark points to the updated slice, not the fresh working-copy
    commit.
-4. Push the named bookmark.
-5. Open a PR if missing; otherwise preserve its existing base.
+5. Push the named bookmark.
+6. Open a PR if missing; otherwise preserve its existing base.
 
 If the bookmark belongs to a stack, preserve the stack ancestry and refresh the
 published stack as needed, including title markers. An explicit draft/ready flag

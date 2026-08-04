@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.2.2
+
+### Patch Changes
+
+- 2b8ddbc: Guide normal PR workflows to split completed work into small, coherent stacks by reviewer-meaningful concern, independent of the optional size-nudge hook.
+
 ## 2.2.1
 
 ### Patch Changes

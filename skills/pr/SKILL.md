@@ -208,6 +208,16 @@ acting. Don't guess at workflow-changing inputs.
 
 - NEVER commit files you didn't modify in this conversation.
 - NEVER use `git add .` or `git add -A`. Stage explicitly.
+- Prefer small, coherent PRs even when `/pr` is invoked on a large body of
+  completed work. Before committing or publishing, partition the diff by
+  reviewer-meaningful concern, not just by line or file count. Mechanical
+  renames/refactors, documentation, and behavior/business-logic changes are
+  separate slices unless one is required to understand or validate another.
+  Keep directly coupled tests with the behavior they verify. If the diff mixes
+  concerns, do not put all of it in one PR: propose an ordered stack, confirm it
+  with the user, then checkpoint each concern independently. Size is only a
+  signal—a large coherent change may stay together, while tiny unrelated
+  changes should be split.
 - Report the PR URL when done.
 - **When an agent invokes this itself** (not a direct `/pr` from the
   user): `checkpoint`, `commit`, `update`, and `submit` are fair game at a

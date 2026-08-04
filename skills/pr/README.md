@@ -28,6 +28,21 @@ if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
 cuts the current diff as the next stacked branch, with the message as
 the slice description.
 
+## Slice by concern
+
+Before committing or publishing, `/pr` reviews the whole diff for independent
+concerns. PR boundaries follow reviewer-meaningful operations rather than a
+fixed line limit: mechanical renames/refactors, documentation, and behavior or
+business-logic changes normally become separate stacked PRs, while directly
+coupled tests stay with the behavior they verify.
+
+For example, a 400-line body of work containing docs, a rename, and a business
+logic change should normally become three ordered PRs. `/pr` proposes the stack
+and confirms it with you before checkpointing each concern. A large coherent
+change can remain one PR; tiny unrelated changes should still be split. This
+guidance is part of the normal workflow and does not require the optional
+size-nudge hook.
+
 ## Drafts
 
 Any PR `/pr` **creates** can be a draft:

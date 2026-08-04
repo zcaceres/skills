@@ -40,17 +40,36 @@ or Edit tools. Do NOT include:
 
 List the files you changed and confirm with the user before proceeding.
 
-### 2. Review the Diff
+### 2. Review and Slice the Diff
 
 ```bash
 git status
 git diff --stat HEAD
+git diff HEAD
 ```
 
-Show the user the stat. Do **NOT** adjudicate coherence yourself. Only
-pause to ask the user about slicing if the diff touches **more than 6
-distinct top-level directories** — that's a cheap signal that multiple
-concerns are mixed.
+Show the user the stat, then assess the diff by reviewer-meaningful concern.
+Each PR should have one primary purpose that can be explained, reviewed, and
+(if necessary) reverted independently. Do not use line count as the decision:
+a large coherent change can remain one slice, while small unrelated changes
+must be split.
+
+Treat these as separate slices unless they are inseparable for understanding or
+validation:
+
+- mechanical renames or refactors;
+- documentation changes;
+- behavior or business-logic changes.
+
+Keep tests with the behavior they directly verify. For example, a 400-line diff
+containing docs, a rename, and a business-logic change should normally become
+three ordered PRs rather than one broad PR.
+
+If the diff contains multiple concerns, do **not** commit it as one slice.
+Propose a bottom-to-top stack plan, explain the purpose of each PR, and confirm
+it with the user. Then repeat the staging and checkpoint steps for each concern
+in dependency order. Use explicit paths when concerns occupy different files;
+use patch staging such as `git add -p` when separate concerns share a file.
 
 ### 3. Detect Stack Tooling
 
@@ -69,13 +88,19 @@ git fetch
 
 If anyone else may have pushed to the current branch, resolve first.
 
-### 5. Stage Only Your Changes
+### 5. Stage Only the Current Concern
 
-Stage explicitly — never `git add .` / `git add -A`:
+Stage only the files or hunks belonging to the current confirmed slice. Stage
+explicitly — never `git add .` / `git add -A`:
 
 ```bash
 git add <file1> <file2> ...
+# or, when concerns share files:
+git add -p <file1> <file2> ...
 ```
+
+Review the staged patch with `git diff --cached` and verify that it has one
+primary purpose before committing it.
 
 ### 6A. git-stack Path — Create Branch (local, no publish)
 
@@ -92,8 +117,9 @@ parent relationship, and commits staged changes — **all local**.
 
 **Do not** run `git stack submit` here. Publishing is deferred to
 [`/pr submit`](submit.md): the stack reaches GitHub (all branches pushed,
-all PRs opened, titles marked) only once, when you're done building it.
-Skip ahead to step 7.
+all PRs opened, titles marked) only once, when you're done building it. If the
+confirmed plan has another concern, return to step 5 and create its child
+branch. Continue to step 7 only after all confirmed slices are checkpointed.
 
 ### 6B. `gh` Fallback Path — Create Branch + PR (eager publish)
 
@@ -158,6 +184,10 @@ checkpoint grew `M`, so the siblings' titles need rewriting too.
 Skip this on the git-stack path (6A) — nothing is published yet, so
 there's nothing to mark. Markers are applied when you
 [`/pr submit`](submit.md).
+
+On the `gh`-fallback path, if the confirmed plan has another concern, return to
+step 5 and create its child PR. Continue to step 7 only after all confirmed
+slices are checkpointed.
 
 ### 7. Report
 

@@ -38,14 +38,25 @@ or Edit tools. Do NOT include:
 
 List the files you changed and confirm with the user before proceeding.
 
-### 2. Check Git State
+### 2. Check Git State and Slice Coherence
 
 ```bash
 git status
 git log --oneline -5
+git diff HEAD
 ```
 
-Verify your identified files match what's shown in git status.
+Verify your identified files match what's shown in git status. Confirm that all
+changes belong to the current PR's single reviewer-meaningful concern. Judge
+coherence by purpose, not line count: keep directly coupled tests with their
+behavior, but normally separate mechanical renames/refactors, documentation,
+and behavior or business-logic changes.
+
+If the work contains a new concern or several independent concerns, do not
+broaden the current PR. Propose an ordered stack and ask the user to use the
+checkpoint flow so each concern gets its own PR. For example, docs, a rename,
+and a business-logic change should normally be three slices even if they were
+completed together.
 
 ### 3. Stage Only Your Changes
 

@@ -1,5 +1,11 @@
 # @zcaceres/skill-clean-ai-slop
 
+## 2.0.1
+
+### Patch Changes
+
+- 4bc2b93: Adopt GitHub's first-party `gh stack` extension for git-backed stacked pull request workflows, and resolve diff bases from a branch's GitHub PR rather than obsolete local stack metadata.
+
 ## 2.0.0
 
 ### Major Changes

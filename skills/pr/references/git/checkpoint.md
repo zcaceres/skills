@@ -1,46 +1,25 @@
 # `/pr checkpoint` — Cut the Current Slice as the Next Stacked Branch
 
-Commit the current uncommitted work as the next branch in a stack and
-leave the user on the new child branch, ready to keep working.
+Commit the current uncommitted work as a focused layer in a local `gh stack`.
+Checkpoints do **not** push or open pull requests; build every layer locally,
+then publish the complete stack with [`/pr submit`](submit.md).
 
-**Publishing is deferred.** On the `git stack` path this is a purely
-**local** operation — it does **not** push or open a PR. You build the
-whole stack locally with repeated checkpoints, then publish it as one
-finished set with [`/pr submit`](submit.md). This keeps half-built,
-partial PRs from accumulating on GitHub and confusing reviewers.
+The Git backend requires GitHub's first-party extension:
 
-Uses `git stack` when available, otherwise falls back to `gh` CLI + `git`.
+```bash
+gh extension install github/gh-stack
+```
 
-> **`gh`-fallback caveat (temporary):** without `git stack`, this path
-> still pushes and opens the PR immediately — deferred publishing isn't
-> wired into the `gh`-only path yet. If you want the deferred workflow,
-> use `git stack`.
-
-**Slice description:** the dispatcher passes either the explicit text
-after the `checkpoint` keyword, or — when invoked without a keyword —
-the full `$ARGUMENTS`. Used as both the commit message and the source
-for the auto-derived branch name. If empty, infer from the diff.
-
-**Draft:** resolve draft intent (**draft** or **ready**) per
-[SKILL.md → Determine draft intent](../../SKILL.md). The `gh` fallback path
-publishes eagerly, so it opens the PR with `--draft` when the answer is
-draft. The `git stack` path doesn't publish here at all — drafts are
-applied when you publish the stack with [`/pr submit`](submit.md) (see its
-draft-intent step).
+**Slice description:** the dispatcher passes either the explicit text after
+`checkpoint`, or (for bare `/pr`) the full `$ARGUMENTS`. Use it as a concise
+commit message and branch-name seed. If it is empty, infer it from the diff.
 
 ## Workflow
 
-### 1. Identify Your Changes
+### 1. Identify and slice the changes
 
-Review this conversation to identify which files YOU modified using Write
-or Edit tools. Do NOT include:
-
-- Files that were already modified before this conversation
-- Changes made by other processes or previous sessions
-
-List the files you changed and confirm with the user before proceeding.
-
-### 2. Review and Slice the Diff
+Review this conversation to identify only files changed in this conversation.
+Inspect the working tree and diff:
 
 ```bash
 git status
@@ -48,178 +27,58 @@ git diff --stat HEAD
 git diff HEAD
 ```
 
-Show the user the stat, then assess the diff by reviewer-meaningful concern.
-Each PR should have one primary purpose that can be explained, reviewed, and
-(if necessary) reverted independently. Do not use line count as the decision:
-a large coherent change can remain one slice, while small unrelated changes
-must be split.
+Keep each layer reviewer-meaningful. Separate unrelated documentation,
+mechanical refactors, and behavioral changes unless they are inseparable; keep
+its directly related tests in the same layer. If there are multiple concerns,
+propose and get confirmation for a bottom-to-top stack plan.
 
-Treat these as separate slices unless they are inseparable for understanding or
-validation:
-
-- mechanical renames or refactors;
-- documentation changes;
-- behavior or business-logic changes.
-
-Keep tests with the behavior they directly verify. For example, a 400-line diff
-containing docs, a rename, and a business-logic change should normally become
-three ordered PRs rather than one broad PR.
-
-If the diff contains multiple concerns, do **not** commit it as one slice.
-Propose a bottom-to-top stack plan, explain the purpose of each PR, and confirm
-it with the user. Then repeat the staging and checkpoint steps for each concern
-in dependency order. Use explicit paths when concerns occupy different files;
-use patch staging such as `git add -p` when separate concerns share a file.
-
-### 3. Detect Stack Tooling
+### 2. Verify `gh stack` and stage the slice
 
 ```bash
-git stack --version 2>/dev/null
-```
-
-If this succeeds → **git-stack path** (step 6A).
-Otherwise → **`gh` fallback path** (step 6B).
-
-### 4. Pre-flight: Check for Remote Drift
-
-```bash
-git fetch
-```
-
-If anyone else may have pushed to the current branch, resolve first.
-
-### 5. Stage Only the Current Concern
-
-Stage only the files or hunks belonging to the current confirmed slice. Stage
-explicitly — never `git add .` / `git add -A`:
-
-```bash
+gh stack --help >/dev/null || {
+  echo 'Install the official extension: gh extension install github/gh-stack' >&2
+  exit 1
+}
 git add <file1> <file2> ...
-# or, when concerns share files:
+# Or, when concerns share a file:
 git add -p <file1> <file2> ...
+git diff --cached
 ```
 
-Review the staged patch with `git diff --cached` and verify that it has one
-primary purpose before committing it.
+Never use `git add .` or `git add -A`.
 
-### 6A. git-stack Path — Create Branch (local, no publish)
+### 3. Create the layer
 
-If the slice description is empty, generate a concise
-conventional-commit-style message from the diff (e.g. `feat: add user
-repository`, `fix: handle null token in middleware`).
+If the current branch is already the top of a tracked stack, commit the staged
+slice onto that branch and create a new empty child branch:
 
 ```bash
-git stack create -m "<commit message>"
+gh stack add -m "<commit message>" <next-branch-name>
 ```
 
-This creates a new branch (auto-slugified from the message), records the
-parent relationship, and commits staged changes — **all local**.
+`gh stack add -m` commits the staged slice on the current top branch, then
+checks out the new child. Choose a short descriptive `<next-branch-name>`.
 
-**Do not** run `git stack submit` here. Publishing is deferred to
-[`/pr submit`](submit.md): the stack reaches GitHub (all branches pushed,
-all PRs opened, titles marked) only once, when you're done building it. If the
-confirmed plan has another concern, return to step 5 and create its child
-branch. Continue to step 7 only after all confirmed slices are checkpointed.
-
-### 6B. `gh` Fallback Path — Create Branch + PR (eager publish)
-
-> This path still publishes immediately — see the caveat at the top of
-> this file. Deferred publishing is `git stack`-only for now.
-
-Record the current branch as the parent:
+If there is no local stack yet, initialize one first, then commit the staged
+slice on its first branch. Enable Git's conflict-resolution reuse beforehand so
+`gh stack init` does not block an agent on its interactive `rerere` prompt:
 
 ```bash
-PARENT_BRANCH=$(git branch --show-current)
+git config rerere.enabled true
+gh stack init <first-branch-name>
+git commit -m "<commit message>"
 ```
 
-Generate a branch name from the commit message or the slice description
-(slugified, e.g. `feat/add-user-repository`). Create and switch to the
-new branch, then record the parent relationship — this mirrors what
-`git stack create` writes, and it's what `log`/`sync`/`merge`/the
-renumber routine walk to see the stack (without it they all see a
-one-branch stack):
+Do not push or run `gh stack submit` here. If another confirmed slice remains,
+repeat staging and this step from the new top branch.
 
-```bash
-git checkout -b <new-branch-name>
-git config "branch.<new-branch-name>.stack-parent" "$PARENT_BRANCH"
-git config "branch.<new-branch-name>.gh-merge-base" "$PARENT_BRANCH"
-```
+### 4. Report
 
-Commit:
-
-```bash
-git commit -m "$(cat <<'EOF'
-<commit message>
-EOF
-)"
-```
-
-Push and create a PR targeting the parent branch (not main). Add
-`--draft` when draft intent is **draft**:
-
-```bash
-git push -u origin HEAD
-gh pr create --base "$PARENT_BRANCH" --title "<title>" --body "$(cat <<'EOF'
-## Summary
-
-- <bullet points>
-
-## Test plan
-
-- <how to verify>
-
----
-Stack: this PR targets `<PARENT_BRANCH>`, not `main`. Merge bottom-up.
-EOF
-)"
-```
-
-### 6C. Renumber Stack Title Markers (`gh`-fallback path only)
-
-The `gh`-fallback path (6B) just published a PR, so run the renumber
-routine from [references/title-convention.md](../title-convention.md) to give
-every PR in the stack an up-to-date `[<name> N/M]` marker — adding this
-checkpoint grew `M`, so the siblings' titles need rewriting too.
-
-Skip this on the git-stack path (6A) — nothing is published yet, so
-there's nothing to mark. Markers are applied when you
-[`/pr submit`](submit.md).
-
-On the `gh`-fallback path, if the confirmed plan has another concern, return to
-step 5 and create its child PR. Continue to step 7 only after all confirmed
-slices are checkpointed.
-
-### 7. Report
-
-**git-stack path (local):**
-
-- The new branch name (`git branch --show-current`).
-- "Sliced locally — nothing pushed. Keep working; the next `/pr` (or
-  `/pr checkpoint`) stacks on top. Run `/pr submit` to publish the whole
-  stack when it's ready."
-
-**`gh`-fallback path (published):**
-
-- The new PR URL (`gh pr view --json url --jq .url`).
-- The new branch name (`git branch --show-current`).
-- The PR's marked title (`[<name> N/M] …`) so the user sees its place in
-  the stack.
-- A reminder: "You're on the child branch now. Keep working — the next
-  `/pr` (or `/pr checkpoint`) will stack on top."
+Report the branch now checked out and say that the stack remains local. Direct
+the user to `/pr submit` when the set of layers is ready for review.
 
 ## Important
 
-- NEVER commit files you didn't modify in this conversation.
-- NEVER use `git add .` or stage unrelated changes.
-- **git-stack path:** local only — never `git stack submit` here.
-  Publishing happens at [`/pr submit`](submit.md).
-- **`gh` path:** Always set `--base` to the parent branch, not `main`,
-  to preserve the stack chain. Report the PR URL when done.
-
-## Publishing and Merging the Stack
-
-When the stack is built, publish it all at once with
-[`/pr submit`](submit.md) (git-stack path). Then, when ready to land, use
-[`/pr merge`](merge.md) — it merges the stack bottom-up, never uses
-`--delete-branch`, and verifies each child's `baseRefName` is the trunk
-before merging the next.
+- Never commit files that were not modified in this conversation.
+- Never stage unrelated changes or use `git add .` / `git add -A`.
+- Do not create PRs during a checkpoint. Draft intent applies at `/pr submit`.

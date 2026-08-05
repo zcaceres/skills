@@ -1,23 +1,14 @@
 # pr
 
-A single agent skill for committing your work and shipping it as
-stacked PRs with `/pr`. Each `/pr` cuts the current diff onto a new
-branch stacked on the last (built **locally**, with `git stack`), then
-you publish the finished stack all at once with `submit` — no trickle of
-partial PRs on GitHub. Plus subcommands to review the whole stack as
-annotatable Markdown, rebase onto trunk, and merge bottom-up. Published
-PRs get a `[<name> N/M]` title marker (e.g.
-`[ENG-456 2/4] …`, named after the ticket when the branch carries one,
-else a slug) so GitHub shows at a glance which stack a PR is in and
-where it sits — see
-[references/title-convention.md](references/title-convention.md).
+A single agent skill for committing your work and shipping it as stacked PRs with `/pr`. Each `/pr` cuts the current diff onto a new local branch in a GitHub-managed stack; publish the finished stack all at once with `submit` — no trickle of partial PRs on GitHub. GitHub's native stack UI shows the layers, ordering, and navigation, so the skill does not rewrite PR titles with custom markers.
 
-`/pr update` covers the single-branch case — commit and refresh the
-current branch's PR without cutting a new stacked branch.
+The Git backend uses GitHub's first-party [`gh-stack`](https://github.com/github/gh-stack) extension. Install it once:
 
-It detects whether the
-[`git-stack`](https://github.com/zcaceres/git-stack) CLI is installed —
-if yes, uses its primitives; otherwise falls back to plain `gh` + `git`.
+```sh
+gh extension install github/gh-stack
+```
+
+`/pr update` covers the single-branch case — commit and refresh the current branch's PR without cutting a new stacked branch.
 
 **Usage:** `/pr [subcommand] [args]` in Claude Code and Gemini CLI;
 `$pr [subcommand] [args]` in Codex.
@@ -57,9 +48,8 @@ Any PR `/pr` **creates** can be a draft:
 Drafting applies at PR **creation**. An already-open PR is only flipped
 when you pass an explicit flag that run (`gh pr ready` / `gh pr ready
 --undo` under the hood) — the configured default never silently re-drafts
-an open PR. In the stacked git-stack path, `git stack submit --draft`
-opens the just-created PRs as drafts natively (driven by the same draft
-intent — an explicit flag or the `pr.draft` default).
+an open PR. For a stack, `/pr submit` uses `gh stack submit --auto` for drafts and
+`gh stack submit --auto --open` for ready PRs.
 
 ## Subcommands
 
@@ -70,9 +60,9 @@ intent — an explicit flag or the `pr.draft` default).
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | Read-only. Print the stack tree with each branch's PR status. |
 | `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with colorized git-delta diffs and structured controls, then apply the approved stack-wide plan and restack/push safely. |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack bottom-up with retarget verification. Refuses `--delete-branch` on stacks. |
-| `checkpoint [slice description]` | Cut current diff as the next stacked branch. Local-only on the git-stack path (publishes nothing); the `gh`-fallback path still publishes eagerly. The default action. |
-| `submit [--draft]` | Publish point: push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers. `--draft` opens the created PRs as drafts. Requires `git stack`. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack through GitHub's native asynchronous all-or-nothing stack-merge API. |
+| `checkpoint [slice description]` | Cut current diff as the next local stacked branch. It publishes nothing. The default action. |
+| `submit [--draft]` | Publish point: push the whole stack and open/update one PR per branch, linked in GitHub's native stack UI. Requires `gh stack`. |
 | `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
 
 See [references/recovery.md](references/recovery.md) if a `--delete-branch`
@@ -135,12 +125,12 @@ To open every new PR as a draft by default:
 git config --global pr.draft true
 ```
 
-Optional but recommended:
+Required for the git backend:
 
-- `git stack` CLI — install separately from
-  [`zcaceres/git-stack`](https://github.com/zcaceres/git-stack) releases.
-  Without it, the skill falls back to `gh` + `git` (and `submit`,
-  the whole-stack push, is unavailable).
+- GitHub's first-party stack extension:
+  ```sh
+  gh extension install github/gh-stack
+  ```
 - [`git-delta`](https://github.com/dandavison/delta) — provides colorized,
   syntax-highlighted, line-numbered diffs during conversational `/pr walk`.
   If another `delta` CLI shadows it, set `PR_WALK_DELTA` to the git-delta

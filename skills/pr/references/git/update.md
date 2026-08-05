@@ -1,44 +1,17 @@
-# `/pr update` — Commit, Push, and Update Current PR
+# `/pr update` — Commit, Push, and Update the Current PR
 
-Commit only the changes made in this conversation, push them, and open a
-PR if one doesn't exist. Stack-aware: uses `git stack submit` when on a
-stacked branch, otherwise uses `gh` directly. **Preserves the existing
-base branch** on PRs that are already open.
+Commit only the changes made in this conversation and refresh the current
+branch's PR. Use `/pr checkpoint` instead when the work belongs in a new layer.
 
-> **This is the single-branch flow.** Bare `/pr` checkpoints a new
-> stacked branch instead — use `update` when the work belongs on the
-> *current* branch's PR (amending a slice, follow-up commits, or a repo
-> where you're not stacking).
-
-**Base branch:** the dispatcher passes everything after `update` as a
-single base-branch argument (default: `main`, fallback to `master`) —
-only used in the plain `gh` path when creating a **new** PR with no
-existing base.
-
-> If the uncommitted work represents the *next* slice in a stack (not the
-> current branch's PR), use `/pr checkpoint` instead — it creates
-> a new stacked branch rather than updating the current PR.
-
-**Draft:** resolve draft intent (**draft** or **ready**) per
-[SKILL.md → Determine draft intent](../../SKILL.md). When **creating** a new
-PR and the answer is draft, add `--draft` to `gh pr create`. When a PR
-**already exists**, the configured `pr.draft` default leaves it alone —
-only an *explicit* `--draft`/`-d` or `--ready`/`--no-draft` on this
-invocation flips it (step 5).
+When the branch belongs to a local `gh stack`, update and submit the whole stack
+so GitHub keeps its native stack relationship intact. Otherwise use ordinary
+`git push` and `gh pr` for the one-branch flow.
 
 ## Workflow
 
-### 1. Identify Your Changes
+### 1. Identify, review, and stage the current concern
 
-Review this conversation to identify which files YOU modified using Write
-or Edit tools. Do NOT include:
-
-- Files that were already modified before this conversation
-- Changes made by other processes or previous sessions
-
-List the files you changed and confirm with the user before proceeding.
-
-### 2. Check Git State and Slice Coherence
+Identify only files changed in this conversation, then inspect:
 
 ```bash
 git status
@@ -46,126 +19,65 @@ git log --oneline -5
 git diff HEAD
 ```
 
-Verify your identified files match what's shown in git status. Confirm that all
-changes belong to the current PR's single reviewer-meaningful concern. Judge
-coherence by purpose, not line count: keep directly coupled tests with their
-behavior, but normally separate mechanical renames/refactors, documentation,
-and behavior or business-logic changes.
-
-If the work contains a new concern or several independent concerns, do not
-broaden the current PR. Propose an ordered stack and ask the user to use the
-checkpoint flow so each concern gets its own PR. For example, docs, a rename,
-and a business-logic change should normally be three slices even if they were
-completed together.
-
-### 3. Stage Only Your Changes
-
-Stage ONLY the files you modified in this conversation:
+If the diff contains multiple independent concerns, propose an ordered stack
+and use `/pr checkpoint` rather than broadening the current PR. Stage explicit
+files or hunks only:
 
 ```bash
 git add <file1> <file2> ...
+# or: git add -p <file1> <file2> ...
+git diff --cached
 ```
 
-Do NOT use `git add .` or `git add -A` — be explicit about each file.
+Never use `git add .` or `git add -A`.
 
-### 4. Commit
-
-Generate a concise commit message based on what you accomplished. Use
-HEREDOC format:
+### 2. Commit
 
 ```bash
-git commit -m "$(cat <<'EOF'
-<type>: <summary>
-
-<optional body if needed>
-EOF
-)"
+git commit -m "<type>: <summary>"
 ```
 
-### 5. Push and Open PR — Stack-Aware
+### 3. Refresh the PR
 
-Decide which path to take:
+First determine whether the current branch is in a tracked local stack:
 
 ```bash
-git stack --version 2>/dev/null && git config "branch.$(git branch --show-current).stack-parent" 2>/dev/null
+gh stack view --short >/dev/null 2>&1
 ```
 
-**If both succeed (git-stack installed AND current branch is stacked):**
+If it is, submit the stack. For agent/noninteractive execution, resolve draft
+intent from [SKILL.md](../../SKILL.md#determine-draft-intent): `--auto` creates
+new PRs as drafts, while `--auto --open` creates them ready for review.
 
 ```bash
-git stack submit            # add --draft when draft intent is draft
+gh stack submit --auto          # draft intent
+gh stack submit --auto --open   # ready intent
 ```
 
-This pushes all branches in the stack (force-with-lease) and
-creates/updates a GitHub PR for each branch with the correct base.
-Idempotent. `git stack submit` takes `--draft` natively — pass `--draft`
-when draft intent is **draft** so newly created PRs open as drafts (see
-[submit.md's Flags](submit.md#flags-passed-through-arguments)). It only
-affects PRs it *creates*; already-open PRs are left as-is.
+This does not rewrite title markers or manually alter PR bases.
 
-This re-publishes the whole stack, so run the renumber routine from
-[references/title-convention.md](../title-convention.md) afterward (the same
-post-pass `submit` runs) to keep each PR's `[<name> N/M]` marker current.
-Skip it on the plain `gh` single-PR path below; a lone PR isn't a stack
-and gets no marker.
-
-**Otherwise → plain `gh` + `git` path:**
+If the branch is not in a local stack, use the standard single-PR flow:
 
 ```bash
 git push -u origin HEAD
+gh pr view --json url 2>/dev/null || \
+  gh pr create --base "<base>" --title "<title>" --body "<body>"
 ```
 
-Then check for an existing PR:
+For a new single PR, use the explicitly supplied base branch; otherwise default
+to the repository default branch. Add `--draft` to `gh pr create` when draft
+intent is draft. An explicit `--draft`/`--ready` flag may flip an already-open
+single PR with `gh pr ready --undo` / `gh pr ready`; the configured default does
+not change existing PR state.
 
-```bash
-gh pr list --head "$(git branch --show-current)" --state open --json number,baseRefName,url -q '.[0]'
-```
+### 4. Report
 
-**If a PR already exists:** report its URL. Do not change the base branch.
-If — and only if — the user passed an explicit draft flag this run, flip
-the PR's draft state to match (the configured `pr.draft` default never
-flips an open PR):
-
-```bash
-gh pr ready --undo   # --draft/-d: convert to draft
-gh pr ready          # --ready/--no-draft: mark ready for review
-```
-
-**If no PR exists**, determine the correct base:
-
-1. If a base-branch argument was provided, use that as the base.
-2. Otherwise, check if this branch was created off another non-main
-   branch (i.e. part of a stack):
-
-   ```bash
-   git log --oneline --decorate main..HEAD
-   ```
-
-   If the branch clearly descends from another feature branch, ask the
-   user which base to target.
-3. Default to `main` (fallback `master`).
-
-Create the PR (add `--draft` when draft intent is **draft**):
-
-```bash
-gh pr create --base "<base>" --title "<title>" --body "$(cat <<'EOF'
-## Summary
-
-- <bullet points of changes>
-
-## Test plan
-
-- <how to verify>
-EOF
-)"
-```
+Report the PR URL and whether it is draft or ready. On a stack, run
+`gh stack view` and report all affected PRs.
 
 ## Important
 
-- NEVER commit files you didn't modify in this conversation.
-- NEVER use `git add .` or stage unrelated changes.
-- If unsure which files you changed, ASK the user.
-- Report the PR URL when done — note "(draft)" if it was opened as one.
-- **`gh` path:** When a PR already exists, do not change its base
-  branch — it may be part of a stack. Only an explicit `--draft`/`--ready`
-  flag flips its draft state.
+- Preserve an existing PR's base branch in the one-branch flow.
+- Never hand-edit a stacked PR's base; use `gh stack`.
+- If `gh stack` is unavailable for a branch that should be stacked, stop and
+  direct the user to `gh extension install github/gh-stack`.

@@ -38,7 +38,7 @@ reference file and follow it exactly.
 | `delete [id\|number\|title]` | [references/delete.md](references/delete.md) | Remove a card from the board with mandatory show-and-confirm. Spells out draft deletion vs issue unlink before touching anything. |
 | `milestone <create\|add\|next\|list>` | [references/milestone.md](references/milestone.md) | Group work into a milestone (a github milestone / a linear project milestone): create one, add a card to it, run a `next`-style pick scoped to the milestone, or list milestones. |
 | `batch <create\|update\|delete>` | [references/batch.md](references/batch.md) | Apply one operation across many cards at once — bulk create, update, or delete — with a single preview and confirmation, a continue-on-error apply loop, and a per-item tally. Envelope over new-task/update/delete; per-card safety preserved. |
-| `walk [scope]` | [references/walk.md](references/walk.md) | Groom every card in a milestone, status/column, label, or default not-Done scope, one at a time. Each card includes an evidence-backed status-or-keep suggestion; Enter accepts it, while status/update/keep/details/delete/quit override it. |
+| `walk [scope]` | [references/walk.md](references/walk.md) | Groom every card in a milestone, status/column, label, or default not-Done scope, one at a time. Each card includes an evidence-backed status-or-keep suggestion; `a` applies it, while status/update/keep/details/delete/quit remain available. |
 
 ## Dispatcher
 

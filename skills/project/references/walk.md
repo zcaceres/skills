@@ -74,7 +74,7 @@ Suggested: <status action | keep as-is> — <one strongest reason>
 
 > <first ~2 lines / ~200 chars, or "(no body)">
 
-**[Enter]** accept  **[s]** status  **[u]** update  **[k]** keep  **[d]** details  **[x]** delete  **[q]** quit
+**[a]** apply suggestion  **[s]** status  **[u]** update  **[k]** keep  **[d]** details  **[x]** delete  **[q]** quit
 ```
 
 Keep the card to one screen. The URL and full evidence belong under `details`.
@@ -83,7 +83,7 @@ Keep the card to one screen. The URL and full evidence belong under `details`.
 
 | Input | Behavior |
 |---|---|
-| `Enter` / `accept` | Apply the displayed status suggestion, or advance unchanged for `keep as-is`. |
+| `a` / `apply` | Apply the displayed status suggestion, or advance unchanged for `keep as-is`. |
 | `s` / `status [target]` | Choose another canonical status; prompt for the target when omitted. |
 | `u` / `update` | Run [update.md](update.md)'s per-card workflow, including preview and approval. |
 | `k` / `keep` | Leave the card unchanged and advance. |
@@ -112,9 +112,10 @@ starts from the beginning of the selected scope.
 ## Safety and edge cases
 
 - One card is visible at a time; never pre-render the scope.
-- Enter always accepts the visible suggestion; it is never an implicit skip.
+- `a` always accepts the visible suggestion; it is never an implicit skip.
+  Never assign an action to Enter: chat interfaces require a submitted message.
 - Suggestions are status-or-keep only. Never accept editing or deletion through
-  Enter.
+  `a`.
 - Status moves are direct. Card edits retain update's approval gate, and deletes
   retain delete's typed-`yes` gate.
 - A status change may move a card outside the original filter; continue through

@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-project",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Manage a repo's project-tracker board over GitHub Projects or Linear: setup, next, new-task, update, audit, decompose, delete, milestone, batch, and interactive card-by-card walk workflows.",
   "license": "MIT",
   "type": "module",

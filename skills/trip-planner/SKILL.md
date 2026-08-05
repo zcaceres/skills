@@ -1,6 +1,7 @@
 ---
 name: trip-planner
 description: Generate personalized packing lists from a weather forecast. Use when user says 'plan a trip', 'packing list', 'what should I pack', or 'trip to [destination]'.
+disable-model-invocation: true
 ---
 
 # Trip Planner

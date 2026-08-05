@@ -1,6 +1,7 @@
 ---
 name: optimize-permissions
 description: Scan recent conversation transcripts for safe commands that could be auto-allowed by your CLI agent (Claude Code, Codex, Cursor, …), preview the proposed allowlist changes, then write them to the right config. Use when the user says "reduce permission prompts", "auto-allow safe commands", "optimize permissions", or "/optimize-permissions".
+disable-model-invocation: true
 ---
 
 # optimize-permissions

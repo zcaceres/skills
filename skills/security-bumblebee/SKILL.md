@@ -1,6 +1,7 @@
 ---
 name: security-bumblebee
 description: Set up and use Perplexity's bumblebee endpoint scanner for supply-chain exposure checks. Two modes — setup (install the Go binary, pick an output directory, run a first baseline scan, optionally schedule recurring scans and wire up an exposure catalog) and review (read the latest scan, answer advisory lookups like "did I have package X@Y installed", surface drift since the prior scan, optionally re-run with the catalog). Aimed at single developers and small teams (no MDM, no SIEM). User-triggered only — activate when the user invokes `/security-bumblebee`, `/security-bumblebee review`, `/security-bumblebee check <package>`, or `/security-bumblebee setup`.
+disable-model-invocation: true
 ---
 
 # security-bumblebee

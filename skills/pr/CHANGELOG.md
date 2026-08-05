@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.3.0
+
+### Minor Changes
+
+- 4bc2b93: Adopt GitHub's first-party `gh stack` extension for git-backed stacked pull request workflows, and resolve diff bases from a branch's GitHub PR rather than obsolete local stack metadata.
+
 ## 2.2.2
 
 ### Patch Changes

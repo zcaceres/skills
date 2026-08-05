@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr (or $pr in Codex) checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). Update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with setup. Also ships an optional diff-size nudge hook when the uncommitted diff grows large; enable it explicitly with setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under Claude Code, Codex, and Gemini CLI. Uses git stack when installed, falls back to gh + git. Optional Jujutsu (jj) backend for colocated repos. Invoke via /pr [subcommand] [args], or $pr [subcommand] [args] in Codex.
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr (or $pr in Codex) checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). Update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with setup. Also ships an optional diff-size nudge hook when the uncommitted diff grows large; enable it explicitly with setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under Claude Code, Codex, and Gemini CLI. Uses GitHub's first-party gh-stack extension for git repositories. Optional Jujutsu (jj) backend for colocated repos. Invoke via /pr [subcommand] [args], or $pr [subcommand] [args] in Codex.
 argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | submit | sync] [--draft] [args]"
 ---
 
@@ -42,10 +42,10 @@ git config pr.backend 2>/dev/null   # resolves local, then global; empty = unset
 - Anything else — including an explicit `git` — → **git backend** (the
   default).
 
-The backend only changes which workflow reference is read. The git backend
-uses `references/git/<keyword>.md`; the jj backend uses the matching command
-section in [`references/jj.md`](references/jj.md). `setup`, `walk`,
-`title-convention.md`, and `recovery.md` are shared. Draft semantics are
+The backend only changes which workflow reference is read. The git backend uses GitHub's first-party `gh stack` extension and
+reads `references/git/<keyword>.md`; the jj backend uses the matching command
+section in [`references/jj.md`](references/jj.md). `setup`, `walk`, and
+`recovery.md` are shared; `title-convention.md` is Jujutsu-only. Draft semantics are
 identical in both backends. The jj backend is **colocated-only** (jj working
 alongside `.git` in the same checkout) — [`/pr setup`](references/setup.md)
 wires it with `/pr setup jj`.
@@ -68,11 +68,11 @@ Per-invocation flags always win over the configured default:
    Output `true` → **draft**. Anything else (including empty) → **ready**.
 
 Carry the resolved answer (**draft** or **ready**) into the matched
-subcommand. It only affects PR **creation** — `gh pr create` gets
-`--draft` (or `git stack submit` gets `--draft`) when the answer is
-draft. An explicit per-invocation flag may also flip an *already-open* PR
-(`gh pr ready` / `gh pr ready --undo`); the configured default never does
-— see the matched backend's `update` workflow.
+subcommand. It only affects PR **creation** — a single-PR `gh pr create` gets
+`--draft` for draft intent; `gh stack submit` uses `--auto` for **draft** or
+`--auto --open` for **ready**. An explicit per-invocation flag may also flip an
+*already-open* single PR (`gh pr ready` / `gh pr ready --undo`); the configured
+default never does — see the matched backend's `update` workflow.
 
 ## Subcommands
 
@@ -83,23 +83,17 @@ draft. An explicit per-invocation flag may also flip an *already-open* PR
 | `update [base-branch]` | [git](references/git/update.md) · [jj](references/jj.md#update) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | [git](references/git/log.md) · [jj](references/jj.md#log) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
 | `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with colorized git-delta diffs and structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack bottom-up with retarget verification (a lone branch is just a one-PR stack). |
-| `checkpoint [slice description]` | [git](references/git/checkpoint.md) · [jj](references/jj.md#checkpoint) | Cut the current uncommitted diff as the next branch in a stack. On the git-stack path this is **local only** — it doesn't publish; you build the stack with repeated checkpoints, then `submit`. (The `gh`-fallback path still publishes eagerly.) **This is the default action.** |
-| `submit [--draft]` | [git](references/git/submit.md) · [jj](references/jj.md#submit) | **Publish point.** Push the whole stack (force-with-lease), open/update one PR per branch, and stamp the `[<name> N/M]` title markers — so the finished stack lands on GitHub at once. `--draft` opens the created PRs as drafts. Requires `git stack` on the git backend; the jj backend needs no extra binary. |
-| `sync [--no-push]` | [git](references/git/sync.md) · [jj](references/jj.md#sync) | Fetch trunk and rebase every branch in the stack onto the updated tip. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack through GitHub's native asynchronous stack-merge API on the git backend (a lone branch is just a one-branch stack). |
+| `checkpoint [slice description]` | [git](references/git/checkpoint.md) · [jj](references/jj.md#checkpoint) | Cut the current uncommitted diff as the next local branch in a stack. Build repeated layers, then `submit` them together. **This is the default action.** |
+| `submit [--draft]` | [git](references/git/submit.md) · [jj](references/jj.md#submit) | **Publish point.** Push the whole stack and create/update one PR per branch, linked in GitHub's native stack UI. `--draft` opens newly created PRs as drafts. Requires GitHub's `gh stack` extension on the git backend; the jj backend needs no extra binary. |
+| `sync [--no-push]` | [git](references/git/sync.md) · [jj](references/jj.md#sync) | Synchronize the stack with GitHub; `--no-push` performs the cascade rebase locally for review first. |
 
-## Stacked-PR title markers
+## Native GitHub stack representation
 
-When a stack is published, each PR's title is prefixed with a
-`[<name> N/M]` marker (e.g. `[ENG-456 2/4] Add token middleware`) so it's
-obvious in GitHub that the PR belongs to a stack and where it sits.
-`<name>` is the ticket identifier the work is tracked under (e.g.
-`ENG-456`) when the branch carries one, else a slug derived from the
-bottom branch; `N/M` is the position from the bottom over the total.
-`submit` stamps the markers at publish time; `merge` deliberately leaves
-them alone. See
-[references/title-convention.md](references/title-convention.md) for the
-format and the renumber routine.
+On the git backend, `gh stack submit` links the pull requests into GitHub's
+native stacked-pull-request object. GitHub displays their order and navigation,
+so `/pr` must not encode layer numbers in PR titles or maintain a parallel stack
+representation.
 
 ## Optional bundled hook
 
@@ -225,8 +219,7 @@ acting. Don't guess at workflow-changing inputs.
   lands PRs into trunk and is irreversible; run it only when the user
   explicitly asks. Never invoke `setup` (it flips the user's persistent
   settings) on your own.
-- (git backend) If `git stack` is installed and the branch is stacked,
-  prefer its primitives over hand-rolled `gh` loops.
+- (git backend) Require GitHub's first-party `gh stack` extension; do not
+  fall back to hand-rolled branch metadata or `gh pr` loops for a stack.
 - (jj backend) No extra binary is needed — jj itself is the stack
-  primitive (ancestry replaces `stack-parent` config, one rebase
-  restacks everything).
+  primitive (ancestry replaces Git metadata; one rebase restacks everything).

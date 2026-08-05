@@ -30,9 +30,15 @@ Those concerns belong to `/simplify` or `/code-review`, not this command.
 
 Resolve in this order:
 1. If the user passed a base argument, use it.
-2. `git config branch.$(git branch --show-current).stack-parent` — stacked PR parent
-3. Upstream tracking branch (`git rev-parse --abbrev-ref @{upstream}`) if it points to a real parent
-4. `main`, then `master`
+2. The current branch's open PR base branch, when one exists:
+   ```bash
+   gh pr view --json baseRefName --jq .baseRefName
+   ```
+3. Upstream tracking branch (`git rev-parse --abbrev-ref @{upstream}`) if it points to a real parent.
+4. `main`, then `master`.
+
+For an unpublished stack layer with no PR and no usable upstream, ask the user
+for its intended parent branch rather than inferring stack metadata.
 
 If nothing resolves, stop and ask. Collect the full diff: `git diff <base>...HEAD` plus uncommitted changes (`git diff` + `git diff --cached`). That set of touched lines is the search surface.
 

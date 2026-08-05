@@ -1,107 +1,28 @@
 # `/pr log` — Visualize the Stack
 
-Read-only. Print the current stack's structure, each branch's PR (if
-open), each PR's base, and each PR's state (open/merged/closed). A
-branch with no recorded parent is just a one-branch stack — the same
-view shows its lone PR.
-
-Uses `git stack log` when installed, otherwise composes the same view
-from `git config` + `gh pr list`.
-
-## Workflow
-
-### 1. Detect `git stack`
+Read-only. Use GitHub's first-party stack metadata and display the current
+local stack, including its branches, pull requests, and status.
 
 ```bash
-git stack --version 2>/dev/null
+gh stack --help >/dev/null || {
+  echo 'Install the official extension: gh extension install github/gh-stack' >&2
+  exit 1
+}
+gh stack view
 ```
 
-If this succeeds → **git-stack path** (step 2A).
-Otherwise → **fallback path** (step 2B).
-
-### 2A. git-stack Path
+For structured output suitable for additional reporting, use:
 
 ```bash
-git stack log
+gh stack view --json
 ```
 
-This prints the stack tree plus PR status. Pass the output straight
-through to the user — don't re-format it.
-
-If the user asked for richer information than `git stack log` shows
-(e.g. they said "with bodies"), fall through to step 2B to compose the
-extra detail via `gh`.
-
-### 2B. Fallback Path (no `git stack`)
-
-Walk the stack manually by reading `branch.<name>.stack-parent` git
-config entries:
-
-```bash
-CURRENT=$(git branch --show-current)
-BRANCH="$CURRENT"
-STACK=()
-while [[ -n "$BRANCH" ]]; do
-  STACK=("$BRANCH" "${STACK[@]}")
-  BRANCH=$(git config "branch.$BRANCH.stack-parent" 2>/dev/null)
-done
-```
-
-`STACK` now holds the branches from bottom (oldest parent) to top
-(current). If the bottom entry doesn't have a `stack-parent`, it's the
-trunk-adjacent base.
-
-Then for each branch (top down or bottom up, your choice — be
-consistent), gather:
-
-- Tip + fork point from its parent (`$PARENT` = the previous `STACK`
-  entry, or the trunk for the bottom branch — never `origin/$BRANCH~1`,
-  which is mid-slice for a multi-commit branch):
-  ```bash
-  git log --oneline -1 "origin/$BRANCH" 2>/dev/null
-  git merge-base "origin/$BRANCH" "origin/$PARENT" 2>/dev/null | cut -c1-8
-  ```
-- Open PR for the branch:
-  ```bash
-  gh pr list --head "$BRANCH" --state all --json number,baseRefName,state,url,title \
-    -q '.[0]'
-  ```
-
-Batch the `gh pr list` calls in parallel — one per branch — not in a
-serial loop.
-
-### 3. Render
-
-Compact, readable. Bottom branch first. Indent children. Include:
-
-- Branch name
-- PR number + state (open/merged/closed) — `—` if no PR
-- PR base
-- PR URL — `—` if no PR
-
-Example:
-
-```
-stacked-pr/01-scaffold   PR #53 open  base: main                    https://github.com/…/53
-└─ stacked-pr/02-submit-log-sync  PR #54 open  base: stacked-pr/01-scaffold  https://github.com/…/54
-```
-
-If a branch is on the local stack but has no remote ref yet, mark it
-`(unpushed)` and skip the PR lookup.
-
-Published PR titles carry a `[<name> N/M]` stack marker (see
-[title-convention.md](../title-convention.md)). Show it as part of the title
-when you render titles. Locally-built, not-yet-submitted branches have no
-PR (mark them `(unpushed)`). If a title's `N/M` looks stale — e.g. it
-survived a `/pr merge` that didn't relabel — note that `/pr submit` will
-refresh the markers; don't rewrite them here (this subcommand is
-read-only).
+Pass the result through to the user. Do not infer a stack from branch ancestry
+or add title markers. For a remote stack not tracked locally, use
+`gh stack checkout <stack-number-or-pr-number>` before running this command.
 
 ## Important
 
-- This subcommand is read-only. Never rebase, push, or open PRs from
-  `/pr log`.
-- If the user wants to act on what they see — retarget a base, rebase
-  a branch — direct them to `/pr sync` or `/pr merge`.
-- If `gh` isn't authenticated, surface the auth error verbatim. Don't
-  swallow it.
+- This subcommand is read-only: do not rebase, push, or open PRs.
+- Surface GitHub authentication or stack errors verbatim.
+- Direct users who want changes to `/pr sync`, `/pr checkpoint`, or `/pr merge`.

@@ -9,7 +9,7 @@ enable the optional nudge hook:
   `--ready`/`--no-draft`.
 - **backend** (`pr.backend`) — `git` (default) or `jj`. On `jj`, workflow
   subcommands read `references/jj.md` and drive the repo with Jujutsu
-  (colocated with git) instead of `git`/`git stack`. Written **local scope
+  (colocated with git) instead of `git`/`gh stack`. Written **local scope
   only** — see "Switch the backend" below.
 - **nudge hook** — optional, disabled by default, and enabled only when
   the user explicitly requests `/pr setup nudge`.
@@ -120,19 +120,24 @@ echo "draft:   $([ "$(git config pr.draft 2>/dev/null)" = true ] && echo 'on' ||
 echo "backend: $(git config pr.backend 2>/dev/null || { [ -d "$(git rev-parse --show-toplevel)/.jj" ] && echo 'jj (auto-detected .jj/)' || echo 'git (default)'; })"
 ```
 
-When the active backend is **jj**, report `jj --version` and skip the
-`git stack` recommendation below — the jj path needs no extra binary.
+When the active backend is **jj**, report `jj --version`; the jj path needs no
+extra stack extension.
 
-On the **git backend**, check for the `git stack` CLI and recommend it:
+On the **git backend**, require GitHub's first-party `gh stack` extension:
 
 ```bash
-git stack --version 2>/dev/null && echo "git stack: installed" \
-  || echo "git stack: not installed (falls back to gh + git)"
+gh stack --help >/dev/null 2>&1 && echo 'gh stack: installed' \
+  || echo 'gh stack: missing'
 ```
 
-If it's missing, tell them `/pr` still works via `gh` + `git`, but
-`submit` (whole-stack push) needs `git stack` — install it from
-<https://github.com/zcaceres/git-stack/releases>.
+If it is missing, instruct the user to install it:
+
+```bash
+gh extension install github/gh-stack
+```
+
+`/pr` does not fall back to a hand-rolled stack implementation. The extension
+uses the user's existing `gh auth login` authentication.
 
 If the user turned the **draft default on**, remind them it applies to
 PRs `/pr` creates from now on; an existing PR is unaffected until you

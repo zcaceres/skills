@@ -96,9 +96,10 @@ Map this command to updating the current bookmark's PR:
 6. Open a PR if missing; otherwise preserve its existing base.
 
 If the bookmark belongs to a stack, preserve the stack ancestry and refresh the
-published stack as needed, including title markers. An explicit draft/ready flag
-may update an existing PR's state; the configured draft default affects new PRs
-only.
+published stack as needed. The Jujutsu backend may apply its title markers as
+documented in [title-convention.md](title-convention.md). An explicit draft/ready
+flag may update an existing PR's state; the configured draft default affects new
+PRs only.
 
 Always pass `--head <bookmark>` to `gh` because colocated Git may have detached
 `HEAD`.
@@ -118,7 +119,7 @@ Map this command to publishing the whole identified stack:
 5. For each bookmark bottom to top, create its PR if missing and set its base to
    the previous bookmark (trunk for the bottom PR). Retarget an existing PR only
    when its base no longer matches the current stack.
-6. Apply the shared `[<name> N/M]` title markers from
+6. Apply the Jujutsu-only `[<name> N/M]` title markers from
    [title-convention.md](title-convention.md).
 
 Use `gh pr create --head <bookmark> --base <previous>` explicitly. Re-running

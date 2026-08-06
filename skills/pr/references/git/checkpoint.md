@@ -27,10 +27,9 @@ git diff --stat HEAD
 git diff HEAD
 ```
 
-Keep each layer reviewer-meaningful. Separate unrelated documentation,
-mechanical refactors, and behavioral changes unless they are inseparable; keep
-its directly related tests in the same layer. If there are multiple concerns,
-propose and get confirmation for a bottom-to-top stack plan.
+Apply the shared concern-slicing and stack-ordering policy in
+[SKILL.md](../../SKILL.md#important--applies-to-every-subcommand). If it yields
+multiple slices, get confirmation on the bottom-to-top plan before staging.
 
 ### 2. Verify `gh stack` and stage the slice
 

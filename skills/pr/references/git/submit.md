@@ -42,6 +42,10 @@ For an interactive user request, omit `--auto` so GitHub's submit editor can
 set each title, body, and draft state. Do not invent title prefixes: GitHub
 natively displays stack order and relationships.
 
+Apply the shared PR-note policy in
+[SKILL.md](../../SKILL.md#important--applies-to-every-subcommand) to every body
+created or edited during submission.
+
 ### 3. Report
 
 Use `gh stack view` and report each PR URL, title, base branch, and whether it

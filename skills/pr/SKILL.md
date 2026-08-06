@@ -212,6 +212,17 @@ acting. Don't guess at workflow-changing inputs.
   with the user, then checkpoint each concern independently. Size is only a
   signal—a large coherent change may stay together, while tiny unrelated
   changes should be split.
+- Order the stack to orient the reviewer early. Prefer an initial tracer-bullet
+  slice that demonstrates the high-level direction, or a small foundation such
+  as interface definitions, initial types, or a README/design document that
+  makes later implementation slices easier to understand. Then order the
+  remaining slices by dependency while keeping each independently reviewable;
+  do not move incidental cleanup earlier merely because it was authored first.
+- Keep each PR note concise and proportional to its small slice: explain its
+  purpose, important choices, and validation without repeating the diff. Give
+  the bottom PR a slightly fuller stack overview that previews the intended
+  direction and the layers that follow; later PR notes should focus on their
+  own incremental concern and mention dependencies only when useful.
 - Report the PR URL when done.
 - **When an agent invokes this itself** (not a direct `/pr` from the
   user): `checkpoint`, `commit`, `update`, and `submit` are fair game at a

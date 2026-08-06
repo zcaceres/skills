@@ -34,6 +34,13 @@ change can remain one PR; tiny unrelated changes should still be split. This
 guidance is part of the normal workflow and does not require the optional
 size-nudge hook.
 
+Stack order should orient the reviewer early. When useful, lead with a tracer
+bullet, foundational interfaces or types, or an overview README/design document
+that makes the direction of later slices clear, then order the rest by
+dependency and reviewability. PR notes stay concise and local to each slice;
+the bottom PR includes a slightly fuller overview of the stack and previews
+what follows.
+
 ## Drafts
 
 Any PR `/pr` **creates** can be a draft:

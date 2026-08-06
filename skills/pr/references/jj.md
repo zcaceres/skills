@@ -58,19 +58,15 @@ Bare `/pr` and `/pr commit` map here too. Map this command to one or more local
 jj slices:
 
 1. Review the current diff and identify this conversation's paths.
-2. Partition the diff by reviewer-meaningful concern, not line count. Each slice
-   must have one primary purpose that can be explained, reviewed, and reverted
-   independently. Normally separate mechanical renames/refactors,
-   documentation, and behavior or business-logic changes; keep tests with the
-   behavior they directly verify. A 400-line diff containing docs, a rename,
-   and a business-logic change should normally become three slices.
-3. If multiple concerns exist, propose a bottom-to-top stack plan and confirm it
-   with the user. Do not commit the whole diff as one slice.
-4. Commit each confirmed concern independently, using explicit paths or jj's
+2. Apply the shared concern-slicing and stack-ordering policy in
+   [SKILL.md](../SKILL.md#important--applies-to-every-subcommand). If it yields
+   multiple slices, get confirmation on the bottom-to-top plan before
+   committing.
+3. Commit each confirmed concern independently, using explicit paths or jj's
    interactive splitting facilities when concerns share files.
-5. Ensure every completed commit has one appropriately named bookmark.
-6. Leave a fresh working-copy commit on top.
-7. Verify every completed slice and what remains in the working copy.
+4. Ensure every completed commit has one appropriately named bookmark.
+5. Leave a fresh working-copy commit on top.
+6. Verify every completed slice and what remains in the working copy.
 
 Typical operations are `jj commit` plus `jj bookmark create` or
 `jj bookmark move`. Bookmarks do not automatically advance after every jj
@@ -121,6 +117,9 @@ Map this command to publishing the whole identified stack:
    when its base no longer matches the current stack.
 6. Apply the Jujutsu-only `[<name> N/M]` title markers from
    [title-convention.md](title-convention.md).
+7. Apply the shared PR-note policy in
+   [SKILL.md](../SKILL.md#important--applies-to-every-subcommand) to every body
+   created or edited during submission.
 
 Use `gh pr create --head <bookmark> --base <previous>` explicitly. Re-running
 `submit` should be idempotent.

@@ -39,7 +39,7 @@ user `on`.
 
 | Command | Effect |
 |---|---|
-| `on [scope] [mode]` | Turn the voice on. Default scope `--user`, default mode `prose+code`. |
+| `on [scope] [mode]` | Turn the voice on. Default scope `--user`, default mode `laconic-code`. |
 | `off [scope]` | Turn it off at that scope. |
 | `mode <prose-only\|prose+code\|laconic-code> [scope]` | Change the mode, keeping on/off as-is. |
 | `cadence <N> [scope]` | Fire the per-turn reminder every Nth turn. `1` = every turn (default). |
@@ -78,23 +78,22 @@ user `on`.
 
 `assets/rules.md` is the single source of truth the hooks inject. In short:
 
-- Start with the answer.
-- Use the fewest words that preserve the meaning.
-- Prefer short, complete sentences.
-- Include what the user needs, not everything you know.
-- Use structure only when it makes the answer easier to understand.
-- Stop when the answer is complete.
-- Avoid preambles, filler, repetition, unnecessary caveats, and sign-offs.
+- Answer directly with the minimum sufficient text.
+- Match the reply's depth to the request.
+- Treat completeness as sufficient for the request, not comprehensive coverage.
+- Prefer one representation and, for simple questions, at most one example.
+- Remove anything that does not affect correctness or usefulness.
 
-Laconic governs presentation, not reasoning. Think fully. Do not omit facts,
-risks, uncertainty, or necessary context for the sake of brevity. For security
-risks, destructive actions, and genuine ambiguity, be concise but complete.
+Laconic governs presentation, not reasoning. Think fully and output selectively.
+Keep facts, risks, uncertainty, and context when they affect correctness, safety,
+or the user's decision.
 
 **Modes.** `prose-only` applies the voice to conversational replies.
-`prose+code` (default) also applies it to comments, commit messages, and PR
-descriptions without shortening or distorting code. `laconic-code` prefers a
-diff, snippet, signature, or file tree when code communicates the answer best,
-with brief prose for context, reasoning, risks, and tradeoffs.
+`prose+code` also applies it to comments, commit messages, and PR descriptions
+without shortening or distorting code. `laconic-code` (default) prefers a diff,
+snippet, signature, or file tree when code communicates the answer best. It uses
+the smallest artifact that proves the point and avoids stacking representations
+or expanding into adjacent topics the user did not ask about.
 
 If the user says "normal mode" or "stop laconic", stop using the voice for the
 rest of the session. Persistent state changes only through `/laconic off`.

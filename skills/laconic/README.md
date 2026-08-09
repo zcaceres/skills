@@ -25,7 +25,7 @@ npx skills add zcaceres/skills -s laconic
 Then enable it:
 
 ```sh
-/laconic on                  # user scope, prose+code (defaults)
+/laconic on                  # user scope, laconic-code (default)
 /laconic on --project prose-only
 /laconic mode laconic-code   # prefer code when it communicates best
 /laconic cadence 3           # remind every 3rd turn (1 = every turn, default)
@@ -60,25 +60,24 @@ skill's own files stay put; remove them with your skills CLI.
 
 `assets/rules.md` is the canonical voice injected by the hooks:
 
-- Start with the answer.
-- Use the fewest words that preserve the meaning.
-- Prefer short, complete sentences.
-- Include what the user needs, not everything you know.
-- Use structure only when it makes the answer easier to understand.
-- Stop when the answer is complete.
-- Avoid preambles, filler, repetition, unnecessary caveats, and sign-offs.
+- Answer directly with the minimum sufficient text.
+- Match the reply's depth to the request.
+- Treat completeness as sufficient for the request, not comprehensive coverage.
+- Prefer one representation and, for simple questions, at most one example.
+- Remove anything that does not affect correctness or usefulness.
 
-Laconic governs presentation, not reasoning. Think fully. Do not omit facts,
-risks, uncertainty, or necessary context for the sake of brevity. For security
-risks, destructive actions, and genuine ambiguity, be concise but complete.
+Laconic governs presentation, not reasoning. Think fully and output selectively.
+Keep facts, risks, uncertainty, and context when they affect correctness, safety,
+or the user's decision.
 
 ## Notes
 
-- **Modes.** `prose-only` shapes conversational replies. `prose+code` (default)
-  also applies the voice to comments, commit messages, and PR descriptions
-  without shortening or distorting code. `laconic-code` prefers a diff, snippet,
-  signature, or file tree when code communicates the answer best, with brief
-  prose for context, reasoning, risks, and tradeoffs.
+- **Modes.** `prose-only` shapes conversational replies. `prose+code` also
+  applies the voice to comments, commit messages, and PR descriptions without
+  shortening or distorting code. `laconic-code` (default) prefers a diff,
+  snippet, signature, or file tree when code communicates the answer best. It
+  uses the smallest artifact that proves the point and avoids stacking prose,
+  bullets, code, diagrams, and surveys that repeat or expand beyond the request.
 - **Two hooks.** `SessionStart` injects the full voice at session start and after
   each compaction. `UserPromptSubmit` restates it before a turn to counter
   mid-session drift. Both stay silent while laconic is off.

@@ -35,7 +35,7 @@ fi
 STATE="${LINE%% *}"
 MODE="${LINE#* }"
 [ "$STATE" = "on" ] || exit 0          # off / unset → inject nothing
-case "$MODE" in prose-only|prose+code|laconic-code) ;; *) MODE="prose+code" ;; esac
+case "$MODE" in prose-only|prose+code|laconic-code) ;; *) MODE="laconic-code" ;; esac
 [ -f "$RULES" ] || exit 0
 
 echo "LACONIC MODE ACTIVE (mode: $MODE). The voice below governs how you present"

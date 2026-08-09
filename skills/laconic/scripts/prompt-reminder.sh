@@ -38,7 +38,7 @@ fi
 STATE="${LINE%% *}"
 MODE="${LINE#* }"
 [ "$STATE" = "on" ] || exit 0          # off / unset → inject nothing
-case "$MODE" in prose-only|prose+code|laconic-code) ;; *) MODE="prose+code" ;; esac
+case "$MODE" in prose-only|prose+code|laconic-code) ;; *) MODE="laconic-code" ;; esac
 
 # Cadence: N turns between reminders, 1 = every turn (default). Resolved
 # project-over-user from laconic.cadence, independent of the state file.
@@ -65,4 +65,4 @@ if [ "$CADENCE" -gt 1 ]; then
   fi
 fi
 
-echo "Follow the $MODE laconic voice: start with the answer, be concise and complete, include only what the user needs, then stop."
+echo "Follow $MODE: answer only the question asked, match its depth, use the smallest sufficient example or artifact, omit adjacent context unless correctness requires it, then stop."

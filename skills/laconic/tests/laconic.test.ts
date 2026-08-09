@@ -59,10 +59,10 @@ test("on --user writes state and status resolves the user scope", () => {
   expect(s.out).toContain("user scope");
 });
 
-test("on defaults to prose+code", () => {
+test("on defaults to laconic-code", () => {
   const { userDir, vars } = fresh();
   laconic(["on", "--user"], vars);
-  expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on prose+code");
+  expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on laconic-code");
 });
 
 test("a project off overrides a user on", () => {
@@ -143,15 +143,18 @@ test("hook injects only the code-first block in laconic-code mode", () => {
   expect(r.out).toContain("Mode: laconic-code");
   expect(r.out).not.toContain("Mode: prose-only");
   expect(r.out).not.toContain("Mode: prose+code");
-  expect(r.out).toContain("Prefer code when code communicates the answer best.");
+  expect(r.out).toContain("Use code only when it is the shortest clear answer.");
+  expect(r.out).toContain("at most one minimal");
 });
 
 test("every mode keeps the shared completeness guidance", () => {
   const { vars, projDir } = fresh();
   laconic(["on", "--user", "prose+code"], vars);
   const r = runHook(vars, projDir);
-  expect(r.out).toContain("Laconic governs presentation, not reasoning.");
-  expect(r.out).toContain("For security risks, destructive actions, and genuine ambiguity");
+  expect(r.out).toContain("Answer the exact request directly");
+  expect(r.out).toContain("Think fully; output selectively.");
+  expect(r.out).toContain("is not the same as necessary.");
+  expect(r.out).toContain("Complete means sufficient for the request");
 });
 
 test("hook is silent when unset and when off", () => {
@@ -363,9 +366,10 @@ test("reminder emits every turn at the default cadence and names the active mode
   const { vars, projDir } = fresh();
   laconic(["on", "--user", "laconic-code"], vars);
   for (let t = 0; t < 3; t++) {
-    expect(runReminder(vars, projDir, "sess-default").out).toContain(
-      "Follow the laconic-code laconic voice",
-    );
+    const reminder = runReminder(vars, projDir, "sess-default").out;
+    expect(reminder).toContain("Follow laconic-code");
+    expect(reminder).toContain("answer only the question asked");
+    expect(reminder).toContain("omit adjacent context unless correctness requires it");
   }
 });
 

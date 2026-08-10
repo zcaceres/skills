@@ -32,14 +32,14 @@ All commands run `~/.claude/skills/laconic/scripts/laconic.sh`, which reads and
 writes a one-line state file (`<on|off> <mode>`) at the chosen scope:
 
 - **project** → `<project>/.claude/laconic.state`
-- **user** → `~/.claude/laconic.state` (default scope)
+- **user** → `~/.claude/laconic.state`
 
 A project state file overrides the user one, so a project `off` suppresses a
 user `on`.
 
 | Command | Effect |
 |---|---|
-| `on [scope] [mode]` | Turn the voice on. Default scope `--user`, default mode `laconic-code`. |
+| `on [scope] [mode]` | Turn the voice on. Default scope `--project`, default mode `laconic-code`. |
 | `off [scope]` | Turn it off at that scope. |
 | `mode <prose-only\|prose+code\|laconic-code> [scope]` | Change the mode, keeping on/off as-is. |
 | `cadence <N> [scope]` | Fire the per-turn reminder every Nth turn. `1` = every turn (default). |

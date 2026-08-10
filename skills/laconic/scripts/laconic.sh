@@ -14,7 +14,7 @@
 #   laconic.sh statusline   # compact badge for a status line ("◆ laconic-code" in code mode, "◆ laconic" otherwise, else nothing)
 #   laconic.sh uninstall [--project|--user]   # unwire the hooks + delete this scope's state
 #
-# Defaults: scope = user; mode = laconic-code; cadence = 1 (every turn).
+# Defaults: scope = project; mode = laconic-code; cadence = 1 (every turn).
 # Precedence: a project state file overrides the user one (so a project `off`
 # suppresses a user `on`). Cadence resolves the same way, from its own file.
 
@@ -70,7 +70,7 @@ resolve_cadence() {
 
 cmd="${1:-status}"; shift || true
 
-scope="user"
+scope="project"
 mode=""
 num=""
 for arg in "$@"; do

@@ -6,8 +6,8 @@
 # no-op that still reports success.
 #
 # Usage:
-#   scripts/uninstall.sh                   # user scope: $HOME/.claude/settings.json
-#   scripts/uninstall.sh --project         # project scope: ./.claude/settings.json
+#   scripts/uninstall.sh                   # project scope: ./.claude/settings.json
+#   scripts/uninstall.sh --user            # user scope: $HOME/.claude/settings.json
 #   scripts/uninstall.sh --target PATH     # explicit target file
 #   scripts/uninstall.sh --keep-state      # unwire but keep laconic.state
 #   scripts/uninstall.sh --statusline-only # restore the status line only; keep hook + state
@@ -49,7 +49,7 @@ while [ $# -gt 0 ]; do
     *) echo "uninstall.sh: unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+TARGET="${TARGET:-./.claude/settings.json}"
 
 # The state file and saved original status line live alongside settings.json in
 # the same scope directory.

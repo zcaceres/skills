@@ -14,14 +14,14 @@
 #   laconic.sh statusline   # compact badge for a status line ("◆ laconic-code" in code mode, "◆ laconic" otherwise, else nothing)
 #   laconic.sh uninstall [--project|--user]   # unwire the hooks + delete this scope's state
 #
-# Defaults: scope = user; mode = prose+code; cadence = 1 (every turn).
+# Defaults: scope = user; mode = laconic-code; cadence = 1 (every turn).
 # Precedence: a project state file overrides the user one (so a project `off`
 # suppresses a user `on`). Cadence resolves the same way, from its own file.
 
 set -euo pipefail
 
 VALID_MODES="prose-only prose+code laconic-code"
-DEFAULT_MODE="prose+code"
+DEFAULT_MODE="laconic-code"
 DEFAULT_CADENCE="1"   # reminder every turn; N means every Nth turn
 
 user_state()    { echo "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/laconic.state"; }

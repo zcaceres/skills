@@ -6,8 +6,8 @@
 # a no-op.
 #
 # Usage:
-#   scripts/install.sh                 # user scope: $HOME/.claude/settings.json
-#   scripts/install.sh --project       # project scope: ./.claude/settings.json
+#   scripts/install.sh                 # project scope: ./.claude/settings.json
+#   scripts/install.sh --user          # user scope: $HOME/.claude/settings.json
 #   scripts/install.sh --target PATH   # explicit target file
 #   scripts/install.sh --no-statusline # wire the hook only; skip the badge
 #
@@ -58,7 +58,7 @@ while [ $# -gt 0 ]; do
     *) echo "install.sh: unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+TARGET="${TARGET:-./.claude/settings.json}"
 
 for cmd in "$SESSION_COMMAND" "$REMINDER_COMMAND"; do
   [ -x "$cmd" ] || {

@@ -65,6 +65,14 @@ test("on defaults to laconic-code", () => {
   expect(readFileSync(join(userDir, "laconic.state"), "utf8").trim()).toBe("on laconic-code");
 });
 
+test("on defaults to the project scope", () => {
+  const { projDir, vars } = fresh();
+  laconic(["on"], vars);
+  expect(readFileSync(join(projDir, ".claude", "laconic.state"), "utf8").trim()).toBe(
+    "on laconic-code",
+  );
+});
+
 test("a project off overrides a user on", () => {
   const { vars } = fresh();
   laconic(["on", "--user"], vars);
@@ -186,6 +194,22 @@ test("install.sh wires the SessionStart hook idempotently", () => {
   expect(second.stdout.toString()).toContain("already wired");
   const cfg2 = JSON.parse(readFileSync(target, "utf8"));
   expect(cfg2.hooks.SessionStart.length).toBe(1);
+});
+
+test("install.sh and uninstall.sh default to the project settings", () => {
+  if (!Bun.which("jq")) return; // requires jq; skip when unavailable
+  const { projDir, vars } = fresh();
+  const target = join(projDir, ".claude", "settings.json");
+  const state = join(projDir, ".claude", "laconic.state");
+
+  const install = Bun.spawnSync(["bash", INSTALL], { cwd: projDir, env: vars });
+  expect(install.exitCode).toBe(0);
+  expect(existsSync(target)).toBe(true);
+  writeFileSync(state, "on laconic-code\n");
+
+  const uninstall = Bun.spawnSync(["bash", UNINSTALL], { cwd: projDir, env: vars });
+  expect(uninstall.exitCode).toBe(0);
+  expect(existsSync(state)).toBe(false);
 });
 
 test("uninstall.sh reverses install and deletes the scope's state", () => {

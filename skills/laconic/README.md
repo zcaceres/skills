@@ -8,7 +8,7 @@ user. It shapes presentation, not reasoning.
 ```sh
 npx skills add zcaceres/skills -s laconic
 ~/.claude/skills/laconic/scripts/install.sh # needs jq
-/laconic on # user scope, laconic-code (default)
+/laconic on # project scope, laconic-code (default)
 ```
 
 The installer wires the session and prompt hooks plus a status-line badge.
@@ -17,12 +17,12 @@ The installer wires the session and prompt hooks plus a status-line badge.
 
 | Command | Effect |
 |---|---|
-| `/laconic on [--project] [mode]` | Enable it. |
-| `/laconic off [--project]` | Disable it. |
-| `/laconic mode <mode> [--project]` | Choose `prose-only`, `prose+code`, or `laconic-code`. |
-| `/laconic cadence <N> [--project]` | Remind every Nth turn; `1` is the default. |
+| `/laconic on [--user] [mode]` | Enable it. |
+| `/laconic off [--user]` | Disable it. |
+| `/laconic mode <mode> [--user]` | Choose `prose-only`, `prose+code`, or `laconic-code`. |
+| `/laconic cadence <N> [--user]` | Remind every Nth turn; `1` is the default. |
 | `/laconic status` | Show the resolved state and settings. |
-| `/laconic uninstall [--project]` | Remove hooks, badge, and state. |
+| `/laconic uninstall [--user]` | Remove hooks, badge, and state. |
 
 `laconic-code` prefers a diff, snippet, signature, or file tree when code is
 the clearest answer. A project setting overrides a user setting. Say “normal

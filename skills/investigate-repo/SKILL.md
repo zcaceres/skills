@@ -1,12 +1,14 @@
 ---
 name: investigate-repo
-description: Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence. Invoke via /investigate-repo.
+description: Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence. Invoke via /investigate-repo, or $investigate-repo in Codex.
 argument-hint: "[repo-url-or-path]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, WebFetch
 ---
 
 # investigate-repo
+
+**Invocation:** `/investigate-repo [repo]` in Claude Code; `$investigate-repo [repo]` in Codex.
 
 Deep security and quality audit of an unfamiliar code repository. Clone locally, walk the tree, and report concrete findings with file:line citations. Goal: give the user a defensible "safe / suspicious / dangerous" verdict, not a vibe check.
 

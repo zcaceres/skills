@@ -5,6 +5,8 @@ description: Set up Snyk on a repo. The integration is a GitHub App plus a Snyk-
 
 # security-snyk
 
+**Invocation:** `/security-snyk` in Claude Code; `$security-snyk` in Codex.
+
 You are setting up [Snyk](https://app.snyk.io) on the current repo. Snyk's integration is two things, not one:
 
 1. A **GitHub App** (`snyk-io`) that gives Snyk read access to the repo.

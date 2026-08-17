@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # security-socket
 
+**Invocation:** `/security:socket` in Claude Code; `$security-socket` in Codex.
+
 You are setting up [Socket Security](https://socket.dev) on the current repo. Socket's integration is a GitHub App, not a checked-in config file. The skill's job is:
 
 1. Walk the user through the two-step web install (socket.dev OAuth + GitHub App install screen).

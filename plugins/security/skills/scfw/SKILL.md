@@ -1,10 +1,13 @@
 ---
 name: scfw
-description: Set up and use Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time. Two modes — setup (pipx-install scfw, run `scfw configure` to route pip/npm/poetry through the firewall via shell aliases, smoke-test the pipeline with a dry run, and optionally install a Claude Code PreToolUse hook so the agent's own installs are vetted too) and review (confirm the firewall is still wired, read the local JSON Lines log for recent blocks/warnings, run `scfw audit` on installed packages, answer "did scfw block/see package X"). Client-side, install-time gate for a single developer machine — complements CI-side scanning, doesn't replace it. User-triggered only — activate when the user invokes `/security:scfw`, `/security:scfw setup`, `/security:scfw review`, or `/security:scfw audit`.
+description: Set up and use Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time. Two modes — setup (pipx-install scfw, run `scfw configure` to route pip/npm/poetry through the firewall via shell aliases, smoke-test the pipeline with a dry run, and optionally install a Claude Code or Codex PreToolUse hook so the agent's own installs are vetted too) and review (confirm the firewall is still wired, read the local JSON Lines log for recent blocks/warnings, run `scfw audit` on installed packages, answer "did scfw block/see package X"). Client-side, install-time gate for a single developer machine — complements CI-side scanning, doesn't replace it. User-triggered only — activate via `/security:scfw [subcommand]`, or `$security-scfw [subcommand]` in Codex.
 disable-model-invocation: true
 ---
 
 # security-scfw
+
+**Invocation:** use `/security:scfw [subcommand]` in Claude Code or
+`$security-scfw [subcommand]` in Codex.
 
 You are setting up and operating [Supply-Chain Firewall](https://github.com/DataDog/supply-chain-firewall) (`scfw`), Datadog's open-source tool that **blocks known-malicious npm, PyPI, and Poetry packages before they install**. It's the closest open-source analog to a registry-side "malicious package firewall": a client-side gate that inspects the full set of targets a package-manager command would pull, checks them against Datadog's malicious-packages dataset + OSV.dev (plus a recent-publish warning heuristic), and **auto-blocks known-malicious installs / prompts on warnings** before handing off to the real package manager.
 
@@ -174,7 +177,7 @@ Prove the firewall is in the path **without mutating the environment or touching
 
 Expect it to resolve/verify `requests` (and its deps) and report no findings, then stop short of installing. If the user aliased npm/poetry, a matching `scfw run --dry-run npm install <pkg>` works too. This confirms scfw is wired and reaching its data sources. (Do **not** attempt to install a known-malicious package to "prove" blocking — trust the dry run.)
 
-## Phase 4 — (Optional) Protect Claude Code's own installs with a hook
+## Phase 4 — (Optional) Protect the agent's own installs with a hook
 
 Ask the user:
 

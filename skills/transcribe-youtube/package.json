@@ -9,5 +9,6 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"]
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "keywords": ["claude-code", "codex", "skill", "youtube", "transcription"]
 }

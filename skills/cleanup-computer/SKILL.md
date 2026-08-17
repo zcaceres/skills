@@ -5,6 +5,8 @@ description: Interactive file cleanup for Downloads, Desktop, and Documents, plu
 
 # Computer Cleanup Workflow
 
+**Invocation:** `/cleanup-computer` in Claude Code; `$cleanup-computer` in Codex.
+
 This skill helps you systematically clean up and organize files in the user's Downloads, Desktop, and Documents folders. It processes files one-by-one, showing each file and proposing an appropriate action: **delete**, **move**, or **keep**.
 
 It also cleans up stale **git worktrees** across the user's repos — finding worktrees that are safe to remove (clean and fully merged) and proposing removal one-by-one. See [Git Worktree Cleanup](#git-worktree-cleanup).

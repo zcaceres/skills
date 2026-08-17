@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-safety-dotenv-guard",
   "version": "2.0.0",
-  "description": "Claude Code PreToolUse hook that blocks Read, Bash, Grep, and Glob calls that touch .env files (allows .env.example / .env.sample / .env.template / .env.dist).",
+  "description": "Claude Code and Codex PreToolUse hook that blocks file and shell calls that touch .env files (allows .env.example / .env.sample / .env.template / .env.dist).",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
   ],
   "keywords": [
     "claude-code",
+    "codex",
     "skill",
     "hook",
     "safety",

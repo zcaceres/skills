@@ -1,6 +1,6 @@
 # safety-dotenv-guard
 
-PreToolUse hook for Claude Code that blocks `Read`, `Bash`, `Grep`, and
+PreToolUse hook for Claude Code and Codex that blocks file and shell
 `Glob` tool calls touching `.env` files so secrets never enter the agent's
 context. Allows the usual template names (`.env.example`, `.env.sample`,
 `.env.template`, `.env.dist`). Pre-built binaries for macOS arm64, Linux
@@ -14,10 +14,12 @@ script, manual wiring, and how it works.
 ```sh
 npx skills add zcaceres/skills -s safety-dotenv-guard
 ~/.claude/skills/safety-dotenv-guard/scripts/install.sh
+# Codex:
+~/.codex/skills/safety-dotenv-guard/scripts/install.sh --codex
 ```
 
-The bundled `install.sh` idempotently wires the hook into
-`~/.claude/settings.json` (with timestamped backup) so it fires on every
+The bundled `install.sh` idempotently wires the hook into the selected host's
+JSON config (with timestamped backup) so it fires on every
 Read/Bash/Grep/Glob call, not just while this skill is loaded. Requires
 `jq`. See [SKILL.md](./SKILL.md#install) for why two steps are needed
 and for manual wiring as an alternative.

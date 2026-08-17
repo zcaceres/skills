@@ -5,6 +5,8 @@ description: Run Google Gemini Deep Research reports on any topic. Use when user
 
 # Gemini Deep Research
 
+**Invocation:** `/gemini-deep-research` in Claude Code; `$gemini-deep-research` in Codex.
+
 This skill runs Google's Deep Research agent to produce comprehensive research
 reports on any topic. Reports typically take 2–5 minutes to generate.
 

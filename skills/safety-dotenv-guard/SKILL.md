@@ -1,6 +1,6 @@
 ---
 name: safety-dotenv-guard
-description: Blocks Read, Bash, Grep, and Glob tool calls that touch .env files in Claude Code so secrets never enter the agent's context. Allows .env.example / .env.sample / .env.template / .env.dist. PreToolUse hook. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
+description: Blocks file and shell tool calls that touch .env files in Claude Code and Codex so secrets never enter the agent's context. Allows .env.example / .env.sample / .env.template / .env.dist. PreToolUse hook. Run `scripts/install.sh` after `npx skills add` for always-on protection; pass `--codex` for Codex.
 hooks:
   PreToolUse:
     - matcher: "Read|Bash|Grep|Glob"
@@ -9,6 +9,14 @@ hooks:
 ---
 
 # safety-dotenv-guard
+
+Supports Claude Code and Codex. For an always-on Codex hook, run:
+
+```bash
+~/.codex/skills/safety-dotenv-guard/scripts/install.sh --codex
+```
+
+Then open `/hooks` in Codex and review and trust the hook.
 
 A PreToolUse hook that intercepts `Read`, `Bash`, `Grep`, and `Glob` tool
 calls, scans the payload for `.env` filenames, and blocks the call (exit
@@ -105,13 +113,16 @@ hygiene, OS-level file permissions, sandboxing, and a secrets manager.
 ```sh
 npx skills add zcaceres/skills -s safety-dotenv-guard
 ~/.claude/skills/safety-dotenv-guard/scripts/install.sh
+# Codex:
+~/.codex/skills/safety-dotenv-guard/scripts/install.sh --codex
 ```
 
 The second step wires this skill's `PreToolUse:Read|Bash|Grep|Glob` hook
-into `~/.claude/settings.json` so it fires on every matching tool call,
+into the host's JSON hook config so it fires on every matching tool call,
 not just when this skill is active in context. The script is idempotent,
 backs up the target file with a timestamp, and is a no-op if the hook is
-already wired. Flags: `--project`, `--target PATH`. Requires `jq`.
+already wired. Flags: `--claude`, `--codex`, `--project`, `--target PATH`.
+Codex users must open `/hooks` and trust the hook. Requires `jq`.
 
 Frontmatter `hooks:` blocks fire only while the skill is loaded into
 context, so they're not real always-on protection — `install.sh` closes
@@ -119,9 +130,8 @@ that gap. See
 [`safety-rm-rf-guard`'s Install section](../safety-rm-rf-guard/SKILL.md#install)
 for the full explanation.
 
-Verify it's wired by asking Claude Code to read a `.env` file in any
-project (after a restart); the hook prints `BLOCKED: …` on stderr and
-exit-2s.
+Verify it's wired by asking the agent to read a `.env` file. The hook returns
+a `PreToolUse` deny decision containing `BLOCKED: …`.
 
 ### Manual wiring (alternative)
 
@@ -154,8 +164,8 @@ agent is blocked, the recommended workflow is:
 
 ## How it works
 
-1. Claude Code invokes `scripts/run.sh` before every `Read`, `Bash`, `Grep`,
-   or `Glob` tool call (after manual wiring — see [Install](#install)).
+1. Claude Code or Codex invokes `scripts/run.sh` before every matching tool
+   call (after manual wiring — see [Install](#install)).
 2. `run.sh` picks the right bundled binary for the host OS/arch from
    `scripts/bin/` (darwin-arm64, linux-x64, or windows-x64.exe).
 3. The binary reads the JSON payload from stdin and inspects
@@ -167,5 +177,6 @@ agent is blocked, the recommended workflow is:
    same blocklist/allowlist.
 6. For `Grep` and `Glob`, the path/glob/pattern arguments are scanned the
    same way.
-7. If any blocked `.env` reference is found, exit 2 with an explanatory
-   stderr message — Claude Code rejects the tool call. Otherwise exit 0.
+7. If any blocked `.env` reference is found, return the shared `PreToolUse`
+   JSON deny contract on stdout and exit 0. Claude Code and Codex both reject
+   the tool call; Codex would treat a non-zero exit as hook failure.

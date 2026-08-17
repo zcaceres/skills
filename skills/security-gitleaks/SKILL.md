@@ -5,6 +5,8 @@ description: Set up gitleaks secret-scanning on a repo. Scans history for existi
 
 # security-gitleaks
 
+**Invocation:** `/security-gitleaks` in Claude Code; `$security-gitleaks` in Codex.
+
 You are adding [gitleaks](https://github.com/gitleaks/gitleaks) secret-scanning to the current repo. The order matters:
 
 1. **Baseline scan first.** If `gitleaks` already finds things in `HEAD` or in history, **stop**. Adding a pre-commit hook locks the user out of committing legit work until those findings are resolved; adding CI turns the default branch permanently red. The user has to triage (rotate? scrub history? allowlist a false positive?) before any of this is installed.

@@ -1,6 +1,6 @@
 ---
 name: zoom
-description: Shift the conversation's abstraction level — `in` for internals (function, block, expression) or `out` for context (file, module, subsystem, system). Invoke via /zoom in|out [target].
+description: Shift the conversation's abstraction level — `in` for internals (function, block, expression) or `out` for context (file, module, subsystem, system). Invoke via /zoom in|out [target], or $zoom in|out [target] in Codex.
 argument-hint: "in|out [target | rung | count]"
 disable-model-invocation: true
 ---
@@ -9,7 +9,8 @@ disable-model-invocation: true
 
 Move the conversation deliberately along the abstraction ladder — `in` toward internals, or `out` toward relationships and context. The header on every reply announces the move so both sides stay synchronized about which rung is in focus.
 
-**Usage:** `/zoom in|out [target | rung | count]`
+**Usage:** `/zoom in|out [target | rung | count]` in Claude Code, or
+`$zoom in|out [target | rung | count]` in Codex.
 
 Examples:
 - `/zoom in` — shift one rung deeper from the current focus

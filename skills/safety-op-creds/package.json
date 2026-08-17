@@ -1,7 +1,7 @@
 {
   "name": "@zcaceres/skill-safety-op-creds",
   "version": "1.0.0",
-  "description": "Claude Code skill: fetch credentials from 1Password via the `op` CLI and feed them to programs through process-substitution file descriptors or `op run` env vars, so secrets never touch disk or the agent's transcript. Ships a `with-creds` wrapper and a PreToolUse hook that blocks bare `op read` and other secret-printing op subcommands.",
+  "description": "Claude Code and Codex skill: fetch credentials from 1Password via the `op` CLI and feed them to programs through process-substitution file descriptors or `op run` env vars, so secrets never touch disk or the agent's transcript. Ships a `with-creds` wrapper and a PreToolUse hook that blocks bare `op read` and other secret-printing op subcommands.",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
   ],
   "keywords": [
     "claude-code",
+    "codex",
     "skill",
     "hook",
     "secrets",

@@ -12,5 +12,11 @@
   "files": [
     "SKILL.md",
     "README.md"
+  ],
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skill",
+    "security"
   ]
 }

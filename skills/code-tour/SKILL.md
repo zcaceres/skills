@@ -1,11 +1,13 @@
 ---
 name: code-tour
-description: Walk an unfamiliar codebase and write a concise CODE_TOUR.md onboarding guide — the key components, a Mermaid diagram of how they connect, and the areas worth a closer look to understand it. Invoke via /code-tour.
+description: Walk an unfamiliar codebase and write a concise CODE_TOUR.md onboarding guide — the key components, a Mermaid diagram of how they connect, and the areas worth a closer look to understand it. Invoke via /code-tour, or $code-tour in Codex.
 argument-hint: "[path-to-tour]"
 disable-model-invocation: true
 ---
 
 # Code Tour
+
+**Invocation:** `/code-tour [path]` in Claude Code; `$code-tour [path]` in Codex.
 
 Produce `CODE_TOUR.md` — a concise onboarding guide that a new engineer can read
 in a few minutes to understand an unfamiliar codebase: what it is, the handful of

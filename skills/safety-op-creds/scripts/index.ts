@@ -188,7 +188,7 @@ async function main(): Promise<void> {
     }
     const hit = findBlockedInBashCommand(cmd);
     if (hit) {
-      console.error(
+      const reason =
         `BLOCKED: ${hit.name}\n` +
           `Reason: ${hit.reason}\n` +
           `Command: ${cmd}\n\n` +
@@ -199,9 +199,17 @@ async function main(): Promise<void> {
           "      with-creds --env API_KEY=op://Vault/Item/field -- cmd\n" +
           "      with-creds --fd  KEY=op://Vault/Item/field -- cmd --key %KEY%\n" +
           "  • Use `op run` for env-var consumers (it masks secret values in child output):\n" +
-          "      op run --env-file=template -- cmd"
+          "      op run --env-file=template -- cmd";
+      console.log(
+        JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse",
+            permissionDecision: "deny",
+            permissionDecisionReason: reason,
+          },
+        })
       );
-      process.exit(2);
+      process.exit(0);
     }
     process.exit(0);
   } catch (err) {

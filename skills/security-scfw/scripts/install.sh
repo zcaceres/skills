@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Wire the security-scfw PreToolUse hook (matcher: Bash) into a Claude Code
-# settings.json so it fires on every Bash tool call, not just when the skill is
+# Wire the security-scfw PreToolUse hook (matcher: Bash) into Claude Code or
+# Codex config so it fires on every Bash tool call, not just when the skill is
 # loaded into context. Idempotent — re-running is a no-op.
 #
 # Usage:
 #   scripts/install.sh                 # user scope: $HOME/.claude/settings.json
 #   scripts/install.sh --project       # project scope: ./.claude/settings.json
 #   scripts/install.sh --target PATH   # explicit target file
+#   scripts/install.sh --codex         # user scope: $CODEX_HOME/hooks.json
+#   scripts/install.sh --codex --project # project scope: ./.codex/hooks.json
 #   scripts/install.sh --remove        # remove the hook (add --project/--target to scope)
 #
 # Requires: jq. macOS: brew install jq. Linux: apt-get install jq.
@@ -23,6 +25,7 @@ HOOK_EVENT="PreToolUse"
 HOOK_MATCHER="Bash"
 
 CLAUDE_HOME="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 # Resolve HOOK_COMMAND from this script's own location so it points at the
 # correct guard whether the skill was installed at user scope, project scope,
 # or under a custom CLAUDE_CONFIG_DIR.
@@ -30,11 +33,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOK_COMMAND="$SCRIPT_DIR/scfw-guard.sh"
 
 TARGET=""
+AGENT="claude"
+SCOPE="user"
 REMOVE=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --user)    TARGET="$CLAUDE_HOME/settings.json"; shift ;;
-    --project) TARGET="./.claude/settings.json"; shift ;;
+    --claude)  AGENT="claude"; shift ;;
+    --codex)   AGENT="codex"; shift ;;
+    --user)    SCOPE="user"; shift ;;
+    --project) SCOPE="project"; shift ;;
     --target)  TARGET="$2"; shift 2 ;;
     --remove)  REMOVE=1; shift ;;
     -h|--help)
@@ -44,7 +51,13 @@ while [ $# -gt 0 ]; do
     *) echo "install.sh: unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-TARGET="${TARGET:-$CLAUDE_HOME/settings.json}"
+if [ -z "$TARGET" ]; then
+  if [ "$AGENT" = "codex" ]; then
+    [ "$SCOPE" = "project" ] && TARGET="./.codex/hooks.json" || TARGET="$CODEX_HOME/hooks.json"
+  else
+    [ "$SCOPE" = "project" ] && TARGET="./.claude/settings.json" || TARGET="$CLAUDE_HOME/settings.json"
+  fi
+fi
 
 command -v jq >/dev/null || {
   echo "install.sh: requires jq. Install:" >&2
@@ -77,7 +90,11 @@ if [ "$REMOVE" -eq 1 ]; then
   echo "✓ Removed $SKILL_NAME hook → $TARGET"
   echo "  Backup: $BACKUP"
   echo
-  echo "Restart Claude Code (or open a new conversation) for the change to take effect."
+  if [ "$AGENT" = "codex" ]; then
+    echo "Open /hooks in Codex and review the updated hook configuration."
+  else
+    echo "Restart Claude Code (or open a new conversation) for the change to take effect."
+  fi
   exit 0
 fi
 
@@ -117,5 +134,9 @@ mv "$TARGET.tmp" "$TARGET"
 echo "✓ Wired $SKILL_NAME → $TARGET"
 echo "  Backup: $BACKUP"
 echo
-echo "Restart Claude Code (or open a new conversation) for the hook to take effect."
+if [ "$AGENT" = "codex" ]; then
+  echo "Open /hooks in Codex and review and trust the new hook."
+else
+  echo "Restart Claude Code (or open a new conversation) for the hook to take effect."
+fi
 echo "Remove later with: $SCRIPT_DIR/install.sh --remove"

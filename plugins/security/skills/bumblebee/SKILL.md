@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # security-bumblebee
 
+**Invocation:** use `/security:bumblebee [subcommand]` in Claude Code or
+`$security-bumblebee [subcommand]` in Codex.
+
 You are running [bumblebee](https://github.com/perplexityai/bumblebee), Perplexity's read-only endpoint inventory scanner, on the user's machine. Unlike [[security-snyk]] and [[security-socket]], which scan repos in CI, bumblebee runs **locally** and tells you which packages, editor extensions, browser extensions, and MCP server configs are present on disk *right now* — useful when an advisory drops and you need to know whether you're exposed.
 
 The skill has two modes:

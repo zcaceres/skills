@@ -69,13 +69,16 @@ npx skills add zcaceres/skills -s trip-planner
 npx skills add zcaceres/skills -s zoom
 ```
 
-Add `-g` for global, or `-a <agent>` to target a specific agent (e.g. `-a claude-code`).
+Add `-g` for global, or `-a <agent>` to target a specific agent (for example,
+`-a claude-code` or `-a codex`).
 
 **Hook skills.** `safety-dotenv-guard`, `safety-git-reset-guard`,
-`safety-op-creds`, `safety-rm-rf-guard`, and `pr` each ship a
+`safety-op-creds`, `safety-rm-rf-guard`, `security-scfw`, and `pr` each ship a
 `scripts/install.sh` that idempotently wires the hook into the host config
-(with a timestamped backup). The `pr` installer also supports Codex and
-Gemini CLI via `--agent`.
+(with a timestamped backup). `safety-dotenv-guard`,
+`safety-git-reset-guard`, `safety-op-creds`, and `security-scfw` support Codex
+via `--codex`;
+`pr` supports Codex and Gemini CLI via `--agent`.
 Two-step install:
 
 ```sh

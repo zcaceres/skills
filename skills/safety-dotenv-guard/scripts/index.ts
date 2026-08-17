@@ -180,15 +180,23 @@ async function main(): Promise<void> {
     const data: ToolInput = JSON.parse(raw);
     const hit = blockedReason(data);
     if (hit) {
-      console.error(
+      const reason =
         `BLOCKED: Refusing to read .env file "${hit.name}" — it likely contains secrets.\n` +
           `Source: ${hit.where}\n\n` +
           "If you need a value from .env, ask the user to expose it via process env\n" +
           "(e.g. $DATABASE_URL) or a secrets manager. To learn the variable names,\n" +
           "read .env.example / .env.sample / .env.template / .env.dist instead — those\n" +
-          "are allowed."
+          "are allowed.";
+      console.log(
+        JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse",
+            permissionDecision: "deny",
+            permissionDecisionReason: reason,
+          },
+        })
       );
-      process.exit(2);
+      process.exit(0);
     }
     process.exit(0);
   } catch {

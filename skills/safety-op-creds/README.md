@@ -1,6 +1,6 @@
 # safety-op-creds
 
-A Claude Code skill (and standalone wrapper) for using credentials stored
+A Claude Code and Codex skill (and standalone wrapper) for using credentials stored
 in 1Password without ever writing them to disk or letting them appear in
 the agent's tool output.
 
@@ -25,10 +25,12 @@ blocked/allowed patterns, install steps, and known limitations.
 ```sh
 npx skills add zcaceres/skills -s safety-op-creds
 ~/.claude/skills/safety-op-creds/scripts/install.sh
+# Codex:
+~/.codex/skills/safety-op-creds/scripts/install.sh --codex
 ```
 
-The bundled `install.sh` idempotently wires the hook into
-`~/.claude/settings.json` (with timestamped backup) so bare `op read`
+The bundled `install.sh` idempotently wires the hook into the selected host's
+JSON config (with timestamped backup) so bare `op read`
 and other secret-printing subcommands are blocked on every Bash call,
 not just while this skill is loaded. Requires `jq` and the `op` CLI.
 See [SKILL.md](./SKILL.md#install) for why two steps are needed and for

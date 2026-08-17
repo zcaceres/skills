@@ -22,8 +22,12 @@ async function runHook(
 
   const exitCode = await proc.exited;
   const stderr = await new Response(proc.stderr).text();
+  const stdout = await new Response(proc.stdout).text();
+  const decision = stdout.trim() ? JSON.parse(stdout).hookSpecificOutput : null;
 
-  return { exitCode, stderr };
+  return decision?.permissionDecision === "deny"
+    ? { exitCode: 2, stderr: decision.permissionDecisionReason }
+    : { exitCode, stderr };
 }
 
 describe("Read tool — blocked", () => {
@@ -587,6 +591,8 @@ describe("Edge cases", () => {
     proc.stdin.write(JSON.stringify({ tool_input: { command: "cat .env" } }));
     proc.stdin.end();
     const exitCode = await proc.exited;
-    expect(exitCode).toBe(2);
+    const stdout = await new Response(proc.stdout).text();
+    expect(exitCode).toBe(0);
+    expect(JSON.parse(stdout).hookSpecificOutput.permissionDecision).toBe("deny");
   });
 });

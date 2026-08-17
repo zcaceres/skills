@@ -7,6 +7,9 @@ disable-model-invocation: true
 
 # security-openssf
 
+**Invocation:** use `/security:openssf [subcommand]` in Claude Code or
+`$security-openssf [subcommand]` in Codex.
+
 You are managing the [OpenSSF Scorecard](https://github.com/ossf/scorecard) GitHub Action for the current repo, via `/security:openssf [subcommand]`.
 
 ## Subcommands

@@ -5,6 +5,8 @@ description: Download and transcribe YouTube videos to a markdown file using yt-
 
 # YouTube Video Transcription
 
+**Invocation:** `/transcribe-youtube [URL]` in Claude Code; `$transcribe-youtube [URL]` in Codex.
+
 Download a YouTube video's audio and transcribe it to a markdown file using [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [Whisper](https://github.com/openai/whisper).
 
 ## Prerequisites

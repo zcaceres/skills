@@ -22,8 +22,12 @@ async function runHook(
 
   const exitCode = await proc.exited;
   const stderr = await new Response(proc.stderr).text();
+  const stdout = await new Response(proc.stdout).text();
+  const decision = stdout.trim() ? JSON.parse(stdout).hookSpecificOutput : null;
 
-  return { exitCode, stderr };
+  return decision?.permissionDecision === "deny"
+    ? { exitCode: 2, stderr: decision.permissionDecisionReason }
+    : { exitCode, stderr };
 }
 
 const expectBlocked = async (cmd: string) => {

@@ -1,6 +1,6 @@
 ---
 name: safety-op-creds
-description: Fetch credentials from 1Password via the `op` CLI and feed them to programs through bash process substitution (/dev/fd/N file descriptors) or `op run` env vars, so secrets never touch disk or the agent's tool output. Ships a `with-creds` wrapper plus a PreToolUse hook that blocks bare `op read` and other secret-printing op subcommands. Frontmatter hook fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
+description: Fetch credentials from 1Password via the `op` CLI and feed them to programs through bash process substitution (/dev/fd/N file descriptors) or `op run` env vars, so secrets never touch disk or the agent's tool output. Ships a `with-creds` wrapper plus a PreToolUse hook for Claude Code and Codex that blocks bare `op read` and other secret-printing op subcommands. Run `scripts/install.sh` after `npx skills add` for always-on protection; pass `--codex` for Codex.
 hooks:
   PreToolUse:
     - matcher: "Bash"
@@ -9,6 +9,14 @@ hooks:
 ---
 
 # safety-op-creds
+
+Supports Claude Code and Codex. For an always-on Codex hook, run:
+
+```bash
+~/.codex/skills/safety-op-creds/scripts/install.sh --codex
+```
+
+Then open `/hooks` in Codex and review and trust the hook.
 
 The sanctioned alternative to `.env` files: store credentials in 1Password,
 fetch them at runtime via the `op` CLI, and pass them to the consuming
@@ -238,14 +246,17 @@ session, the `safety-dotenv-guard` skill, and an honest threat model.
 ```sh
 npx skills add zcaceres/skills -s safety-op-creds
 ~/.claude/skills/safety-op-creds/scripts/install.sh
+# Codex:
+~/.codex/skills/safety-op-creds/scripts/install.sh --codex
 ```
 
 The second step wires this skill's `PreToolUse:Bash` hook into
-`~/.claude/settings.json` so bare `op read` and other secret-printing
+the host's JSON hook config so bare `op read` and other secret-printing
 subcommands are blocked on every Bash call, not just when this skill is
 active in context. The script is idempotent, backs up the target file
 with a timestamp, and is a no-op if the hook is already wired. Flags:
-`--project`, `--target PATH`. Requires `jq`.
+`--claude`, `--codex`, `--project`, `--target PATH`. Codex users must open
+`/hooks` and trust the hook. Requires `jq`.
 
 Frontmatter `hooks:` blocks fire only while the skill is loaded into
 context, so they're not real always-on protection — `install.sh` closes
@@ -259,9 +270,9 @@ For convenient use of the wrapper, symlink it onto your PATH:
 ln -s ~/.claude/skills/safety-op-creds/scripts/with-creds ~/.local/bin/with-creds
 ```
 
-Verify the hook is wired by asking Claude Code to run
-`op read "op://Vault/Item/field"` (after a restart); the hook prints
-`BLOCKED:` on stderr and exit-2s.
+Verify the hook is wired by asking the agent to run
+`op read "op://Vault/Item/field"`; the hook returns a `PreToolUse` deny
+decision containing `BLOCKED:`.
 
 ### Manual wiring (alternative)
 
@@ -308,7 +319,8 @@ On Windows, point at `scripts\\run.cmd` instead.
 
 ## How it works
 
-1. Claude Code invokes `scripts/run.sh` before every `Bash` tool call.
+1. Claude Code or Codex invokes `scripts/run.sh` before every matching shell
+   tool call.
 2. `run.sh` picks the right bundled binary from `scripts/bin/` for the
    host OS/arch (`safety-op-creds-darwin-arm64`, `safety-op-creds-linux-x64`, or
    `safety-op-creds-windows-x64.exe`).
@@ -321,6 +333,7 @@ On Windows, point at `scripts\\run.cmd` instead.
 6. `<(op read …)` and `<(op inject …)` substrings are then masked out
    — these are the sanctioned consumption patterns.
 7. Anything left matching `op read`, `op inject`, `op item get …
-   --reveal`, or `op item get … --format json` triggers a block: exit 2
-   with an explanatory stderr message that points the agent at
-   `with-creds`, `<( ... )`, or `op run` as the safe alternatives.
+   --reveal`, or `op item get … --format json` returns the shared
+   `PreToolUse` JSON deny contract on stdout and exits 0. The reason points
+   the agent at `with-creds`, `<( ... )`, or `op run`; both hosts reject the
+   tool call without treating the hook itself as failed.

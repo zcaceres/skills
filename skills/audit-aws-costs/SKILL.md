@@ -1,10 +1,12 @@
 ---
 name: audit-aws-costs
-description: Read-only audit of AWS spend and recently provisioned resources. Sweeps CloudTrail for recent write activity across all regions, inventories billable resources, breaks down Cost Explorer spend by service, drills into the top cost drivers, and prints a decision-ready report. Never deletes anything by default. Invoke via /audit-aws-costs.
+description: Read-only audit of AWS spend and recently provisioned resources. Sweeps CloudTrail for recent write activity across all regions, inventories billable resources, breaks down Cost Explorer spend by service, drills into the top cost drivers, and prints a decision-ready report. Never deletes anything by default. Invoke via /audit-aws-costs, or $audit-aws-costs in Codex.
 disable-model-invocation: true
 ---
 
 # Audit AWS Costs
+
+**Invocation:** `/audit-aws-costs` in Claude Code; `$audit-aws-costs` in Codex.
 
 Produce a clear, read-only picture of what exists in an AWS account, what it
 costs, and what was provisioned recently — so the user can decide what to keep,

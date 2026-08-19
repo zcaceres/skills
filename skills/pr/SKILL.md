@@ -1,6 +1,6 @@
 ---
 name: pr
-description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr (or $pr in Codex) checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). Update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with setup. Also ships an optional diff-size nudge hook when the uncommitted diff grows large; enable it explicitly with setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under Claude Code, Codex, and Gemini CLI. Uses GitHub's first-party gh-stack extension for git repositories. Optional Jujutsu (jj) backend for colocated repos. Invoke via /pr [subcommand] [args], or $pr [subcommand] [args] in Codex.
+description: One skill for committing work and opening PRs, built around stacked PRs. Bare /pr (or $pr in Codex) checkpoints the current diff as the next branch in a stack; subcommands publish the stack (submit), rebase it onto trunk (sync), walk every PR as annotatable Markdown plus exact patches (walk), and land it bottom-up (merge). Update covers the single-branch case — commit and refresh the current branch's PR. Any PR can be opened as a draft with --draft (-d), or make drafts the default with setup. Also ships an optional diff-size nudge hook when the uncommitted diff grows large; enable it explicitly with setup nudge. Agent-callable — an agent working through a task should invoke this to ship a finished slice — `checkpoint`/`commit` at each logical seam to land a stacked PR and continue on a fresh branch, or `update` to commit and refresh the current branch's single PR. Reach for it when a unit of work is complete or the user asks to commit, push, checkpoint, open a PR, or review/walk a PR stack. Do not autonomously run `merge` (it lands PRs into trunk) unless the user asks. Runs under Claude Code, Codex, Delta, and Gemini CLI. Uses GitHub's first-party gh-stack extension for git repositories. Optional Jujutsu (jj) backend for colocated repos. Invoke via /pr [subcommand] [args] in Claude Code and Gemini CLI, or $pr [subcommand] [args] in Codex and Delta.
 argument-hint: "[commit | setup | update | log | walk | merge | checkpoint | submit | sync] [--draft] [args]"
 ---
 
@@ -20,12 +20,12 @@ Draft is orthogonal to everything else — it works on every subcommand
 that creates a PR.
 
 **Usage:** `/pr [subcommand] [args]` in Claude Code and Gemini CLI;
-`$pr [subcommand] [args]` in Codex.
+`$pr [subcommand] [args]` in Codex and Delta.
 
 `$ARGUMENTS` is parsed by the dispatcher below. Read the matched
 subcommand's reference file and follow it exactly.
 If the host does not substitute a literal `$ARGUMENTS` variable (including
-Codex), treat the text following the skill invocation as `$ARGUMENTS`.
+Codex and Delta), treat the text following the skill invocation as `$ARGUMENTS`.
 
 ## Determine the backend first
 
@@ -105,7 +105,9 @@ under **Claude Code** (`PostToolUse`;
 `Edit`/`Write`/`MultiEdit`/`NotebookEdit`), **Codex** (`PostToolUse`;
 `apply_patch`), and **Gemini CLI** (`AfterTool`; `replace`/`write_file`).
 It identifies the host from the hook payload and adapts. Only the config
-wiring differs, and `install.sh --agent` handles that.
+wiring differs, and `install.sh --agent` handles that. Delta does not load
+Claude/Codex hook configuration, so its `/pr` workflow is supported but the
+optional nudge hook is unavailable there.
 
 The hook is **opt-in**. Installing the skill does not register it, and
 ordinary `/pr setup` operations for drafts or backends must not register

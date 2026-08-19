@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-investigate-repo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audit an unfamiliar code repo (GitHub URL) for malicious patterns — clone shallow, grep, emit a verdict with file:line evidence.",
   "license": "MIT",
   "type": "module",

@@ -1,5 +1,15 @@
 # @zcaceres/skill-pr
 
+## 2.3.1
+
+### Patch Changes
+
+- b2702cf: Guide PR stacks to lead with orienting tracer bullets, interfaces, types, or
+  documentation, and keep PR notes concise while giving the bottom PR a fuller
+  overview of the stack.
+- Expose `/pr` to Delta, document `$pr` invocation and argument handling there,
+  and clarify that Delta does not support the optional diff-size nudge hook.
+
 ## 2.3.0
 
 ### Minor Changes

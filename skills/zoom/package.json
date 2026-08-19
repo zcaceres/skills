@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-zoom",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shift the conversation's abstraction level — `in` for internals or `out` for context. Invoke via /zoom in|out [target], or $zoom in|out [target] in Codex.",
   "license": "MIT",
   "type": "module",

@@ -1,5 +1,17 @@
 # @zcaceres/skill-laconic
 
+## 0.7.5
+
+### Patch Changes
+
+- bd215ae: Default newly enabled laconic sessions to `laconic-code`, and strengthen the
+  voice's noise-removal rules around minimum sufficient answers, depth matching,
+  single representations, and avoiding unrequested adjacent context.
+- b93355a: Default installation and Laconic commands to project scope. Pass `--user` to
+  install or manage Laconic globally.
+- c824072: Condense the laconic README into a quick-start and command reference, with
+  implementation details kept in the skill documentation.
+
 ## 0.7.4
 
 ### Patch Changes

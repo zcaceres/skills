@@ -1,0 +1,21 @@
+{
+  "name": "@zcaceres/skill-travel-photo-stamp",
+  "version": "0.0.0",
+  "description": "Transform each uploaded travel photo into an individual Rubber Stamp Travel Field Notes Poster while preserving the photo faithfully.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "fetch-tools": "echo 'no bundled tools'",
+    "build": "echo 'no build step'",
+    "test": "echo 'no tests'"
+  },
+  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
+  "keywords": [
+    "claude-code",
+    "skill",
+    "travel",
+    "photo",
+    "image-generation",
+    "rubber-stamp"
+  ]
+}

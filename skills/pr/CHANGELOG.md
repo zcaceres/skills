@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.4.0
+
+### Minor Changes
+
+- d99b2ee: Teach the Git backend conflict-resistant `gh stack` workflows for lower-layer updates, cascading rebases, synchronization, stack-aware merges, and recovery.
+
 ## 2.3.1
 
 ### Patch Changes

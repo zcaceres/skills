@@ -2,6 +2,7 @@
 name: project
 description: Manage the repo's project-tracker kanban board as one skill, over a pluggable backend (GitHub Projects or Linear). Subcommands bootstrap a board (setup), pick the next Todo card (next), create a card (new-task), edit a card (update), audit board accuracy against the codebase (audit), split a big card into subtasks (decompose), remove a card (delete), group work into a milestone (milestone), apply one operation across many cards at once (batch), and walk a scope of cards one by one for per-card decisions informed by codebase context (walk). Use when the user says "/project", "what's next", "new task", "add a card", "update card N", "audit the board", "decompose this card", "delete card N", "create a milestone", "add this to the milestone", "what's next in the milestone", "create these five tickets", "delete cards 12, 14, 19", "/project batch", "walk me through the milestone", "triage these cards", "groom the backlog one by one", or "/project walk".
 argument-hint: "[setup | next | new-task | update | audit | decompose | delete | milestone | batch | walk] [args]"
+disable-model-invocation: true
 ---
 
 # Project Tracker Kanban — One Skill

@@ -1,5 +1,6 @@
 ---
 name: safety-rm-rf-guard
+disable-model-invocation: true
 description: Blocks rm, shred, unlink, find -delete, and sudo/xargs/subshell variants in Claude Code; redirects to the trash CLI so deletions stay recoverable. PreToolUse hook on Bash. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:

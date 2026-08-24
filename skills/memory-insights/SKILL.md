@@ -1,5 +1,6 @@
 ---
 name: memory-insights
+disable-model-invocation: true
 description: Read the agent's file-based memory (the current project by default, or all projects on request), then give the user a few one-sentence, non-obvious pieces of feedback — constructive or observational — about themselves. Use when the user says "memory insights", "what do you notice about me", "read my memory and tell me something I don't know", or "/memory-insights".
 ---
 

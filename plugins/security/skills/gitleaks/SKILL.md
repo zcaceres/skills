@@ -1,7 +1,7 @@
 ---
 name: gitleaks
-description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. User-triggered only — activate when the user invokes `/security:gitleaks`.
 disable-model-invocation: true
+description: Set up gitleaks secret-scanning on a repo. Scans history for existing leaks first — stops if dirty, because installing CI on top of a polluted history makes CI permanently red. If history is clean, scaffolds .gitleaks.toml, a local pre-commit hook, and a pinned CI workflow that scans both git history and working tree. User-triggered only — activate when the user invokes `/security:gitleaks`.
 ---
 
 # security-gitleaks

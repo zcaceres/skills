@@ -1,5 +1,6 @@
 ---
 name: security-openssf
+disable-model-invocation: true
 description: Scaffold OpenSSF Scorecard GitHub Action on a public repo with a safe two-phase rollout — first run with publish_results false so SARIF findings can be triaged before any score reaches the public dashboard, then flip to true and add a badge once the score is acceptable. Refuses to install on private/internal repos. Subcommand `fix` turns a Scorecard report into a remediation plan and applies it. Use when the user says "add OpenSSF", "set up Scorecard", "OpenSSF boilerplate", "fix the scorecard findings", or "/security-openssf".
 argument-hint: "[install | fix] [args]"
 ---

@@ -1,5 +1,6 @@
 ---
 name: safety-git-reset-guard
+disable-model-invocation: true
 description: Blocks destructive git commands (reset --hard, push --force, clean -f, checkout <path>, branch -D, stash drop/clear, worktree remove --force) in Claude Code while letting safer alternatives (--force-with-lease, --soft/--mixed, restore, branch -d) through. PreToolUse hook on Bash. Frontmatter block fires only when this skill is active in context; run `scripts/install.sh` after `npx skills add` for always-on protection.
 hooks:
   PreToolUse:

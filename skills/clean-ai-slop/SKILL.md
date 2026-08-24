@@ -1,5 +1,6 @@
 ---
 name: clean-ai-slop
+disable-model-invocation: true
 description: Find AI-generated noise on the current branch — tombstone comments, restating-the-code comments, callsite-reference comments, unused imports, dead internal symbols — propose each finding for confirmation, and apply only what's approved. Verify with the project's typecheck and tests after. Use when user says "clean ai slop", "remove ai slop", "strip ai code", or "/clean-ai-slop".
 ---
 

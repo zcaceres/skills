@@ -1,5 +1,6 @@
 ---
 name: chaos-monkey
+disable-model-invocation: true
 description: Trace code paths to find bugs, logic errors, race conditions. Static analysis first, then runtime browser testing for frontend. Triggers on "quality-chaos-monkey", "chaos monkey", "probe for edge cases".
 ---
 

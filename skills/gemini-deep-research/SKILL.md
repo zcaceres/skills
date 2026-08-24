@@ -1,5 +1,6 @@
 ---
 name: gemini-deep-research
+disable-model-invocation: true
 description: Run Google Gemini Deep Research reports on any topic. Use when user says "deep research", "research report", "gemini research", or "run a research report on...". Generates comprehensive research reports using Google's Deep Research agent.
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: storage-cleanup
+disable-model-invocation: true
 description: Find large files and directories safe to delete — inactive node_modules, local AI models, Docker artifacts, package caches, old downloads. Use on "free up space", "disk space".
 ---
 

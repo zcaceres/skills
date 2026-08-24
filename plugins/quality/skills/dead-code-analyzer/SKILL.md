@@ -1,5 +1,6 @@
 ---
 name: dead-code-analyzer
+disable-model-invocation: true
 description: Analyze a codebase for dead code, duplicates, and circular dependencies using knip, jscpd, and madge, then validate findings to filter false positives. Use when user says "quality-dead-code-analyzer", "analyze code", "find dead code", "code cleanup", "find duplicates", "unused exports", or "static analysis".
 ---
 

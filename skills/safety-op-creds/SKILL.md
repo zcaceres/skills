@@ -1,5 +1,6 @@
 ---
 name: safety-op-creds
+disable-model-invocation: true
 description: Fetch credentials from 1Password via the `op` CLI and feed them to programs through bash process substitution (/dev/fd/N file descriptors) or `op run` env vars, so secrets never touch disk or the agent's tool output. Ships a `with-creds` wrapper plus a PreToolUse hook for Claude Code and Codex that blocks bare `op read` and other secret-printing op subcommands. Run `scripts/install.sh` after `npx skills add` for always-on protection; pass `--codex` for Codex.
 hooks:
   PreToolUse:

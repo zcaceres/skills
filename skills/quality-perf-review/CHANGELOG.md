@@ -1,5 +1,11 @@
 # @zcaceres/skill-quality-perf-review
 
+## 1.0.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 1.0.0
 
 ### Major Changes

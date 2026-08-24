@@ -1,5 +1,11 @@
 # @zcaceres/skill-project
 
+## 0.2.2
+
+### Patch Changes
+
+- c3f46c3: Make the project tracker skill manual-invocation only
+
 ## 0.2.1
 
 ### Patch Changes

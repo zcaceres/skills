@@ -1,5 +1,11 @@
 # @zcaceres/skill-safety-dotenv-guard
 
+## 2.1.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 2.1.0
 
 ### Minor Changes

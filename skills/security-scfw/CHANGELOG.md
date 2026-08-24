@@ -1,5 +1,11 @@
 # @zcaceres/skill-security-scfw
 
+## 0.2.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 0.2.0
 
 ### Minor Changes

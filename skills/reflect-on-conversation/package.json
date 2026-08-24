@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-reflect-on-conversation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Analyze conversation history for a structured retrospective on prompting, agent performance, system gaps, and efficiency.",
   "license": "MIT",
   "type": "module",

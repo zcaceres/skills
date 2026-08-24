@@ -67,13 +67,39 @@ an open PR. For a stack, `/pr submit` uses `gh stack submit --auto` for drafts a
 | `update [base-branch]` | Commit + push + update the current branch's PR (or open one). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | Read-only. Print the stack tree with each branch's PR status. |
 | `walk [PR-number-or-URL]` | Generate a numbered Markdown review document with one notes area and an exact `.patch` for each open PR, render each complete PR in chat with colorized git-delta diffs and structured controls, then apply the approved stack-wide plan and restack/push safely. |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the stack through GitHub's native asynchronous all-or-nothing stack-merge API. |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | Land the selected portion of the stack through `gh stack merge`, then synchronize the result. |
 | `checkpoint [slice description]` | Cut current diff as the next local stacked branch. It publishes nothing. The default action. |
 | `submit [--draft]` | Publish point: push the whole stack and open/update one PR per branch, linked in GitHub's native stack UI. Requires `gh stack`. |
-| `sync [--no-push]` | Fetch trunk and rebase every branch in the stack onto the updated tip. Force-push-with-lease unless `--no-push`. |
+| `sync [--no-push]` | Rebase the bottom layer onto updated trunk, then cascade each higher layer onto its updated parent. Push safely unless `--no-push`. |
 
-See [references/recovery.md](references/recovery.md) if a `--delete-branch`
-mishap has already auto-closed a child PR.
+## Daily Git stack workflow
+
+```bash
+# Start the day
+gh stack sync
+gh stack view
+
+# Update the lowest layer that owns a change
+gh stack checkout <branch>
+# Edit, stage explicit files, and commit
+gh stack rebase --upstack
+gh stack push
+
+# A top-layer-only change needs no descendant rebase
+gh stack top
+# Edit, stage explicit files, and commit
+gh stack push
+
+# Merge after approval
+gh stack merge --yes --rebase
+gh stack sync --prune
+```
+
+Keep the history linear: only the bottom branch is based on trunk, while each
+higher PR targets the branch directly below it. Use `gh stack sync` after a
+partial merge rather than rebuilding or retargeting the remaining stack
+manually. See [references/recovery.md](references/recovery.md) only when a
+non-stack-aware operation has already damaged PR state.
 
 ## Optional PostToolUse hook
 

@@ -83,7 +83,7 @@ default never does — see the matched backend's `update` workflow.
 | `update [base-branch]` | [git](references/git/update.md) · [jj](references/jj.md#update) | Commit + push + update the current branch's PR (or open one if missing). The single-branch flow; doesn't change an existing PR's base. |
 | `log` | [git](references/git/log.md) · [jj](references/jj.md#log) | Read-only. Print the stack tree with each branch's PR status (a branch that isn't stacked renders as a one-branch stack). |
 | `walk [PR-number-or-URL]` | [references/walk.md](references/walk.md) | Build numbered Markdown + exact-patch review artifacts with one notes area per open PR, render each complete PR in conversational mode with colorized git-delta diffs and structured controls, collect notes bottom-to-top, then apply the approved stack-wide plan and sync it to GitHub. Use `--resume <session-dir>` to continue a packet. |
-| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack through GitHub's native asynchronous stack-merge API on the git backend (a lone branch is just a one-branch stack). |
+| `merge [--merge\|--rebase\|--squash] [--all] [--dry-run]` | [git](references/git/merge.md) · [jj](references/jj.md#merge) | Land the stack through GitHub's stack-aware merge command on the git backend (a lone branch is just a one-branch stack). |
 | `checkpoint [slice description]` | [git](references/git/checkpoint.md) · [jj](references/jj.md#checkpoint) | Cut the current uncommitted diff as the next local branch in a stack. Build repeated layers, then `submit` them together. **This is the default action.** |
 | `submit [--draft]` | [git](references/git/submit.md) · [jj](references/jj.md#submit) | **Publish point.** Push the whole stack and create/update one PR per branch, linked in GitHub's native stack UI. `--draft` opens newly created PRs as drafts. Requires GitHub's `gh stack` extension on the git backend; the jj backend needs no extra binary. |
 | `sync [--no-push]` | [git](references/git/sync.md) · [jj](references/jj.md#sync) | Synchronize the stack with GitHub; `--no-push` performs the cascade rebase locally for review first. |
@@ -94,6 +94,35 @@ On the git backend, `gh stack submit` links the pull requests into GitHub's
 native stacked-pull-request object. GitHub displays their order and navigation,
 so `/pr` must not encode layer numbers in PR titles or maintain a parallel stack
 representation.
+
+### Git stack invariants
+
+Treat a stack as one linear history. Only its bottom branch is based on trunk;
+every higher branch and PR is based on the branch directly below it. Create
+layers from bottom to top with `gh stack add`—never create each branch
+independently from trunk.
+
+Put a change on the lowest layer where it logically belongs. After changing a
+layer that has descendants, immediately run `gh stack rebase --upstack`, then
+publish the rewritten branches with `gh stack push`. A top-layer-only change
+needs only `gh stack push`. Prefer a new review-fix commit over repeatedly
+amending or squashing a lower commit, because rewriting lower commits changes
+every descendant.
+
+Use stack-aware operations throughout:
+
+- Synchronize with trunk using `gh stack sync`. Do not merge trunk into a stack
+  branch, run an unqualified `git pull` there, or rebase every branch
+  independently onto trunk.
+- Resolve a stopped cascade, stage the resolved files, then use
+  `gh stack rebase --continue`; abandon it with `gh stack rebase --abort`.
+- Push rewritten branches with `gh stack push`, which applies
+  force-with-lease safety. Never use `git push --force`.
+- Merge with `gh stack merge`, never `gh pr merge`. After merging, use
+  `gh stack sync --prune` for a fully landed stack or `gh stack sync` after a
+  partial merge.
+- Never manually retarget stacked PRs or maintain stack metadata outside
+  `gh stack`.
 
 ## Optional bundled hook
 

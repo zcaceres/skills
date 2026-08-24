@@ -1,5 +1,11 @@
 # @zcaceres/skill-safety-rm-rf-guard
 
+## 2.0.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 2.0.0
 
 ### Major Changes

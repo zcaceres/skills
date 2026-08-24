@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-transcribe-youtube",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Download and transcribe YouTube videos to a markdown file using yt-dlp and Whisper",
   "license": "MIT",
   "type": "module",
@@ -9,6 +9,18 @@
     "build": "echo 'no build step'",
     "test": "echo 'no tests'"
   },
-  "files": ["SKILL.md", "scripts", "references", "assets", "README.md"],
-  "keywords": ["claude-code", "codex", "skill", "youtube", "transcription"]
+  "files": [
+    "SKILL.md",
+    "scripts",
+    "references",
+    "assets",
+    "README.md"
+  ],
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skill",
+    "youtube",
+    "transcription"
+  ]
 }

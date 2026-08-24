@@ -1,5 +1,11 @@
 # @zcaceres/skill-find-docs
 
+## 0.0.3
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 0.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @zcaceres/skill-cleanup-computer
 
+## 0.1.2
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 0.1.1
 
 ### Patch Changes

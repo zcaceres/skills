@@ -1,5 +1,11 @@
 # @zcaceres/skill-transcribe-youtube
 
+## 0.0.2
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 0.0.1
 
 ### Patch Changes

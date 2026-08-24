@@ -1,6 +1,6 @@
 {
   "name": "@zcaceres/skill-copywriting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Refine and edit text into clear, concise copywriting. Activates when the user asks to edit, tighten, or rewrite copy.",
   "license": "MIT",
   "type": "module",

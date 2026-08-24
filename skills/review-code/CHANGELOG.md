@@ -1,5 +1,11 @@
 # @zcaceres/skill-review-code
 
+## 0.3.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 0.3.0
 
 ### Minor Changes

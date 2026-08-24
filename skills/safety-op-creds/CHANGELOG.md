@@ -1,5 +1,11 @@
 # @zcaceres/skill-safety-op-creds
 
+## 1.1.1
+
+### Patch Changes
+
+- c3f46c3: Make Delta-exposed skills manual-invocation only
+
 ## 1.1.0
 
 ### Minor Changes

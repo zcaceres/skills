@@ -26,7 +26,26 @@ gh stack view
 Stop if the working tree is dirty. If the stack is not what the user expects,
 stop rather than changing its membership or bases.
 
-### 2. Submit
+Verify that the stack is one linear history: only the bottom layer is based on
+trunk and every child descends from the branch directly below it. Branches
+created independently from trunk are not a valid stack; stop rather than
+expecting submit to infer or repair their ancestry.
+
+### 2. Restack if ancestry changed
+
+`submit` is a publication operation, not a repair operation. If a lower layer
+changed since its descendants were created or last rebased, first run:
+
+```bash
+gh stack rebase --upstack
+gh stack push
+```
+
+Skip this step when ancestry has not changed. If a rebase conflicts, resolve and
+stage the files, then use `gh stack rebase --continue`; use
+`gh stack rebase --abort` to abandon the cascade.
+
+### 3. Submit
 
 Resolve draft intent per [SKILL.md → Determine draft intent](../../SKILL.md).
 Use `--auto` for agent/noninteractive operation. GitHub creates PRs as drafts
@@ -46,7 +65,7 @@ Apply the shared PR-note policy in
 [SKILL.md](../../SKILL.md#important--applies-to-every-subcommand) to every body
 created or edited during submission.
 
-### 3. Report
+### 4. Report
 
 Use `gh stack view` and report each PR URL, title, base branch, and whether it
 is draft or ready. GitHub's linked stack is the source of truth; do not rewrite
@@ -56,4 +75,6 @@ PR titles to encode stack position.
 
 - Do not retry blindly after a failed submit; surface partial state.
 - Do not bypass hooks with `--no-verify`.
+- Do not use submit as a substitute for restacking descendants after changing a
+  lower layer.
 - Use `/pr update` for a single existing PR, and `/pr sync` after trunk moves.

@@ -1,98 +1,65 @@
-# Recovery — Reopen a Child PR Closed by `--delete-branch`
+# Recovery — Restore Stack State Safely
 
-If `gh pr merge --delete-branch` was used on a stacked PR and the child
-PR got auto-closed, GitHub won't let you reopen it directly — the base
-branch no longer exists. The fix is to recreate the deleted base
-branch, reopen the child, retarget it to `main`, then delete the
-temporary recreated branch.
+Use this document only after a non-stack-aware operation has already damaged a
+stack—for example, an individual merge deleted a base branch and auto-closed a
+child PR. Normal merges and partial merges must stay within `gh stack`.
 
-This document is referenced from
-[`merge.md`](git/merge.md). It's not exposed as its own subcommand — call
-it manually only when the failure has already happened.
+## Normal post-merge synchronization
 
-> **jj backend:** on a colocated repo, steps 1–5 work verbatim — they're
-> pure remote plumbing. For step 6, don't run `git checkout` /
-> `git rebase` (raw git rewrites fight jj's working-copy model); use
-> `jj rebase -b <child-bookmark> -d 'trunk()' --skip-emptied` followed
-> by `jj git push -b <child-bookmark>` instead — no original-parent SHA
-> needed. `--skip-emptied` abandons the child's copies of the landed
-> parent commits (empty after the rebase) so they don't reappear on the
-> reopened PR.
-
-## Workflow
-
-### 1. Identify the closed child PR
+After the entire stack lands:
 
 ```bash
-gh pr list --state closed --author @me --json number,title,headRefName,baseRefName,state \
-  -q '.[] | select(.baseRefName == "<deleted-base-branch>")'
+gh stack sync --prune
+gh stack view
 ```
 
-Note the PR number and its `headRefName`.
-
-### 2. Recreate the deleted base branch pointing at current main
+After a partial stack merge, GitHub rebases and retargets the remaining PRs:
 
 ```bash
-git fetch origin main
-git push origin "origin/main:refs/heads/<deleted-base-branch>"
+gh stack sync
+gh stack view
 ```
 
-This temporarily resurrects the branch so GitHub will accept a reopen.
+Do not recreate deleted branches, manually retarget PRs, or independently rebase
+the remaining branches onto trunk.
 
-### 3. Reopen the child PR
+## Interrupted cascade rebase
+
+Inspect the conflict, resolve it, and stage only the resolved files:
 
 ```bash
-gh pr reopen <PR_NUMBER>
+git status
+git add <resolved-files>
+gh stack rebase --continue
 ```
 
-### 4. Retarget the child PR to main
+To restore the stack to its pre-rebase state:
 
 ```bash
-gh pr edit <PR_NUMBER> --base main
-gh pr view <PR_NUMBER> --json baseRefName -q '.baseRefName'  # verify
+gh stack rebase --abort
 ```
 
-The verification must print `main` before continuing.
+Continue and abort through `gh stack`, not plain `git rebase`, so the extension
+can manage the complete cascading operation.
 
-### 5. Delete the temporary recreated branch
+## Legacy damage from non-stack-aware commands
 
-```bash
-git push origin --delete "<deleted-base-branch>"
-```
+If `gh stack sync` cannot recover because a base branch was deleted or a child
+PR was closed, stop and report:
 
-### 6. Rebase the child branch onto main and force-push
+- `gh stack view`
+- `git status`
+- the affected PR URLs and their head/base branches
+- the non-stack-aware command that caused the damage, if known
 
-The child's commits still descend from the original (deleted) base, so
-they need to be rebased onto main. Use the original parent SHA you
-recorded before the merge:
-
-```bash
-git fetch origin main
-git checkout "<child-branch>"
-git rebase --onto origin/main "<original-parent-sha>" "origin/<child-branch>"
-git push --force-with-lease origin "HEAD:refs/heads/<child-branch>"
-```
-
-If you don't have the original parent SHA, find it from the closed
-PR's first commit's parent — `gh pr view <PR_NUMBER> --json commits -q
-'.commits[0].oid'` gives you the first commit, and `git rev-parse
-<sha>^` gives its parent.
-
-### 7. Verify
-
-The child PR should now:
-
-- Be open
-- Have `baseRefName == "main"`
-- Have a clean diff against main (no stale parent-branch commits)
-
-```bash
-gh pr view <PR_NUMBER> --json state,baseRefName,url -q '.'
-```
+Do not perform manual remote surgery automatically. Recreating branches,
+retargeting PRs, and force-pushing can discard teammate work or corrupt the
+remaining stack; require an explicit, repository-specific recovery plan and
+user confirmation.
 
 ## Prevention
 
-Don't use `--delete-branch` on stacked PRs. The `/pr merge`
-subcommand refuses it for this reason. Branch cleanup is safe *after*
-the whole stack has landed and you've confirmed no child PRs depend on
-any of the merged branches.
+- Merge with `gh stack merge`, never `gh pr merge`.
+- Do not use `--delete-branch` while descendants still depend on a branch.
+- Synchronize with `gh stack sync`, not `git pull` or per-branch trunk rebases.
+- Push rewritten stacks with `gh stack push`, never `git push --force`.

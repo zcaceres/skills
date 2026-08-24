@@ -56,7 +56,11 @@ gh stack add -m "<commit message>" <next-branch-name>
 ```
 
 `gh stack add -m` commits the staged slice on the current top branch, then
-checks out the new child. Choose a short descriptive `<next-branch-name>`.
+checks out the new child. The branch that was current before this command owns
+the staged slice; the new child is an empty workspace for the next slice.
+Choose a short descriptive `<next-branch-name>`. Do not stage the next slice
+before running this command, and do not create stack branches independently
+from trunk.
 
 If there is no local stack yet, initialize one first, then commit the staged
 slice on its first branch. Enable Git's conflict-resolution reuse beforehand so
@@ -67,6 +71,10 @@ git config rerere.enabled true
 gh stack init <first-branch-name>
 git commit -m "<commit message>"
 ```
+
+The initialized first branch owns the first slice. Every later
+`gh stack add -m` commits the current slice before creating its child, preserving
+one bottom-to-top linear history.
 
 Do not push or run `gh stack submit` here. If another confirmed slice remains,
 repeat staging and this step from the new top branch.

@@ -32,6 +32,10 @@ For normal synchronization:
 gh stack sync
 ```
 
+This rebases the bottom layer onto updated trunk, then cascades upward so each
+higher layer remains based on its updated parent. It does not rebase every
+branch directly onto trunk.
+
 For `--no-push`, fetch and cascade-rebase locally without pushing:
 
 ```bash
@@ -51,5 +55,10 @@ Run `gh stack view` and report the resulting branch/PR state. When using
 ## Important
 
 - Never use plain `git push --force`.
+- Never merge trunk into a stack branch, use an unqualified `git pull` there, or
+  independently rebase every branch onto trunk.
+- After a full stack merge, use `gh stack sync --prune`; after a partial merge,
+  use `gh stack sync` and let GitHub and `gh stack` retarget and rebase the
+  remaining layers.
 - Do not manually retarget child PRs; `gh stack` owns the remote stack state.
 - Do not auto-resolve conflicts.

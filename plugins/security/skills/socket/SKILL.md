@@ -1,7 +1,7 @@
 ---
 name: socket
-description: Set up Socket Security (socket.dev) on a repo. The integration is a GitHub App, not a config file, so most of the skill is walking the user through the OAuth install in two browser steps (socket.dev sign-in, then GitHub App install) and then verifying via the GitHub API that the install actually landed on the right account and the current repo is in the selected-repos list. Optionally scaffolds a pinned CI workflow as a status-check backstop to the App's PR comments. User-triggered only — activate when the user invokes `/security:socket`.
 disable-model-invocation: true
+description: Set up Socket Security (socket.dev) on a repo. The integration is a GitHub App, not a config file, so most of the skill is walking the user through the OAuth install in two browser steps (socket.dev sign-in, then GitHub App install) and then verifying via the GitHub API that the install actually landed on the right account and the current repo is in the selected-repos list. Optionally scaffolds a pinned CI workflow as a status-check backstop to the App's PR comments. User-triggered only — activate when the user invokes `/security:socket`.
 ---
 
 # security-socket

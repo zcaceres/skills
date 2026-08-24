@@ -1,5 +1,6 @@
 ---
 name: quality-cli-agent-friendly-audit
+disable-model-invocation: true
 description: Audit a CLI tool against the agent-friendliness checklist from Zbigniew Sobiecki's "Building Agent-Friendly CLIs". Use when the user says "quality-cli-agent-friendly-audit", "cli-agent-friendly-audit", "audit this cli", "is my cli agent-friendly", or asks to check a CLI for agent ergonomics.
 ---
 

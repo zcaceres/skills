@@ -1,5 +1,6 @@
 ---
 name: audit-memories
+disable-model-invocation: true
 description: Audit an AI agent's saved memories — inventory them by type and age, flag the ones that look stale, contradictory, redundant, or orphaned (verified against the current repo), then walk the user through keep/update/merge/delete decisions one at a time. Default target is Claude Code's per-project memory store (~/.claude/projects/<cwd>/memory/), but handles any file-based memory dir. Use when the user says "audit my memories", "prune memories", "clean up my Claude memories", "review memories", "my memory is cluttered/stale", or "/audit-memories". Curates — it never bulk-deletes.
 ---
 

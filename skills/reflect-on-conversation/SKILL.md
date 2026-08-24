@@ -1,5 +1,6 @@
 ---
 name: reflect-on-conversation
+disable-model-invocation: true
 description: Analyze conversation history for a structured retrospective on prompting, agent performance, system gaps, and efficiency. Use when wanting insights to improve collaboration or workflows.
 ---
 

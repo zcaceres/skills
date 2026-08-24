@@ -1,7 +1,7 @@
 ---
 name: scfw
-description: Set up and use Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time. Two modes — setup (pipx-install scfw, run `scfw configure` to route pip/npm/poetry through the firewall via shell aliases, smoke-test the pipeline with a dry run, and optionally install a Claude Code or Codex PreToolUse hook so the agent's own installs are vetted too) and review (confirm the firewall is still wired, read the local JSON Lines log for recent blocks/warnings, run `scfw audit` on installed packages, answer "did scfw block/see package X"). Client-side, install-time gate for a single developer machine — complements CI-side scanning, doesn't replace it. User-triggered only — activate via `/security:scfw [subcommand]`, or `$security-scfw [subcommand]` in Codex.
 disable-model-invocation: true
+description: Set up and use Datadog's Supply-Chain Firewall (scfw) to block known-malicious npm/PyPI/Poetry packages at install time. Two modes — setup (pipx-install scfw, run `scfw configure` to route pip/npm/poetry through the firewall via shell aliases, smoke-test the pipeline with a dry run, and optionally install a Claude Code or Codex PreToolUse hook so the agent's own installs are vetted too) and review (confirm the firewall is still wired, read the local JSON Lines log for recent blocks/warnings, run `scfw audit` on installed packages, answer "did scfw block/see package X"). Client-side, install-time gate for a single developer machine — complements CI-side scanning, doesn't replace it. User-triggered only — activate via `/security:scfw [subcommand]`, or `$security-scfw [subcommand]` in Codex.
 ---
 
 # security-scfw

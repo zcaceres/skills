@@ -1,5 +1,6 @@
 ---
 name: transcribe-youtube
+disable-model-invocation: true
 description: Download and transcribe YouTube videos to a markdown file using yt-dlp and Whisper. Use when user says "transcribe youtube", "transcribe this video", "youtube transcript", or provides a YouTube URL to transcribe.
 ---
 

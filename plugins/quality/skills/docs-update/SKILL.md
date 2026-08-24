@@ -1,5 +1,6 @@
 ---
 name: docs-update
+disable-model-invocation: true
 description: Audit project documentation against the current state of the codebase and produce a revision plan. Reads README and all docs, launches parallel Explore agents to verify claims, diffs documentation vs reality, and applies approved fixes. Use when user says "quality-docs-update", "update docs", "docs update", "check documentation", "audit docs", "fix readme", "documentation is outdated", or "sync docs with code".
 ---
 

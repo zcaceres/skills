@@ -1,5 +1,6 @@
 ---
 name: find-docs
+disable-model-invocation: true
 description: Retrieve authoritative, up-to-date documentation, API references, configuration details, and code examples for any developer technology (libraries, frameworks, languages, SDKs, APIs, CLI tools, cloud services) via the Context7 CLI. Use whenever answering technical questions or writing code that interacts with external technologies, or when documentation accuracy matters and model knowledge may be outdated.
 ---
 

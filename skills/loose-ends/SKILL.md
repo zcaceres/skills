@@ -1,5 +1,6 @@
 ---
 name: loose-ends
+disable-model-invocation: true
 description: Surface unaddressed threads from the conversation — bugs mentioned but not fixed, deferred decisions, dropped nits, cross-workstream dependencies, unverified claims, and promised-but-not-done items — as a tight, skimmable report. Reports; never edits code. Use when the user says "loose ends", "any loose ends", "what did we leave hanging", "what didn't we get to", "what got dropped", "open threads", "unaddressed items", "what did we punt on", or "/loose-ends".
 argument-hint: ""
 ---

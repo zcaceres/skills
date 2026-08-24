@@ -1,5 +1,6 @@
 ---
 name: review-code
+disable-model-invocation: true
 description: Code-review pipeline as one skill. Subcommands review the current branch diff and report bugs as structured findings (review, the default), reproduce and validate each finding to filter false positives (repro), plan + apply fixes after user approval (fix), and process the review comments a reviewer left on your PR (comments). Use when the user says "review code", "review my changes", "code review", "reproduce the findings", "validate the review", "fix the findings", "plan fixes", "process the PR comments", "address the review comments", or "/review-code".
 argument-hint: "[review | repro | fix | comments] [args]"
 ---

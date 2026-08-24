@@ -1,5 +1,6 @@
 ---
 name: safety-dotenv-guard
+disable-model-invocation: true
 description: Blocks file and shell tool calls that touch .env files in Claude Code and Codex so secrets never enter the agent's context. Allows .env.example / .env.sample / .env.template / .env.dist. PreToolUse hook. Run `scripts/install.sh` after `npx skills add` for always-on protection; pass `--codex` for Codex.
 hooks:
   PreToolUse:

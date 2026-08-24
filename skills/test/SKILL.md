@@ -1,5 +1,6 @@
 ---
 name: test
+disable-model-invocation: true
 description: Test-suite review pipeline as one skill. Subcommands cross-reference the tests against the source they cover and report missing edge cases — untested branches, error paths, and boundary conditions — as structured findings (gaps, the default). Use when the user says "review my tests", "what tests am I missing", "find missing test cases", "test gaps", "are my tests complete", "find untested edge cases", "audit test coverage", or "/test".
 argument-hint: "[gaps] [target]"
 ---

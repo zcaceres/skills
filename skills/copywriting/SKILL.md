@@ -1,5 +1,6 @@
 ---
 name: copywriting
+disable-model-invocation: true
 description: Refine and edit text into clear, concise copywriting. Use when user says "edit this copy", "make this clearer", "rewrite this", "copywriting help", "tighten this up", or shares text they want polished.
 ---
 

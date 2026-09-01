@@ -1,6 +1,6 @@
 # nano-banana-generator
 
-Claude Code skill that generates graphic assets — logos, icons,
+Claude Code and Codex skill that generates graphic assets — logos, icons,
 illustrations, UI elements, one-off graphics — using Google's Nano
 Banana Pro (Gemini image generation API) via a bundled `bun` helper.
 Supports text-to-image and image-to-image editing, custom dimensions,
@@ -20,6 +20,7 @@ npx skills add zcaceres/skills -s nano-banana-generator
 ```
 
 Add `-g` for global install, or `-a <agent>` to target a specific agent.
+For Codex, invoke it with `$nano-banana-generator`.
 
 ## Requirements
 

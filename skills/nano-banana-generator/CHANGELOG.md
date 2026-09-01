@@ -1,5 +1,12 @@
 # @zcaceres/skill-nano-banana-generator
 
+## 0.2.1
+
+### Patch Changes
+
+- 5944eb0: Document Codex invocation and use an agent-neutral skill-directory reference for
+  the image-generation helper.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,11 +1,14 @@
 ---
 name: nano-banana-generator
-description: Generate arbitrary graphic assets using Google's Nano Banana (Gemini image generation). Use for logos, icons, illustrations, UI elements, or any one-off graphics.
+description: Generate graphic assets with Google's Nano Banana (Gemini image generation). Use for logos, icons, illustrations, UI elements, or other one-off graphics. Invoke with $nano-banana-generator in Codex.
 ---
 
 # Nano Banana Generator
 
 Generate arbitrary graphic assets using Google's Nano Banana (Gemini image generation API).
+
+**Invocation:** `$nano-banana-generator` in Codex. Claude Code may invoke this
+skill automatically or by name.
 
 ## Setup
 
@@ -20,24 +23,37 @@ pass it as an argument.
 
 ## Usage
 
+Run the helper from this skill's directory. In Claude Code, that directory is
+`$CLAUDE_SKILL_DIR`. In Codex, use the absolute skill directory supplied with
+this skill's metadata (typically `~/.codex/skills/nano-banana-generator`). Set
+`SKILL_DIR` before running a command:
+
+```bash
+# Claude Code
+SKILL_DIR="$CLAUDE_SKILL_DIR"
+
+# Codex global installation (use the metadata path instead for a project skill)
+SKILL_DIR="$HOME/.codex/skills/nano-banana-generator"
+```
+
 ```bash
 # Basic usage - provide a prompt
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "Art Deco logo for City Tycoon game"
+bun "$SKILL_DIR/scripts/generate.ts" "Art Deco logo for City Tycoon game"
 
 # Specify output path
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "icon of a golden skyscraper" --output ./logo.png
+bun "$SKILL_DIR/scripts/generate.ts" "icon of a golden skyscraper" --output ./logo.png
 
 # Specify dimensions (mapped to the nearest supported aspect ratio and output size)
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "game title banner" --width 800 --height 200
+bun "$SKILL_DIR/scripts/generate.ts" "game title banner" --width 800 --height 200
 
 # Use the faster Nano Banana 2 model
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "quick concept" --model nano-banana-2
+bun "$SKILL_DIR/scripts/generate.ts" "quick concept" --model nano-banana-2
 
 # Request transparent background
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "app icon" --transparent
+bun "$SKILL_DIR/scripts/generate.ts" "app icon" --transparent
 
 # Image-to-image editing
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" "add flowers to grass" --input ./grass.png --output ./grass_flowers.png
+bun "$SKILL_DIR/scripts/generate.ts" "add flowers to grass" --input ./grass.png --output ./grass_flowers.png
 ```
 
 ## Options
@@ -70,7 +86,7 @@ can differ from the exact requested pixel values.
 
 ### Game Logo
 ```bash
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
+bun "$SKILL_DIR/scripts/generate.ts" \
   "Art Deco emblem with stylized city skyline, gold and navy colors, geometric sunburst" \
   --output ./public/assets/logo.png \
   --transparent
@@ -78,7 +94,7 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
 
 ### Title Banner
 ```bash
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
+bun "$SKILL_DIR/scripts/generate.ts" \
   "Art Deco title banner with text 'CITY TYCOON' in bold geometric typeface, gold on navy" \
   --width 800 --height 200 \
   --output ./public/assets/title.png
@@ -86,7 +102,7 @@ bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
 
 ### App Icon
 ```bash
-bun "${CLAUDE_SKILL_DIR}/scripts/generate.ts" \
+bun "$SKILL_DIR/scripts/generate.ts" \
   "Minimalist isometric building icon, Art Deco style" \
   --width 256 --height 256 \
   --transparent \

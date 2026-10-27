@@ -7,12 +7,19 @@
  *
  * Examples:
  *   bun run generate.ts "Art Deco logo with city skyline" --output ./logo.png
- *   bun run generate.ts "game title CITY TYCOON" --width 800 --height 200 --transparent
+ *   bun run generate.ts "game title CITY TYCOON" --width 800 --height 200
  */
 
 import { parseArgs } from "util";
 import { mkdir, writeFile, readFile } from "fs/promises";
 import { dirname } from "path";
+import { imageFormat, prepareOutput } from "./image-output";
+
+export const MODEL_MAP: Record<string, string> = {
+  "nano-banana-pro": "gemini-3-pro-image",
+  "nano-banana-2.1": "gemini-nano-banana-2.1",
+  "nano-banana-2": "gemini-nano-banana-2.1", // Backward-compatible CLI alias.
+};
 
 const SUPPORTED_ASPECT_RATIOS = [
   "1:8",
@@ -43,20 +50,15 @@ function nearestAspectRatio(width: number, height: number): string {
   });
 }
 
-function imageSize(
-  width: number,
-  height: number,
-  model: string
-): "512" | "1K" | "2K" | "4K" {
+export function imageSize(width: number, height: number): "1K" | "2K" | "4K" {
   const largestDimension = Math.max(width, height);
 
-  if (largestDimension <= 512 && model === "gemini-3.1-flash-image") return "512";
   if (largestDimension <= 1024) return "1K";
   if (largestDimension <= 2048) return "2K";
   return "4K";
 }
 
-async function generateImage(
+export async function generateImage(
   prompt: string,
   model: string,
   width: number,
@@ -73,32 +75,31 @@ async function generateImage(
   }
 
   const aspectRatio = nearestAspectRatio(width, height);
-  const outputSize = imageSize(width, height, model);
+  const outputSize = imageSize(width, height);
 
-  // Build generateContent request parts.
-  const parts: Array<
-    { text: string }
-    | { inlineData: { mimeType: string; data: string } }
+  // Interactions uses typed content blocks, not generateContent parts.
+  const input: Array<
+    { type: "text"; text: string }
+    | { type: "image"; mime_type: string; data: string }
   > = [];
 
   // If input image provided, add it first
   if (inputImagePath) {
     const imageBuffer = await readFile(inputImagePath);
     const base64Image = imageBuffer.toString("base64");
-    const mimeType = inputImagePath.endsWith(".png") ? "image/png" : "image/jpeg";
-    parts.push({
-      inlineData: {
-        mimeType,
-        data: base64Image,
-      },
+    const mimeType = `image/${imageFormat(imageBuffer)}`;
+    input.push({
+      type: "image",
+      mime_type: mimeType,
+      data: base64Image,
     });
   }
 
   // Add text prompt
-  parts.push({ text: prompt });
+  input.push({ type: "text", text: prompt });
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    "https://generativelanguage.googleapis.com/v1beta/interactions",
     {
       method: "POST",
       headers: {
@@ -106,17 +107,13 @@ async function generateImage(
         "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        contents: [
-          {
-            parts,
-          },
-        ],
-        generationConfig: {
-          responseModalities: ["IMAGE"],
-          imageConfig: {
-            aspectRatio,
-            imageSize: outputSize,
-          },
+        model,
+        input,
+        store: false,
+        response_format: {
+          type: "image",
+          aspect_ratio: aspectRatio,
+          image_size: outputSize,
         },
       }),
     }
@@ -127,39 +124,45 @@ async function generateImage(
     throw new Error(`API request failed: ${response.status} - ${error}`);
   }
 
-  const data = await response.json();
+  const data = await response.json() as {
+    status?: string;
+    steps?: Array<{
+      type: string;
+      content?: Array<{ type: string; data?: string }>;
+    }>;
+  };
 
-  // Extract image from the generateContent response.
-  const responseParts = data.candidates?.[0]?.content?.parts;
-  if (!responseParts) {
-    throw new Error("No content in response");
+  if (data.status !== "completed") {
+    throw new Error(`Image generation did not complete (status: ${data.status ?? "missing"})`);
   }
 
-  for (const part of responseParts) {
-    if (part.inlineData?.data) {
-      const base64Data = part.inlineData.data;
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+  // Ignore thought/tool steps; only model output contains the requested image.
+  for (const step of data.steps ?? []) {
+    if (step.type !== "model_output") continue;
+    for (const content of step.content ?? []) {
+      if (content.type === "image" && content.data) {
+        const binaryString = atob(content.data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
       }
-      return bytes.buffer;
     }
   }
 
   throw new Error("No image generated in response");
 }
 
-async function main() {
+export async function main(args = Bun.argv.slice(2)) {
   const { values, positionals } = parseArgs({
-    args: Bun.argv.slice(2),
+    args,
     options: {
-      output: { type: "string", short: "o", default: "./output.png" },
+      output: { type: "string", short: "o", default: "./output.jpg" },
       input: { type: "string", short: "i" },
       model: { type: "string", short: "m", default: "nano-banana-pro" },
       width: { type: "string", short: "w", default: "512" },
       height: { type: "string", short: "h", default: "512" },
-      transparent: { type: "boolean", short: "t", default: false },
       style: { type: "string", short: "s" },
       help: { type: "boolean", default: false },
     },
@@ -174,49 +177,41 @@ Usage:
   bun run generate.ts "<prompt>" [options]
 
 Options:
-  -o, --output <path>     Output file path (default: ./output.png)
+  -o, --output <path>     Exact output path; .jpg/.jpeg, .png, or .webp (default: ./output.jpg)
   -i, --input <path>      Input image for image-to-image editing
-  -m, --model <model>     Model: nano-banana-pro (default, best quality) or nano-banana-2 (faster)
+  -m, --model <model>     Model: nano-banana-pro (default, best quality) or nano-banana-2.1 (faster)
+                         nano-banana-2 remains an alias for nano-banana-2.1
   -w, --width <px>        Image width (default: 512)
   -h, --height <px>       Image height (default: 512)
-  -t, --transparent       Request transparent PNG background
   -s, --style <desc>      Add style modifier to prompt
       --help              Show this help
 
 Examples:
-  bun run generate.ts "Art Deco city logo" --output ./logo.png --transparent
+  bun run generate.ts "Art Deco city logo" --output ./logo.png
   bun run generate.ts "CITY TYCOON title" --width 800 --height 200
-  bun run generate.ts "game icon" --model nano-banana-2 --transparent
+  bun run generate.ts "game icon" --model nano-banana-2.1
   bun run generate.ts "add flowers to grass" --input ./grass.png --output ./grass_flowers.png
 `);
-    process.exit(0);
+    return;
   }
 
   // Get prompt from positional args
   const userPrompt = positionals.join(" ");
 
-  // Map friendly names to model IDs
-  const modelMap: Record<string, string> = {
-    "nano-banana-pro": "gemini-3-pro-image",
-    "nano-banana-2": "gemini-3.1-flash-image",
-  };
-
   const modelName = values.model || "nano-banana-pro";
-  const modelId = modelMap[modelName];
+  const modelId = MODEL_MAP[modelName];
 
   if (!modelId) {
-    console.error(
-      `Unknown model: ${modelName}. Use 'nano-banana-pro' or 'nano-banana-2'`
+    throw new Error(
+      `Unknown model: ${modelName}. Use 'nano-banana-pro' or 'nano-banana-2.1'`
     );
-    process.exit(1);
   }
 
   const width = parseInt(values.width || "512", 10);
   const height = parseInt(values.height || "512", 10);
 
   if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
-    console.error("Width and height must be positive integers");
-    process.exit(1);
+    throw new Error("Width and height must be positive integers");
   }
 
   // Build full prompt
@@ -226,42 +221,32 @@ Examples:
     prompt = `${prompt}. Style: ${values.style}`;
   }
 
-  if (values.transparent) {
-    prompt = `${prompt}\n\nCritical: Transparent PNG background. No background color - the image should have alpha transparency.`;
-  }
-
-  const outputPath = values.output || "./output.png";
+  const output = await prepareOutput(values.output || "./output.jpg");
 
   console.log(`Generating image...`);
   console.log(`Prompt: ${userPrompt}`);
   console.log(`Model: ${modelName}`);
   console.log(
-    `Requested size: ${width}x${height} (API: ${nearestAspectRatio(width, height)}, ${imageSize(width, height, modelId)})`
+    `Requested size: ${width}x${height} (API: ${nearestAspectRatio(width, height)}, ${imageSize(width, height)})`
   );
-  console.log(`Output: ${outputPath}`);
+  console.log(`Output: ${output.path}`);
 
   if (values.input) {
     console.log(`Input: ${values.input}`);
   }
 
-  if (values.transparent) {
-    console.log(`Background: transparent`);
-  }
+  const imageData = await generateImage(prompt, modelId, width, height, values.input);
+  const bytes = await output.encode(imageData);
 
-  try {
-    const imageData = await generateImage(prompt, modelId, width, height, values.input);
-
-    // Ensure output directory exists
-    await mkdir(dirname(outputPath), { recursive: true });
-
-    // Save to file
-    await writeFile(outputPath, Buffer.from(imageData));
-
-    console.log(`\n✓ Image saved to: ${outputPath}`);
-  } catch (error) {
-    console.error(`\n✗ Error: ${error}`);
-    process.exit(1);
-  }
+  // Convert and validate before touching the destination. Never rename the path.
+  await mkdir(dirname(output.path), { recursive: true });
+  await writeFile(output.path, bytes);
+  console.log(`\n✓ Image saved to: ${output.path}`);
 }
 
-main();
+if (import.meta.main) {
+  main().catch((error) => {
+    console.error(`\n✗ Error: ${error}`);
+    process.exitCode = 1;
+  });
+}

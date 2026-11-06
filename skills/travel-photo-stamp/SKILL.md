@@ -1,5 +1,6 @@
 ---
 name: travel-photo-stamp
+disable-model-invocation: true
 description: Transform each uploaded travel photo into an individual Rubber Stamp Travel Field Notes Poster while preserving the photo faithfully. Use when the user asks for a travel-photo stamp, field-notes poster, or tactile travel-poster treatment.
 ---
 

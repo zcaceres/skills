@@ -10,7 +10,7 @@
 import { $ } from "bun";
 import { cp, mkdir, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { readSkillMeta } from "./lib/skill-meta";
 
 const name = process.argv[2];
@@ -55,7 +55,12 @@ for (const file of ["SKILL.md", "README.md", "LICENSE"]) {
 for (const dir of ["scripts", "references", "assets"]) {
   const from = join(src, dir);
   if (existsSync(from)) {
-    await cp(from, join(out, dir), { recursive: true });
+    // Runtime dependencies must be installed on the destination platform, not
+    // copied from the build machine (e.g. Sharp's native platform modules).
+    await cp(from, join(out, dir), {
+      recursive: true,
+      filter: (source) => basename(source) !== "node_modules",
+    });
   }
 }
 

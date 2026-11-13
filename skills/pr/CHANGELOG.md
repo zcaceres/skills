@@ -1,5 +1,11 @@
 # @zcaceres/skill-pr
 
+## 2.4.1
+
+### Patch Changes
+
+- 1bbb757: Shorten the `pr` skill description for Codex validation.
+
 ## 2.4.0
 
 ### Minor Changes

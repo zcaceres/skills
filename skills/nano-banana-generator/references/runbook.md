@@ -78,7 +78,7 @@ const cases = [
   ["pro-4k.webp", "webp", 4096, 4096],
   ["fast-1k.jpeg", "jpeg", 1024, 1024],
   ["fast-2k.png", "png", 1792, 2400],
-  ["fast-4k.webp", "webp", 8192, 2048],
+  ["fast-4k.webp", "webp", 8256, 2048],
   ["pro-edit.png", "png", 1024, 1024],
   ["fast-edit.jpg", "jpeg", 1024, 1024],
   ["webp-edit.png", "png", 1024, 1024],
@@ -94,9 +94,12 @@ for (const [name, format, width, height] of cases) {
 '
 ```
 
-These are the documented output sizes, not the requested pixel sizes. If they
-change, check the [API size tables](https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size);
-record a discrepancy rather than weakening the check.
+These are the expected API output sizes, not the requested pixel sizes.
+Nano Banana 2.1's 4:1 / 4K output was **8256×2048** in live validation on
+2026-11-13, despite the [API size tables](https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size)
+listing 8192×2048. Preserve the returned dimensions; do not resize to match the
+table. If sizes change again, record the observed dimensions and check the docs
+before updating these exact expectations.
 
 Open all nine images. Check the banana, background colors, landscape/portrait/
 panorama shapes, and style. Edits must change the background while retaining the

@@ -6,10 +6,11 @@ import { generateImage, imageSize, main, MODEL_MAP } from "../scripts/generate";
 import { PNG, PNG_BYTES, JPEG, WEBP, completed, jpegResponse } from "./fixtures";
 
 describe("model selection", () => {
-  test("keeps Pro and updates both fast model names to Nano Banana 2.1", () => {
-    expect(MODEL_MAP["nano-banana-pro"]).toBe("gemini-3-pro-image");
-    expect(MODEL_MAP["nano-banana-2.1"]).toBe("gemini-nano-banana-2.1");
-    expect(MODEL_MAP["nano-banana-2"]).toBe("gemini-nano-banana-2.1");
+  test("supports only the two canonical model names", () => {
+    expect(MODEL_MAP).toEqual({
+      "nano-banana-pro": "gemini-3-pro-image",
+      "nano-banana-2.1": "gemini-nano-banana-2.1",
+    });
   });
 });
 
@@ -38,7 +39,6 @@ describe("Interactions API", () => {
     directory = await mkdtemp(join(process.env.DELTA_SCRATCH_DIR ?? import.meta.dir, ".nano-banana-test-"));
     fetchMock = spyOn(globalThis, "fetch").mockResolvedValue(Response.json(completed));
     spyOn(console, "log").mockImplementation(() => {});
-    spyOn(console, "warn").mockImplementation(() => {});
   });
 
   afterEach(async () => {
@@ -101,7 +101,6 @@ describe("Interactions API", () => {
   test.each([
     [[], "gemini-3-pro-image"],
     [["--model", "nano-banana-2.1"], "gemini-nano-banana-2.1"],
-    [["--model", "nano-banana-2"], "gemini-nano-banana-2.1"],
   ] as const)("CLI model options %j select %s and save the image", async (options, model) => {
     const output = join(directory, "nested", "output.png");
     await main(["A banana", ...options, "--output", output, "--style", "Art Deco"]);
@@ -109,6 +108,12 @@ describe("Interactions API", () => {
     expect(request().body.input[0].text).toContain("A banana. Style: Art Deco");
     expect(request().body.input[0].text).toBe("A banana. Style: Art Deco");
     expect(await readFile(output)).toEqual(Buffer.from(PNG, "base64"));
+  });
+
+  test("rejects unsupported model names before calling Gemini", async () => {
+    await expect(main(["A banana", "--model", "nano-banana-2"]))
+      .rejects.toThrow("Unknown model: nano-banana-2. Use 'nano-banana-pro' or 'nano-banana-2.1'");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   test("converts a JPEG response to a valid PNG at the exact requested path", async () => {

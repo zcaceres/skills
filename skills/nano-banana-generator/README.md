@@ -7,7 +7,7 @@ Supports text-to-image and image-to-image editing, custom dimensions,
 JPEG/PNG/WebP output, and style modifiers. It defaults to Google's
 stable `gemini-3-pro-image` model for the best output quality and offers
 `gemini-nano-banana-2.1` (Nano Banana 2.1) for faster generation
-(`--model nano-banana-2.1`; the old `nano-banana-2` CLI name remains an alias).
+(`--model nano-banana-2.1`).
 Requests use Google's Interactions API (`POST /v1beta/interactions`, as in
 Google's [image-generation guide](https://ai.google.dev/gemini-api/docs/image-generation))
 with native aspect-ratio and output-size settings. Each request sets
@@ -21,8 +21,8 @@ JPEG to a real PNG at exactly `logo.png`; `.webp` works the same way. Matching
 native encodings are preserved without recompression. The helper validates image
 signatures and never automatically changes your output path.
 
-Transparency is not supported. The former `--transparent` / `-t` options have
-been removed; format conversion does not remove a background or create alpha.
+Transparency is not supported; format conversion does not remove a background
+or create alpha.
 
 See [SKILL.md](./SKILL.md) for usage, the full option table, and
 prompt tips.

@@ -18,7 +18,6 @@ import { imageFormat, prepareOutput } from "./image-output";
 export const MODEL_MAP: Record<string, string> = {
   "nano-banana-pro": "gemini-3-pro-image",
   "nano-banana-2.1": "gemini-nano-banana-2.1",
-  "nano-banana-2": "gemini-nano-banana-2.1", // Backward-compatible CLI alias.
 };
 
 const SUPPORTED_ASPECT_RATIOS = [
@@ -180,7 +179,6 @@ Options:
   -o, --output <path>     Exact output path; .jpg/.jpeg, .png, or .webp (default: ./output.jpg)
   -i, --input <path>      Input image for image-to-image editing
   -m, --model <model>     Model: nano-banana-pro (default, best quality) or nano-banana-2.1 (faster)
-                         nano-banana-2 remains an alias for nano-banana-2.1
   -w, --width <px>        Image width (default: 512)
   -h, --height <px>       Image height (default: 512)
   -s, --style <desc>      Add style modifier to prompt

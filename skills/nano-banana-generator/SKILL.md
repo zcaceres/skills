@@ -78,7 +78,7 @@ bun "$SKILL_DIR/scripts/generate.ts" "add flowers to grass" --input ./grass.png 
 | `--input <path>` | `-i` | Input image for image-to-image editing |
 | `--width <px>` | `-w` | Desired image width; selects the nearest supported aspect ratio and output size (default: 512) |
 | `--height <px>` | `-h` | Desired image height; selects the nearest supported aspect ratio and output size (default: 512) |
-| `--model <name>` | `-m` | Model: nano-banana-pro (default, best quality) or nano-banana-2.1 (faster); nano-banana-2 is a compatibility alias for 2.1 |
+| `--model <name>` | `-m` | Model: nano-banana-pro (default, best quality) or nano-banana-2.1 (faster) |
 | `--style <desc>` | `-s` | Add style modifier to prompt |
 | `--help` | | Show help |
 
@@ -114,9 +114,8 @@ automatically renamed, and unsupported PNG/WebP output parameters are not sent
 to Gemini. Unknown source formats fail rather than being mislabeled.
 
 Format conversion does not restore detail lost to JPEG compression or remove a
-background. Transparency generation is not supported: `--transparent` and `-t`
-have been removed and are rejected before any API call. Asking for transparency
-in a prompt can produce an opaque checkerboard; PNG encoding does not fix that.
+background. Transparency generation is not supported. Asking for transparency in
+a prompt can produce an opaque checkerboard; PNG encoding does not fix that.
 
 ## Examples
 

@@ -149,3 +149,9 @@ bun "$SKILL_DIR/scripts/generate.ts" \
 - Larger dimensions = more detail, but slower generation
 - The default `nano-banana-pro` model provides the best output quality
 - Use `nano-banana-2.1` when speed and generation volume matter more
+
+## Validation
+
+Follow the [validation runbook](references/runbook.md) for offline checks and
+live coverage. The live section makes nine paid requests; run it only when
+live validation is requested.

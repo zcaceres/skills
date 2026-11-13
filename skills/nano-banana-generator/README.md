@@ -25,7 +25,8 @@ Transparency is not supported; format conversion does not remove a background
 or create alpha.
 
 See [SKILL.md](./SKILL.md) for usage, the full option table, and
-prompt tips.
+prompt tips. See the [validation runbook](./references/runbook.md) for offline
+checks and the nine-case live smoke test.
 
 ## Install
 
